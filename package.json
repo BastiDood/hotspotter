@@ -20,6 +20,7 @@
         "@capacitor/android": "^5.5.0",
         "@capacitor/cli": "^5.5.0",
         "@capacitor/core": "^5.5.0",
+        "@capacitor/geolocation": "^5.0.6",
         "@linthtml/linthtml": "^0.9.5",
         "@linthtml/linthtml-config-recommended": "^0.1.0",
         "@sveltejs/adapter-static": "^2.0.3",

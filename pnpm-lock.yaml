@@ -14,6 +14,9 @@ devDependencies:
   '@capacitor/core':
     specifier: ^5.5.0
     version: 5.5.0
+  '@capacitor/geolocation':
+    specifier: ^5.0.6
+    version: 5.0.6(@capacitor/core@5.5.0)
   '@linthtml/linthtml':
     specifier: ^0.9.5
     version: 0.9.5
@@ -164,6 +167,14 @@ packages:
     resolution: {integrity: sha512-w59io0ctwnb7JRng7yO2H0YLHG8uz7XARUugRfp5aYTNiG55FqdSmSMOOqGCMPRg4sEnKjJTvAa4ImCYh3Kk1w==}
     dependencies:
       tslib: 2.6.2
+    dev: true
+
+  /@capacitor/geolocation@5.0.6(@capacitor/core@5.5.0):
+    resolution: {integrity: sha512-3pB3CBa38aDMk7zouGbjOMBytcaqRMBosMcqNrOQjE5LMBAPUI1cEGrUzmkj+scP0SIyYGA95Tkj0BAnzvNWag==}
+    peerDependencies:
+      '@capacitor/core': ^5.0.0
+    dependencies:
+      '@capacitor/core': 5.5.0
     dev: true
 
   /@csstools/css-parser-algorithms@2.3.2(@csstools/css-tokenizer@2.2.1):
