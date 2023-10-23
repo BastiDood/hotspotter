@@ -7,7 +7,7 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "sync": "svelte-kit sync",
+        "sync:svelte": "svelte-kit sync",
         "fmt": "prettier --plugin=prettier-plugin-svelte --check .",
         "fmt:fix": "prettier --plugin=prettier-plugin-svelte --write .",
         "lint": "pnpm lint:html && pnpm lint:css && pnpm lint:js && pnpm lint:svelte",
@@ -17,6 +17,9 @@
         "lint:svelte": "svelte-check --tsconfig ./tsconfig.json"
     },
     "devDependencies": {
+        "@capacitor/android": "^5.5.0",
+        "@capacitor/cli": "^5.5.0",
+        "@capacitor/core": "^5.5.0",
         "@linthtml/linthtml": "^0.9.5",
         "@linthtml/linthtml-config-recommended": "^0.1.0",
         "@sveltejs/adapter-static": "^2.0.3",
