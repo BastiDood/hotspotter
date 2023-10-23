@@ -1,21 +1,14 @@
+import { join } from 'node:path';
+import { skeleton } from '@skeletonlabs/tw-plugin';
 import typo from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: 'class',
     experimental: { optimizeUniversalDefaults: true },
-    content: ['./src/**/*.{css,html,js,svelte,ts}'],
-    theme: {
-        extend: {
-            colors: {
-                brand: '#236ea5',
-                hover: '#105587',
-                sky: '#0a8ded',
-                card: '#edeef5bb',
-                prof: '#d8e7e1bb',
-                fade: '#ffffff80',
-            },
-            fontFamily: { sans: 'Fira Sans', mono: 'Fira Code' },
-        },
-    },
-    plugins: [typo],
+    content: [
+        './src/**/*.{css,html,js,svelte,ts}',
+        join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}'),
+    ],
+    plugins: [typo, skeleton({ themes: { preset: ['wintry'] } })],
 };
