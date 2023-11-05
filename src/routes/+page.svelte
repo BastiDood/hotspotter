@@ -1,11 +1,11 @@
 <script>
+    import { ProgressBar, ProgressRadial } from '@skeletonlabs/skeleton';
     import { array, parse } from 'valibot';
     import DisplayGeolocation from './DisplayGeolocation.svelte';
     import DisplayLocationPermissions from './DisplayLocationPermissions.svelte';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
     import { Geolocation } from '@capacitor/geolocation';
-    import { LightSwitch, ProgressBar, ProgressRadial } from '@skeletonlabs/skeleton';
     import { Network } from '$lib/model.js';
     import Warning from '$lib/alerts/Warning.svelte';
 </script>
@@ -47,4 +47,3 @@
         <Error>{err}</Error>
     {/await}
 {/await}
-<LightSwitch />
