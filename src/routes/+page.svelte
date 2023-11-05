@@ -1,6 +1,7 @@
 <script>
     import { array, parse } from 'valibot';
     import DisplayGeolocation from './DisplayGeolocation.svelte';
+    import DisplayLocationPermissions from './DisplayLocationPermissions.svelte';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import { Geolocation } from '@capacitor/geolocation';
     import { LightSwitch } from '@skeletonlabs/skeleton';
@@ -39,22 +40,7 @@
             <p>{err}</p>
         {/await}
     {:else}
-        <div class="table-container">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Fine Location</th>
-                        <th>Coarse Location</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{location}</td>
-                        <td>{coarseLocation}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <DisplayLocationPermissions {location} {coarseLocation} />
     {/if}
 {/await}
 <LightSwitch />
