@@ -23,6 +23,9 @@ devDependencies:
   '@capacitor/geolocation':
     specifier: ^5.0.6
     version: 5.0.6(@capacitor/core@5.5.1)
+  '@krowten/svelte-heroicons':
+    specifier: ^0.1.0
+    version: 0.1.0
   '@linthtml/linthtml':
     specifier: ^0.9.5
     version: 0.9.5
@@ -640,6 +643,13 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
+    dev: true
+
+  /@krowten/svelte-heroicons@0.1.0:
+    resolution: {integrity: sha512-GCe6LbSwje8WlHoVm2OoJl30sWBXgnJuJnVJ89L9tHuA3d7OHS+3Tgcmw7jJMgFQ1fBiB+OC6f2+uLgiV/jQ5w==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      heroicons: 2.0.18
     dev: true
 
   /@linthtml/cli@0.9.5:
@@ -2392,6 +2402,10 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       function-bind: 1.1.2
+    dev: true
+
+  /heroicons@2.0.18:
+    resolution: {integrity: sha512-3iaqznaz5GJ8Mox/eDfKHo7tYKuPiZV4vbg6pB6wjJhBa7ZKQlXT1KuUnsjkEiPy/ezyiqppOX6wUqYguMIq8w==}
     dev: true
 
   /hmac-drbg@1.0.1:
