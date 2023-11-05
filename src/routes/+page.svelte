@@ -1,6 +1,7 @@
 <script>
     import { array, parse } from 'valibot';
     import DisplayGeolocation from './DisplayGeolocation.svelte';
+    import DisplayNetworks from './DisplayNetworks.svelte';
     import { Geolocation } from '@capacitor/geolocation';
     import { LightSwitch } from '@skeletonlabs/skeleton';
     import { Network } from '$lib/model.js';
@@ -14,45 +15,22 @@
             <p>Loading...</p>
         {:then { timestamp, coords: { latitude, longitude, accuracy, altitude, altitudeAccuracy, speed, heading } }}
             {@const date = new Date(timestamp)}
-            <DisplayGeolocation {date} {latitude} {longitude} {accuracy} {altitude} {altitudeAccuracy} {speed} {heading} />
+            <DisplayGeolocation
+                {date}
+                {latitude}
+                {longitude}
+                {accuracy}
+                {altitude}
+                {altitudeAccuracy}
+                {speed}
+                {heading}
+            />
             {#await import('@awesome-cordova-plugins/wifi-wizard-2') then { WifiWizard2 }}
                 {#await WifiWizard2.scan()}
                     <p>Scanning...</p>
                 {:then payload}
                     {@const networks = parse(array(Network), payload)}
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Timestamp</th>
-                                    <th>BSSID</th>
-                                    <th>SSID</th>
-                                    <th>RSSI</th>
-                                    <th>Channel Width</th>
-                                    <th>Frequency (MHz)</th>
-                                    <th>Center Frequency 1 (MHz)</th>
-                                    <th>Center Frequency 2 (MHz)</th>
-                                    <th>Capabilities</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {#each networks as { BSSID, SSID, level, channelWidth, frequency, centerFreq0, centerFreq1, capabilities } (BSSID)}
-                                    {@const date = new Date(timestamp).toLocaleString()}
-                                    <tr>
-                                        <th>{date}</th>
-                                        <td>{BSSID}</td>
-                                        <td>{SSID}</td>
-                                        <td>{level}</td>
-                                        <td>{channelWidth}</td>
-                                        <td>{frequency}</td>
-                                        <td>{centerFreq0}</td>
-                                        <td>{centerFreq1}</td>
-                                        <td>{capabilities}</td>
-                                    </tr>
-                                {/each}
-                            </tbody>
-                        </table>
-                    </div>
+                    <DisplayNetworks {networks} />
                 {:catch err}
                     <p>{err}</p>
                 {/await}
