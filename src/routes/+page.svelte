@@ -50,6 +50,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>Timestamp</th>
                                     <th>BSSID</th>
                                     <th>SSID</th>
                                     <th>RSSI</th>
@@ -62,7 +63,9 @@
                             </thead>
                             <tbody>
                                 {#each networks as { BSSID, SSID, level, channelWidth, frequency, centerFreq0, centerFreq1, capabilities } (BSSID)}
+                                    {@const date = new Date(timestamp).toLocaleString()}
                                     <tr>
+                                        <th>{date}</th>
                                         <td>{BSSID}</td>
                                         <td>{SSID}</td>
                                         <td>{level}</td>
