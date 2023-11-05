@@ -13,7 +13,7 @@
     rounded=""
     class="bg-surface-100-800-token w-full"
 >
-    <TabAnchor href="/gps" selected={pathname === '/gps'}>
+    <TabAnchor href="/gps" selected={pathname === '/gps/'}>
         <GlobeAltIcon slot="lead" class="m-auto h-8" />
         <span>GPS</span>
     </TabAnchor>
@@ -21,7 +21,7 @@
         <MapIcon slot="lead" class="m-auto h-8" />
         <span>Map</span>
     </TabAnchor>
-    <TabAnchor href="/wifi" selected={pathname === '/wifi'}>
+    <TabAnchor href="/wifi" selected={pathname === '/wifi/'}>
         <WifiIcon slot="lead" class="m-auto h-8" />
         <span>WiFi</span>
     </TabAnchor>
