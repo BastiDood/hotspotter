@@ -17,4 +17,6 @@
     {:catch err}
         <Error>{err}</Error>
     {/await}
+{:catch err}
+    <Error>{err}</Error>
 {/await}

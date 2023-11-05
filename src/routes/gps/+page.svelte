@@ -31,4 +31,6 @@
     {:else}
         <DisplayLocationPermissions {location} {coarseLocation} />
     {/if}
+{:catch err}
+    <Error>{err}</Error>
 {/await}
