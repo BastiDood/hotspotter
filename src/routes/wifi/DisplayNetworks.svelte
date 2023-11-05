@@ -24,7 +24,7 @@
         <tbody>
             {#each networks as { timestamp, BSSID, SSID, level, channelWidth, frequency, centerFreq0, centerFreq1, capabilities } (BSSID)}
                 <tr>
-                    <td>{new Date(timestamp * 1000).toLocaleString()}</td>
+                    <td>{timestamp}</td>
                     <td>{BSSID}</td>
                     <td>{SSID}</td>
                     <td>{level}</td>
