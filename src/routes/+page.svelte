@@ -1,8 +1,9 @@
 <script>
+    import { array, parse } from 'valibot';
+    import DisplayGeolocation from './DisplayGeolocation.svelte';
     import { Geolocation } from '@capacitor/geolocation';
     import { LightSwitch } from '@skeletonlabs/skeleton';
     import { Network } from '$lib/model.js';
-    import { array, parse } from 'valibot';
 </script>
 
 {#await Geolocation.requestPermissions({ permissions: ['location'] })}
@@ -12,35 +13,8 @@
         {#await Geolocation.getCurrentPosition({ enableHighAccuracy: true })}
             <p>Loading...</p>
         {:then { timestamp, coords: { latitude, longitude, accuracy, altitude, altitudeAccuracy, speed, heading } }}
-            {@const date = new Date(timestamp).toLocaleString()}
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Latitude</th>
-                            <th>Longitude</th>
-                            <th>Accuracy (Coordinates)</th>
-                            <th>Altitude</th>
-                            <th>Accuracy (Altitude)</th>
-                            <th>Speed</th>
-                            <th>Heading</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{date}</td>
-                            <td>{latitude}</td>
-                            <td>{longitude}</td>
-                            <td>{accuracy}</td>
-                            <td>{altitude}</td>
-                            <td>{altitudeAccuracy}</td>
-                            <td>{speed}</td>
-                            <td>{heading}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            {@const date = new Date(timestamp)}
+            <DisplayGeolocation {date} {latitude} {longitude} {accuracy} {altitude} {altitudeAccuracy} {speed} {heading} />
             {#await import('@awesome-cordova-plugins/wifi-wizard-2') then { WifiWizard2 }}
                 {#await WifiWizard2.scan()}
                     <p>Scanning...</p>
