@@ -8,6 +8,7 @@ export default {
     experimental: { optimizeUniversalDefaults: true },
     content: [
         './src/**/*.{css,html,js,svelte,ts}',
+        // eslint-disable-next-line no-undef
         join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}'),
     ],
     plugins: [typo, skeleton({ themes: { preset: ['wintry'] } })],
