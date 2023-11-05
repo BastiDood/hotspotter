@@ -1,6 +1,8 @@
 <script>
     import { Geolocation } from '@capacitor/geolocation';
     import { LightSwitch } from '@skeletonlabs/skeleton';
+    import { Network } from '$lib/model.js';
+    import { array, parse } from 'valibot';
 </script>
 
 {#await Geolocation.requestPermissions({ permissions: ['location'] })}
@@ -39,6 +41,45 @@
                     </tbody>
                 </table>
             </div>
+            {#await import('@awesome-cordova-plugins/wifi-wizard-2') then { WifiWizard2 }}
+                {#await WifiWizard2.scan()}
+                    <p>Scanning...</p>
+                {:then payload}
+                    {@const networks = parse(array(Network), payload)}
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>BSSID</th>
+                                    <th>SSID</th>
+                                    <th>RSSI</th>
+                                    <th>Channel Width</th>
+                                    <th>Frequency (MHz)</th>
+                                    <th>Center Frequency 1 (MHz)</th>
+                                    <th>Center Frequency 2 (MHz)</th>
+                                    <th>Capabilities</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each networks as { BSSID, SSID, level, channelWidth, frequency, centerFreq0, centerFreq1, capabilities } (BSSID)}
+                                    <tr>
+                                        <td>{BSSID}</td>
+                                        <td>{SSID}</td>
+                                        <td>{level}</td>
+                                        <td>{channelWidth}</td>
+                                        <td>{frequency}</td>
+                                        <td>{centerFreq0}</td>
+                                        <td>{centerFreq1}</td>
+                                        <td>{capabilities}</td>
+                                    </tr>
+                                {/each}
+                            </tbody>
+                        </table>
+                    </div>
+                {:catch err}
+                    <p>{err}</p>
+                {/await}
+            {/await}
         {:catch err}
             <p>{err}</p>
         {/await}
