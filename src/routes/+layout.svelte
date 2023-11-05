@@ -6,7 +6,7 @@
 
 <AppShell>
     <AppBar slot="header">
-        <span>CS 198</span>
+        <span slot="lead">CS 198</span>
         <LightSwitch slot="trail" />
     </AppBar>
     <slot />
