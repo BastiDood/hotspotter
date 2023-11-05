@@ -23,9 +23,8 @@
         </thead>
         <tbody>
             {#each networks as { timestamp, BSSID, SSID, level, channelWidth, frequency, centerFreq0, centerFreq1, capabilities } (BSSID)}
-                {@const date = new Date(timestamp).toLocaleString()}
                 <tr>
-                    <th>{date}</th>
+                    <td>{new Date(timestamp * 1000).toLocaleString()}</td>
                     <td>{BSSID}</td>
                     <td>{SSID}</td>
                     <td>{level}</td>
