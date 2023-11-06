@@ -23,10 +23,22 @@ public class TelephonyInfoPlugin extends Plugin {
     }
 
     @PluginMethod()
-    public void getNetworkOperatorName(PluginCall ctx) {
-        var name = api.getSimCarrierIdName().toString();
-        var res = new JSObject();
-        res.put("name", name);
+    public void getSim(PluginCall ctx) {
+        var res = new JSObject()
+            .put("networkType", api.getDataNetworkType())
+            .put("carrierId", api.getSimCarrierId())
+            .put("carrierName", api.getSimCarrierIdName().toString())
+            .put("operatorId", api.getSimOperator())
+            .put("operatorName", api.getSimOperatorName());
+        ctx.resolve(res);
+    }
+
+    @PluginMethod()
+    public void getSignalStrength(PluginCall ctx) {
+        var strength = api.getSignalStrength();
+        var res = new JSObject()
+            .put("timestamp", strength.getTimestampMillis())
+            .put("level", strength.getLevel());
         ctx.resolve(res);
     }
 }
