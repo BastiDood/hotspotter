@@ -12,7 +12,7 @@
     {#await WifiWizard2.scan()}
         <ProgressBar />
     {:then payload}
-        {@const networks = parse(array(Network), payload)}
+        {@const networks = parse(array(Network), payload).sort((a, b) => a.level - b.level)}
         <DisplayNetworks {networks} />
     {:catch err}
         <Error>{err}</Error>
