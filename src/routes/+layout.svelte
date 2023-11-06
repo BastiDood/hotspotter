@@ -9,6 +9,6 @@
         <span slot="lead">CS 198</span>
         <LightSwitch slot="trail" />
     </AppBar>
-    <slot />
+    <div class="m-8"><slot /></div>
     <NavBar slot="footer" />
 </AppShell>
