@@ -9,17 +9,13 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-import java.lang.Error;
-
 @CapacitorPlugin(name = "TelephonyInfo")
 public class TelephonyInfoPlugin extends Plugin {
     private TelephonyManager api;
 
     @Override
     public void load() throws Error {
-        var service = getActivity().getSystemService(Context.TELEPHONY_SERVICE);
-        if (service instanceof TelephonyManager tel) api = tel;
-        else throw new Error("service is not an instance of TelephonyManager");
+        api = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     @PluginMethod()
