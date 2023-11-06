@@ -9,13 +9,13 @@ export const enum NetworkType {
     EDGE,
     /** Universal Mobile Telecommunications Service (3G) */
     UMTS,
-    /** Code-Division Multiple Access (IS95A or IS95B) */
+    /** Code-Division Multiple Access (2G) */
     CDMA,
     /** Evolution-Data Optimized (3G) */
     EVDO0,
     /** Evolution-Data Optimized: Revision A (3G) */
     EVDOA,
-    /** Single-Carrier Transmission Technology */
+    /** Single-Carrier Transmission Technology (3G) */
     RTT1X,
     /** High-Speed Downlink Packet Access (3G) */
     HSDPA,
