@@ -10,7 +10,8 @@
         "moduleDetection": "force",
         "strict": true,
         "noUncheckedIndexedAccess": true,
-        "moduleResolution": "NodeNext",
+        "allowImportingTsExtensions": true,
+        "moduleResolution": "Bundler",
         "module": "NodeNext"
     }
     // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias.
