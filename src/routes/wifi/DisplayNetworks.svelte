@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Network } from '$lib/model.js';
+    import type { Network } from '$lib/models/wifi';
     import type { Output } from 'valibot';
 
     // eslint-disable-next-line init-declarations

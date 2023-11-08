@@ -3,7 +3,7 @@
     import { array, parse } from 'valibot';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
-    import { Network } from '$lib/model.js';
+    import { Network } from '$lib/models/wifi';
 </script>
 
 {#await import('@awesome-cordova-plugins/wifi-wizard-2')}

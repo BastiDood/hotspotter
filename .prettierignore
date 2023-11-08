@@ -1,6 +1,6 @@
 .DS_Store
 .svelte-kit
-android/app/src/main/assets/public
+android/app/src/main/assets/*
 build
 node_modules
 .env

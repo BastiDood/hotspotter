@@ -1,4 +1,4 @@
-import { enum_, number, object, optional, string } from 'valibot';
+import { enum_, merge, number, object, optional, string } from 'valibot';
 
 export enum NetworkType {
     /** Unknown */
@@ -42,6 +42,12 @@ export enum NetworkType {
     /** New Radio (5G) */
     NR,
 }
+
+export const CellSignalInfo = object({
+    dbm: number(),
+    asu: number(),
+    level: number(),
+});
 
 export const Cdma = object({
     cdmaDbm: number(),
@@ -87,12 +93,12 @@ export const CellSignalStrength = object({
     dbm: number(),
     asu: number(),
     level: number(),
-    cdma: optional(Cdma),
-    gsm: optional(Gsm),
-    lte: optional(Lte),
-    nr: optional(Nr),
-    tdscdma: optional(Tdscdma),
-    wcdma: optional(Wcdma),
+    cdma: optional(merge([CellSignalInfo, Cdma])),
+    gsm: optional(merge([CellSignalInfo, Gsm])),
+    lte: optional(merge([CellSignalInfo, Lte])),
+    nr: optional(merge([CellSignalInfo, Nr])),
+    tdscdma: optional(merge([CellSignalInfo, Tdscdma])),
+    wcdma: optional(merge([CellSignalInfo, Wcdma])),
 });
 
 export const SignalStrength = object({
