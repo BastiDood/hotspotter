@@ -14,7 +14,7 @@
     import { TelephonyInfo } from '$lib/plugins/TelephonyInfo.ts';
 </script>
 
-<div class="prose space-y-4 dark:prose-invert">
+<div class="prose space-y-4 text-center dark:prose-invert">
     <section>
         <h1>SIM Information</h1>
         {#await TelephonyInfo.getSim()}
@@ -58,68 +58,43 @@
         {/if}
         {#if typeof gsm !== 'undefined'}
             {@const { dbm, asu, level, rssi, bitErrorRate, timingAdvance } = gsm}
-            <div class="space-m-2 card p-2">
-                <section>
-                    <h1>Summary</h1>
-                    <Common {dbm} {asu} {level} />
-                </section>
-                <section>
-                    <h1>GSM</h1>
-                    <DisplayGsm {rssi} {bitErrorRate} {timingAdvance} />
-                </section>
-            </div>
+            <section class="space-m-2 card p-2">
+                <h1>GSM</h1>
+                <Common {dbm} {asu} {level} />
+                <DisplayGsm {rssi} {bitErrorRate} {timingAdvance} />
+            </section>
         {/if}
         {#if typeof lte !== 'undefined'}
             {@const { dbm, asu, level, rssi, timingAdvance, cqi, cqiTableIndex, rsrp, rsrq, rssnr } = lte}
-            <div class="space-m-2 card p-2">
-                <section>
-                    <h1>Summary</h1>
-                    <Common {dbm} {asu} {level} />
-                </section>
-                <section>
-                    <h1>LTE</h1>
-                    <DisplayLte {rssi} {timingAdvance} {cqi} {cqiTableIndex} {rsrp} {rsrq} {rssnr} />
-                </section>
-            </div>
+            <section class="space-m-2 card p-2">
+                <h1>LTE</h1>
+                <Common {dbm} {asu} {level} />
+                <DisplayLte {rssi} {timingAdvance} {cqi} {cqiTableIndex} {rsrp} {rsrq} {rssnr} />
+            </section>
         {/if}
         {#if typeof nr !== 'undefined'}
             {@const { dbm, asu, level, csiCqiTableIndex, csiRsrp, csiRsrq, csiSinr, ssRsrp, ssRsrq, ssSinr } = nr}
-            <div class="space-m-2 card p-2">
-                <section>
-                    <h1>Summary</h1>
-                    <Common {dbm} {asu} {level} />
-                </section>
-                <section>
-                    <h1>NR</h1>
-                    <DisplayNr {csiCqiTableIndex} {csiRsrp} {csiRsrq} {csiSinr} {ssRsrp} {ssRsrq} {ssSinr} />
-                </section>
-            </div>
+            <section class="space-m-2 card p-2">
+                <h1>NR</h1>
+                <Common {dbm} {asu} {level} />
+                <DisplayNr {csiCqiTableIndex} {csiRsrp} {csiRsrq} {csiSinr} {ssRsrp} {ssRsrq} {ssSinr} />
+            </section>
         {/if}
         {#if typeof tdscdma !== 'undefined'}
             {@const { dbm, asu, level, rscp } = tdscdma}
-            <div class="space-m-2 card p-2">
-                <section>
-                    <h1>Summary</h1>
-                    <Common {dbm} {asu} {level} />
-                </section>
-                <section>
-                    <h1>TDSCDMA</h1>
-                    <DisplayTdscdma {rscp} />
-                </section>
-            </div>
+            <section class="space-m-2 card p-2">
+                <h1>TDSCDMA</h1>
+                <Common {dbm} {asu} {level} />
+                <DisplayTdscdma {rscp} />
+            </section>
         {/if}
         {#if typeof wcdma !== 'undefined'}
             {@const { dbm, asu, level, ecNo } = wcdma}
-            <div class="space-m-2 card p-2">
-                <section>
-                    <h1>Summary</h1>
-                    <Common {dbm} {asu} {level} />
-                </section>
-                <section>
-                    <h1>TDSCDMA</h1>
-                    <DisplayWcdma {ecNo} />
-                </section>
-            </div>
+            <section class="space-m-2 card p-2">
+                <Common {dbm} {asu} {level} />
+                <h1>TDSCDMA</h1>
+                <DisplayWcdma {ecNo} />
+            </section>
         {/if}
     {:catch err}
         <Error>{err}</Error>
