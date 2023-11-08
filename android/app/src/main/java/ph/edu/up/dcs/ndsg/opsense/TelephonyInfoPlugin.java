@@ -86,7 +86,8 @@ public class TelephonyInfoPlugin extends Plugin {
             } else if (strength instanceof CellSignalStrengthWcdma s) {
                 json.put("ecNo", s.getEcNo());
                 res.put("wcdma", json);
-            } else throw new Error("unexpected cell signal strength type");
+            }
         }
+        ctx.resolve(res);
     }
 }
