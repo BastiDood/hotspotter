@@ -1,7 +1,7 @@
 package ph.edu.up.dcs.ndsg.opsense;
 
 import android.content.Context;
-import android.telephony.TelephonyManager;
+import android.telephony.*;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -36,5 +36,57 @@ public class TelephonyInfoPlugin extends Plugin {
             .put("timestamp", strength.getTimestampMillis())
             .put("level", strength.getLevel());
         ctx.resolve(res);
+    }
+
+    @PluginMethod()
+    public void getSignalStrengths(PluginCall ctx) throws Error {
+        var res = new JSObject();
+        for (var strength : api.getSignalStrength().getCellSignalStrengths()) {
+            var json = new JSObject()
+                .put("dbm", strength.getDbm())
+                .put("asu", strength.getAsuLevel())
+                .put("level", strength.getLevel());
+            // TODO: Use `switch` expressions.
+            if (strength instanceof CellSignalStrengthCdma s) {
+                json.put("cdmaDbm", s.getCdmaDbm())
+                    .put("cdmaEcio", s.getCdmaEcio())
+                    .put("cdmaLevel", s.getCdmaLevel())
+                    .put("evdoDbm", s.getEvdoDbm())
+                    .put("evdoEcio", s.getEvdoEcio())
+                    .put("evdoLevel", s.getEvdoLevel())
+                    .put("evdoSnr", s.getEvdoSnr());
+                res.put("cdma", json);
+            } else if (strength instanceof CellSignalStrengthGsm s) {
+                json.put("bitErrorRate", s.getBitErrorRate())
+                    .put("rssi", s.getRssi())
+                    .put("timingAdvance", s.getTimingAdvance());
+                res.put("gsm", json);
+            } else if (strength instanceof CellSignalStrengthLte s) {
+                json.put("cqi", s.getCqi())
+                    .put("cqiTableIndex", s.getCqiTableIndex())
+                    .put("rsrp", s.getRsrp())
+                    .put("rsrq", s.getRsrq())
+                    .put("rssi", s.getRssi())
+                    .put("rssnr", s.getRssnr())
+                    .put("timingAdvance", s.getTimingAdvance());
+                res.put("lte", json);
+            } else if (strength instanceof CellSignalStrengthNr s) {
+                // TODO: getCsiCqiReport
+                json.put("csiCqiTableIndex", s.getCsiCqiTableIndex())
+                    .put("csiRsrp", s.getCsiRsrp())
+                    .put("csiRsrq", s.getCsiRsrq())
+                    .put("csiSinr", s.getCsiSinr())
+                    .put("ssRsrp", s.getSsRsrp())
+                    .put("ssRsrq", s.getSsRsrq())
+                    .put("ssSinr", s.getSsSinr());
+                res.put("nr", json);
+            } else if (strength instanceof CellSignalStrengthTdscdma s) {
+                json.put("rscp", s.getRscp());
+                res.put("tdscdma", json);
+            } else if (strength instanceof CellSignalStrengthWcdma s) {
+                json.put("ecNo", s.getEcNo());
+                res.put("wcdma", json);
+            } else throw new Error("unexpected cell signal strength type");
+        }
     }
 }
