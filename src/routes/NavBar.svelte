@@ -14,19 +14,19 @@
     class="bg-surface-100-800-token w-full"
 >
     <TabAnchor href="/" selected={pathname === '/'}>
-        <MapIcon slot="lead" class="m-auto h-8" />
+        <MapIcon slot="lead" strokeWidth="1" class="m-auto h-8" />
         <span>Map</span>
     </TabAnchor>
     <TabAnchor href="/gps" selected={pathname === '/gps/'}>
-        <GlobeAltIcon slot="lead" class="m-auto h-8" />
+        <GlobeAltIcon slot="lead" strokeWidth="1" class="m-auto h-8" />
         <span>GPS</span>
     </TabAnchor>
     <TabAnchor href="/sim" selected={pathname === '/sim/'}>
-        <ChartBarIcon slot="lead" class="m-auto h-8" />
+        <ChartBarIcon slot="lead" strokeWidth="1" class="m-auto h-8" />
         <span>SIM</span>
     </TabAnchor>
     <TabAnchor href="/wifi" selected={pathname === '/wifi/'}>
-        <WifiIcon slot="lead" class="m-auto h-8" />
+        <WifiIcon slot="lead" strokeWidth="1" class="m-auto h-8" />
         <span>WiFi</span>
     </TabAnchor>
 </TabGroup>
