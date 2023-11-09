@@ -14,7 +14,7 @@
     import { TelephonyInfo } from '$lib/plugins/TelephonyInfo.ts';
 </script>
 
-<div class="prose space-y-4 text-center dark:prose-invert">
+<div class="prose max-w-none space-y-4 text-center dark:prose-invert">
     <section>
         <h1>SIM Information</h1>
         {#await TelephonyInfo.getSim()}

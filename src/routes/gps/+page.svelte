@@ -1,36 +1,52 @@
-<script>
+<script lang="ts">
+    import { Geolocation, type Position } from '@capacitor/geolocation';
+    import { ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
+    import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import DisplayGeolocation from './DisplayGeolocation.svelte';
-    import DisplayLocationPermissions from './DisplayLocationPermissions.svelte';
-    import Error from '$lib/alerts/Error.svelte';
-    import { Geolocation } from '@capacitor/geolocation';
-    import { ProgressBar } from '@skeletonlabs/skeleton';
-    import Warning from '$lib/alerts/Warning.svelte';
+
+    const toast = getToastStore();
+    let position = null as Position | null;
+    let isLoading = false;
+
+    async function getCurrentPosition() {
+        isLoading = true;
+        try {
+            const { location, coarseLocation } = await Geolocation.requestPermissions({ permissions: ['location'] });
+            if (location !== 'granted' && coarseLocation !== 'granted')
+                throw new RangeError('Location permissions have been denied');
+            position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+        } catch (err) {
+            if (!(err instanceof Error)) throw err;
+            toast.trigger({
+                message: `${err.name}: ${err.message}`,
+                background: 'variant-filled-error',
+                autohide: false,
+            });
+        } finally {
+            isLoading = false;
+        }
+    }
 </script>
 
-{#await Geolocation.requestPermissions({ permissions: ['location'] })}
-    <Warning>Requesting location permissions...</Warning>
-{:then { location, coarseLocation }}
-    {#if location === 'granted' || coarseLocation === 'granted'}
-        {#await Geolocation.getCurrentPosition({ enableHighAccuracy: true })}
-            <ProgressBar />
-        {:then { timestamp, coords: { latitude, longitude, accuracy, altitude, altitudeAccuracy, speed, heading } }}
-            {@const date = new Date(timestamp)}
-            <DisplayGeolocation
-                {date}
-                {latitude}
-                {longitude}
-                {accuracy}
-                {altitude}
-                {altitudeAccuracy}
-                {speed}
-                {heading}
-            />
-        {:catch err}
-            <Error>{err}</Error>
-        {/await}
-    {:else}
-        <DisplayLocationPermissions {location} {coarseLocation} />
+<section class="space-y-4">
+    <button
+        type="button"
+        class="variant-filled-primary btn"
+        disabled={isLoading}
+        on:click={getCurrentPosition}
+    >
+        <ArrowPathIcon class="h-4" />
+        <span>Refresh</span>
+    </button>
+    {#if isLoading}
+        <ProgressBar />
     {/if}
-{:catch err}
-    <Error>{err}</Error>
-{/await}
+    {#if position !== null}
+        {@const {
+            timestamp,
+            coords: { latitude, longitude, accuracy, altitude, altitudeAccuracy, speed, heading },
+        } = position}
+        {@const date = new Date(timestamp)}
+        <DisplayGeolocation {date} {latitude} {longitude} {accuracy} {altitude} {altitudeAccuracy} {speed} {heading} />
+    {/if}
+</section>

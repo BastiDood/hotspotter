@@ -1,5 +1,8 @@
 <script>
-    import Error from '$lib/alerts/Error.svelte';
+    import { ArrowUpTrayIcon } from '@krowten/svelte-heroicons';
 </script>
 
-<Error>TODO: Leaflet.js Map</Error>
+<button type="button" class="btn variant-filled-primary">
+    <ArrowUpTrayIcon class="h-4" />
+    <span>Upload</span>
+</button>
