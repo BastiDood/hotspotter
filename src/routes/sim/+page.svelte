@@ -16,9 +16,9 @@
     import type { Output } from 'valibot';
     import { TelephonyInfo } from '$lib/plugins/TelephonyInfo.ts';
 
-    let sim: Output<typeof Sim> | boolean;
-    let signal: Output<typeof SignalStrength> | boolean;
-    let cell: Output<typeof CellSignalStrength> | boolean;
+    let sim = false as Output<typeof Sim> | boolean;
+    let signal = false as Output<typeof SignalStrength> | boolean;
+    let cell = false as Output<typeof CellSignalStrength> | boolean;
 
     const toast = getToastStore();
 

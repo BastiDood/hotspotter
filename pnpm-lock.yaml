@@ -23,6 +23,9 @@ devDependencies:
   '@capacitor/geolocation':
     specifier: ^5.0.6
     version: 5.0.6(@capacitor/core@5.5.1)
+  '@capacitor/preferences':
+    specifier: ^5.0.6
+    version: 5.0.6(@capacitor/core@5.5.1)
   '@krowten/svelte-heroicons':
     specifier: ^0.1.0
     version: 0.1.0
@@ -218,6 +221,14 @@ packages:
 
   /@capacitor/geolocation@5.0.6(@capacitor/core@5.5.1):
     resolution: {integrity: sha512-3pB3CBa38aDMk7zouGbjOMBytcaqRMBosMcqNrOQjE5LMBAPUI1cEGrUzmkj+scP0SIyYGA95Tkj0BAnzvNWag==}
+    peerDependencies:
+      '@capacitor/core': ^5.0.0
+    dependencies:
+      '@capacitor/core': 5.5.1
+    dev: true
+
+  /@capacitor/preferences@5.0.6(@capacitor/core@5.5.1):
+    resolution: {integrity: sha512-aDe4wGTVSAIue6XXdUFgyz7SGszxK/Ptt/iWTydMpzc1PlZXw1XTTnciM+S+SLLNZFzXlkpXT3wMnh9t0DojUA==}
     peerDependencies:
       '@capacitor/core': ^5.0.0
     dependencies:
