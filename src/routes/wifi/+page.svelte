@@ -22,12 +22,13 @@
             networks = await scan();
         } catch (err) {
             networks = false;
-            if (!(err instanceof Error)) throw err;
-            toast.trigger({
-                message: `${err.name}: ${err.message}`,
-                background: 'variant-filled-error',
-                autohide: false,
-            });
+            if (err instanceof Error)
+                toast.trigger({
+                    message: `${err.name}: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+            throw err;
         } finally {
             button.disabled = false;
         }

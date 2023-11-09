@@ -31,18 +31,19 @@
             [sim, signal, cell] = await Promise.all([
                 TelephonyInfo.getSim(),
                 TelephonyInfo.getSignalStrength(),
-                TelephonyInfo.getSignalStrengths()
+                TelephonyInfo.getSignalStrengths(),
             ]);
         } catch (err) {
             sim = false;
             signal = false;
             cell = false;
-            if (!(err instanceof Error)) throw err;
-            toast.trigger({
-                message: `${err.name}: ${err.message}`,
-                background: 'variant-filled-error',
-                autohide: false,
-            });
+            if (err instanceof Error)
+                toast.trigger({
+                    message: `${err.name}: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+            throw err;
         } finally {
             button.disabled = false;
         }
@@ -79,7 +80,8 @@
             {#if typeof cell === 'object'}
                 {@const { cdma, gsm, lte, nr, tdscdma, wcdma } = cell}
                 {#if typeof cdma !== 'undefined'}
-                    {@const { dbm, asu, level, cdmaDbm, cdmaEcio, cdmaLevel, evdoDbm, evdoEcio, evdoLevel, evdoSnr } = cdma}
+                    {@const { dbm, asu, level, cdmaDbm, cdmaEcio, cdmaLevel, evdoDbm, evdoEcio, evdoLevel, evdoSnr } =
+                        cdma}
                     <div class="card p-2">
                         <div>
                             <h2>Summary</h2>
@@ -112,7 +114,8 @@
                     </div>
                 {/if}
                 {#if typeof nr !== 'undefined'}
-                    {@const { dbm, asu, level, csiCqiTableIndex, csiRsrp, csiRsrq, csiSinr, ssRsrp, ssRsrq, ssSinr } = nr}
+                    {@const { dbm, asu, level, csiCqiTableIndex, csiRsrp, csiRsrq, csiSinr, ssRsrp, ssRsrq, ssSinr } =
+                        nr}
                     <div class="card p-2">
                         <h2>NR</h2>
                         <Common {dbm} {asu} {level} />

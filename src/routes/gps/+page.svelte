@@ -13,16 +13,17 @@
         try {
             const { location, coarseLocation } = await Geolocation.requestPermissions({ permissions: ['location'] });
             if (location !== 'granted' && coarseLocation !== 'granted')
-                throw new RangeError('Location permissions have been denied');
+                throw new RangeError('Location permissions have been denied.');
             position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
         } catch (err) {
             position = false;
-            if (!(err instanceof Error)) throw err;
-            toast.trigger({
-                message: `${err.name}: ${err.message}`,
-                background: 'variant-filled-error',
-                autohide: false,
-            });
+            if (err instanceof Error)
+                toast.trigger({
+                    message: `${err.name}: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+            throw err;
         } finally {
             button.disabled = false;
         }
@@ -30,7 +31,11 @@
 </script>
 
 <section class="space-y-4">
-    <button type="button" class="variant-filled-primary btn" on:click={({ currentTarget }) => getCurrentPosition(currentTarget)}>
+    <button
+        type="button"
+        class="variant-filled-primary btn"
+        on:click={({ currentTarget }) => getCurrentPosition(currentTarget)}
+    >
         <ArrowPathIcon class="h-4" />
         <span>Refresh</span>
     </button>
