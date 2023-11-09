@@ -1,10 +1,12 @@
 <script>
     import './app.css';
-    import { AppBar, AppShell, LightSwitch } from '@skeletonlabs/skeleton';
+    import { AppBar, AppShell, LightSwitch, Toast, initializeStores } from '@skeletonlabs/skeleton';
     import { ChartBarSquareIcon } from '@krowten/svelte-heroicons';
     import NavBar from './NavBar.svelte';
+    initializeStores();
 </script>
 
+<Toast />
 <AppShell>
     <AppBar slot="header">
         <ChartBarSquareIcon slot="lead" class="h-8" />

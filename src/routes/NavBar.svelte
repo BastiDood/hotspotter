@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ChartBarIcon, GlobeAltIcon, MapIcon, WifiIcon } from '@krowten/svelte-heroicons';
+    import { ChartBarIcon, Cog6ToothIcon, GlobeAltIcon, MapIcon, WifiIcon } from '@krowten/svelte-heroicons';
     import { TabAnchor, TabGroup } from '@skeletonlabs/skeleton';
     import { page } from '$app/stores';
     $: ({ pathname } = $page.url);
@@ -28,5 +28,9 @@
     <TabAnchor href="/wifi" selected={pathname === '/wifi/'}>
         <WifiIcon slot="lead" strokeWidth="1" class="m-auto h-8" />
         <span>WiFi</span>
+    </TabAnchor>
+    <TabAnchor href="/settings" selected={pathname === '/settings/'}>
+        <Cog6ToothIcon slot="lead" strokeWidth="1" class="m-auto h-8" />
+        <span>Settings</span>
     </TabAnchor>
 </TabGroup>
