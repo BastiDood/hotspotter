@@ -4,10 +4,10 @@
     import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import DisplayGeolocation from './DisplayGeolocation.svelte';
 
-    const toast = getToastStore();
     let position = null as Position | null;
     let isLoading = false;
 
+    const toast = getToastStore();
     async function getCurrentPosition() {
         isLoading = true;
         try {
@@ -29,12 +29,7 @@
 </script>
 
 <section class="space-y-4">
-    <button
-        type="button"
-        class="variant-filled-primary btn"
-        disabled={isLoading}
-        on:click={getCurrentPosition}
-    >
+    <button type="button" class="variant-filled-primary btn" disabled={isLoading} on:click={getCurrentPosition}>
         <ArrowPathIcon class="h-4" />
         <span>Refresh</span>
     </button>
