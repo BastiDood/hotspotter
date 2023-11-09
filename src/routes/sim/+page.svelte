@@ -45,96 +45,98 @@
     }
 </script>
 
-<button type="button" class="variant-filled-primary btn" disabled={isLoading} on:click={refresh}>
-    <ArrowPathIcon class="h-4" />
-    <span>Refresh</span>
-</button>
-<div class="prose max-w-none space-y-4 text-center dark:prose-invert">
-    <section>
-        <h1>SIM Information</h1>
-        {#await sim}
-            <ProgressBar />
-        {:then { networkType, carrierId, carrierName, operatorId, operatorName }}
-            <DisplaySim {networkType} {carrierId} {carrierName} {operatorId} {operatorName} />
-        {:catch err}
-            <Error>{err}</Error>
-        {/await}
-    </section>
-    <section>
-        <h1>Aggregated Signal Strength</h1>
-        {#await signal}
-            <ProgressBar />
-        {:then { timestamp, level }}
-            {@const date = new Date(timestamp)}
-            <DisplayStrength {date} {level} />
-        {:catch err}
-            <Error>{err}</Error>
-        {/await}
-    </section>
-    <section>
-        <h1>Signal Quality</h1>
-        {#await cell}
-            <ProgressBar />
-        {:then { cdma, gsm, lte, nr, tdscdma, wcdma }}
-            {#if typeof cdma !== 'undefined'}
-                {@const { dbm, asu, level, cdmaDbm, cdmaEcio, cdmaLevel, evdoDbm, evdoEcio, evdoLevel, evdoSnr } = cdma}
-                <div class="card p-2">
-                    <div>
-                        <h2>Summary</h2>
+<div class="space-y-4">
+    <button type="button" class="variant-filled-primary btn" disabled={isLoading} on:click={refresh}>
+        <ArrowPathIcon class="h-4" />
+        <span>Refresh</span>
+    </button>
+    <div class="prose max-w-none space-y-4 text-center dark:prose-invert">
+        <section>
+            <h1>SIM Information</h1>
+            {#await sim}
+                <ProgressBar />
+            {:then { networkType, carrierId, carrierName, operatorId, operatorName }}
+                <DisplaySim {networkType} {carrierId} {carrierName} {operatorId} {operatorName} />
+            {:catch err}
+                <Error>{err}</Error>
+            {/await}
+        </section>
+        <section>
+            <h1>Aggregated Signal Strength</h1>
+            {#await signal}
+                <ProgressBar />
+            {:then { timestamp, level }}
+                {@const date = new Date(timestamp)}
+                <DisplayStrength {date} {level} />
+            {:catch err}
+                <Error>{err}</Error>
+            {/await}
+        </section>
+        <section>
+            <h1>Signal Quality</h1>
+            {#await cell}
+                <ProgressBar />
+            {:then { cdma, gsm, lte, nr, tdscdma, wcdma }}
+                {#if typeof cdma !== 'undefined'}
+                    {@const { dbm, asu, level, cdmaDbm, cdmaEcio, cdmaLevel, evdoDbm, evdoEcio, evdoLevel, evdoSnr } = cdma}
+                    <div class="card p-2">
+                        <div>
+                            <h2>Summary</h2>
+                            <Common {dbm} {asu} {level} />
+                        </div>
+                        <div>
+                            <h2>CDMA</h2>
+                            <DisplayCdma dbm={cdmaDbm} ecio={cdmaEcio} level={cdmaLevel} />
+                        </div>
+                        <div>
+                            <h2>EV-DO</h2>
+                            <DisplayEvdo dbm={evdoDbm} ecio={evdoEcio} level={evdoLevel} snr={evdoSnr} />
+                        </div>
+                    </div>
+                {/if}
+                {#if typeof gsm !== 'undefined'}
+                    {@const { dbm, asu, level, rssi, bitErrorRate, timingAdvance } = gsm}
+                    <div class="card p-2">
+                        <h2>GSM</h2>
                         <Common {dbm} {asu} {level} />
+                        <DisplayGsm {rssi} {bitErrorRate} {timingAdvance} />
                     </div>
-                    <div>
-                        <h2>CDMA</h2>
-                        <DisplayCdma dbm={cdmaDbm} ecio={cdmaEcio} level={cdmaLevel} />
+                {/if}
+                {#if typeof lte !== 'undefined'}
+                    {@const { dbm, asu, level, rssi, timingAdvance, cqi, cqiTableIndex, rsrp, rsrq, rssnr } = lte}
+                    <div class="card p-2">
+                        <h2>LTE</h2>
+                        <Common {dbm} {asu} {level} />
+                        <DisplayLte {rssi} {timingAdvance} {cqi} {cqiTableIndex} {rsrp} {rsrq} {rssnr} />
                     </div>
-                    <div>
-                        <h2>EV-DO</h2>
-                        <DisplayEvdo dbm={evdoDbm} ecio={evdoEcio} level={evdoLevel} snr={evdoSnr} />
+                {/if}
+                {#if typeof nr !== 'undefined'}
+                    {@const { dbm, asu, level, csiCqiTableIndex, csiRsrp, csiRsrq, csiSinr, ssRsrp, ssRsrq, ssSinr } = nr}
+                    <div class="card p-2">
+                        <h2>NR</h2>
+                        <Common {dbm} {asu} {level} />
+                        <DisplayNr {csiCqiTableIndex} {csiRsrp} {csiRsrq} {csiSinr} {ssRsrp} {ssRsrq} {ssSinr} />
                     </div>
-                </div>
-            {/if}
-            {#if typeof gsm !== 'undefined'}
-                {@const { dbm, asu, level, rssi, bitErrorRate, timingAdvance } = gsm}
-                <div class="card p-2">
-                    <h2>GSM</h2>
-                    <Common {dbm} {asu} {level} />
-                    <DisplayGsm {rssi} {bitErrorRate} {timingAdvance} />
-                </div>
-            {/if}
-            {#if typeof lte !== 'undefined'}
-                {@const { dbm, asu, level, rssi, timingAdvance, cqi, cqiTableIndex, rsrp, rsrq, rssnr } = lte}
-                <div class="card p-2">
-                    <h2>LTE</h2>
-                    <Common {dbm} {asu} {level} />
-                    <DisplayLte {rssi} {timingAdvance} {cqi} {cqiTableIndex} {rsrp} {rsrq} {rssnr} />
-                </div>
-            {/if}
-            {#if typeof nr !== 'undefined'}
-                {@const { dbm, asu, level, csiCqiTableIndex, csiRsrp, csiRsrq, csiSinr, ssRsrp, ssRsrq, ssSinr } = nr}
-                <div class="card p-2">
-                    <h2>NR</h2>
-                    <Common {dbm} {asu} {level} />
-                    <DisplayNr {csiCqiTableIndex} {csiRsrp} {csiRsrq} {csiSinr} {ssRsrp} {ssRsrq} {ssSinr} />
-                </div>
-            {/if}
-            {#if typeof tdscdma !== 'undefined'}
-                {@const { dbm, asu, level, rscp } = tdscdma}
-                <div class="card p-2">
-                    <h2>TDSCDMA</h2>
-                    <Common {dbm} {asu} {level} />
-                    <DisplayTdscdma {rscp} />
-                </div>
-            {/if}
-            {#if typeof wcdma !== 'undefined'}
-                {@const { dbm, asu, level, ecNo } = wcdma}
-                <div class="card p-2">
-                    <Common {dbm} {asu} {level} />
-                    <h2>WCDMA</h2>
-                    <DisplayWcdma {ecNo} />
-                </div>
-            {/if}
-        {:catch err}
-            <Error>{err}</Error>
-        {/await}
-    </section>
+                {/if}
+                {#if typeof tdscdma !== 'undefined'}
+                    {@const { dbm, asu, level, rscp } = tdscdma}
+                    <div class="card p-2">
+                        <h2>TDSCDMA</h2>
+                        <Common {dbm} {asu} {level} />
+                        <DisplayTdscdma {rscp} />
+                    </div>
+                {/if}
+                {#if typeof wcdma !== 'undefined'}
+                    {@const { dbm, asu, level, ecNo } = wcdma}
+                    <div class="card p-2">
+                        <Common {dbm} {asu} {level} />
+                        <h2>WCDMA</h2>
+                        <DisplayWcdma {ecNo} />
+                    </div>
+                {/if}
+            {:catch err}
+                <Error>{err}</Error>
+            {/await}
+        </section>
+    </div>
 </div>

@@ -34,15 +34,17 @@
     }
 </script>
 
-<button type="button" class="variant-filled-primary btn" disabled={isLoading} on:click={refresh}>
-    <ArrowPathIcon class="h-4" />
-    <span>Refresh</span>
-</button>
-{#await wifi}
-    <ProgressBar />
-{:then payload}
-    {@const networks = parse(array(Network), payload).sort((a, b) => a.level - b.level)}
-    <DisplayNetworks {networks} />
-{:catch err}
-    <Error>{err}</Error>
-{/await}
+<div class="space-y-4">
+    <button type="button" class="variant-filled-primary btn" disabled={isLoading} on:click={refresh}>
+        <ArrowPathIcon class="h-4" />
+        <span>Refresh</span>
+    </button>
+    {#await wifi}
+        <ProgressBar />
+    {:then payload}
+        {@const networks = parse(array(Network), payload).sort((a, b) => a.level - b.level)}
+        <DisplayNetworks {networks} />
+    {:catch err}
+        <Error>{err}</Error>
+    {/await}
+</div>
