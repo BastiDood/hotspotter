@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { CellSignalStrength, SignalStrength, Sim } from '$lib/models/cell';
     import { ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
     import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import Common from './Common.svelte';
@@ -12,27 +13,30 @@
     import DisplayTdscdma from './DisplayTdscdma.svelte';
     import DisplayWcdma from './DisplayWcdma.svelte';
     import Error from '$lib/alerts/Error.svelte';
+    import type { Output } from 'valibot';
     import { TelephonyInfo } from '$lib/plugins/TelephonyInfo.ts';
 
-    let sim = TelephonyInfo.getSim();
-    let signal = TelephonyInfo.getSignalStrength();
-    let cell = TelephonyInfo.getSignalStrengths();
+    let sim: Output<typeof Sim> | boolean;
+    let signal: Output<typeof SignalStrength> | boolean;
+    let cell: Output<typeof CellSignalStrength> | boolean;
 
     const toast = getToastStore();
-    let isLoading = false;
 
-    async function refresh() {
-        isLoading = true;
+    async function refresh(button: HTMLButtonElement) {
+        button.disabled = true;
+        sim = true;
+        signal = true;
+        cell = true;
         try {
-            sim = TelephonyInfo.getSim();
-            signal = TelephonyInfo.getSignalStrength();
-            cell = TelephonyInfo.getSignalStrengths();
-            const [
-                { networkType, carrierId, carrierName, operatorId, operatorName },
-                { timestamp, level: signalStrengthLevel },
-                { dbm, asu, level: cellSignalStrengthLevel, cdma, gsm, lte, nr, tdscdma, wcdma },
-            ] = await Promise.all([sim, signal, cell]);
+            [sim, signal, cell] = await Promise.all([
+                TelephonyInfo.getSim(),
+                TelephonyInfo.getSignalStrength(),
+                TelephonyInfo.getSignalStrengths()
+            ]);
         } catch (err) {
+            sim = false;
+            signal = false;
+            cell = false;
             if (!(err instanceof Error)) throw err;
             toast.trigger({
                 message: `${err.name}: ${err.message}`,
@@ -40,43 +44,40 @@
                 autohide: false,
             });
         } finally {
-            isLoading = false;
+            button.disabled = false;
         }
     }
 </script>
 
 <div class="space-y-4">
-    <button type="button" class="variant-filled-primary btn" disabled={isLoading} on:click={refresh}>
+    <button type="button" class="variant-filled-primary btn" on:click={({ currentTarget }) => refresh(currentTarget)}>
         <ArrowPathIcon class="h-4" />
         <span>Refresh</span>
     </button>
     <div class="prose max-w-none space-y-4 text-center dark:prose-invert">
         <section>
             <h1>SIM Information</h1>
-            {#await sim}
-                <ProgressBar />
-            {:then { networkType, carrierId, carrierName, operatorId, operatorName }}
+            {#if typeof sim === 'object'}
+                {@const { networkType, carrierId, carrierName, operatorId, operatorName } = sim}
                 <DisplaySim {networkType} {carrierId} {carrierName} {operatorId} {operatorName} />
-            {:catch err}
-                <Error>{err}</Error>
-            {/await}
+            {:else if sim}
+                <ProgressBar />
+            {/if}
         </section>
         <section>
             <h1>Aggregated Signal Strength</h1>
-            {#await signal}
-                <ProgressBar />
-            {:then { timestamp, level }}
+            {#if typeof signal === 'object'}
+                {@const { timestamp, level } = signal}
                 {@const date = new Date(timestamp)}
                 <DisplayStrength {date} {level} />
-            {:catch err}
-                <Error>{err}</Error>
-            {/await}
+            {:else if signal}
+                <ProgressBar />
+            {/if}
         </section>
         <section>
             <h1>Signal Quality</h1>
-            {#await cell}
-                <ProgressBar />
-            {:then { cdma, gsm, lte, nr, tdscdma, wcdma }}
+            {#if typeof cell === 'object'}
+                {@const { cdma, gsm, lte, nr, tdscdma, wcdma } = cell}
                 {#if typeof cdma !== 'undefined'}
                     {@const { dbm, asu, level, cdmaDbm, cdmaEcio, cdmaLevel, evdoDbm, evdoEcio, evdoLevel, evdoSnr } = cdma}
                     <div class="card p-2">
@@ -134,9 +135,9 @@
                         <DisplayWcdma {ecNo} />
                     </div>
                 {/if}
-            {:catch err}
-                <Error>{err}</Error>
-            {/await}
+            {:else if cell}
+                <ProgressBar />
+            {/if}
         </section>
     </div>
 </div>

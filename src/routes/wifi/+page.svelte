@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
     import { array, parse } from 'valibot';
     import { ArrowPathIcon } from '@krowten/svelte-heroicons';
@@ -12,16 +12,16 @@
         return parse(array(Network), results).sort((a, b) => a.level - b.level);
     }
 
-    let isLoading = false;
-    let wifi = scan();
+    let networks = false as Awaited<ReturnType<typeof scan>> | boolean;
 
     const toast = getToastStore();
-    async function refresh() {
-        isLoading = true;
-        wifi = scan();
+    async function refresh(button: HTMLButtonElement) {
+        button.disabled = true;
+        networks = true;
         try {
-            const payload = await wifi;
+            networks = await scan();
         } catch (err) {
+            networks = false;
             if (!(err instanceof Error)) throw err;
             toast.trigger({
                 message: `${err.name}: ${err.message}`,
@@ -29,22 +29,19 @@
                 autohide: false,
             });
         } finally {
-            isLoading = false;
+            button.disabled = false;
         }
     }
 </script>
 
 <div class="space-y-4">
-    <button type="button" class="variant-filled-primary btn" disabled={isLoading} on:click={refresh}>
+    <button type="button" class="variant-filled-primary btn" on:click={({ currentTarget }) => refresh(currentTarget)}>
         <ArrowPathIcon class="h-4" />
         <span>Refresh</span>
     </button>
-    {#await wifi}
-        <ProgressBar />
-    {:then payload}
-        {@const networks = parse(array(Network), payload).sort((a, b) => a.level - b.level)}
+    {#if typeof networks === 'object'}
         <DisplayNetworks {networks} />
-    {:catch err}
-        <Error>{err}</Error>
-    {/await}
+    {:else if networks}
+        <ProgressBar />
+    {/if}
 </div>
