@@ -1,8 +1,12 @@
 <script lang="ts">
-    import { ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
-    import Error from '$lib/alerts/Error.svelte';
+    import type { PageData } from './$types';
     import { Preferences } from '@capacitor/preferences';
     import { assert } from '$lib/assert';
+    import { getToastStore } from '@skeletonlabs/skeleton';
+
+    // eslint-disable-next-line init-declarations
+    export let data: PageData;
+    $: ({ url } = data);
 
     const toast = getToastStore();
 
@@ -19,16 +23,9 @@
     }
 </script>
 
-{#await Preferences.get({ key: 'url' })}
-    <ProgressBar />
-{:then { value }}
-    {@const placeholder = value ?? 'https://example.com/'}
-    <form on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)}>
-        <label>
-            <span>URL</span>
-            <input type="url" name="url" required {placeholder} class="input px-2 py-1" />
-        </label>
-    </form>
-{:catch err}
-    <Error>{err}</Error>
-{/await}
+<form on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)}>
+    <label>
+        <span>URL</span>
+        <input type="url" name="url" required placeholder={url} class="input px-2 py-1" />
+    </label>
+</form>

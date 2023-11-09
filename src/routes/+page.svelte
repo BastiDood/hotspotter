@@ -17,11 +17,16 @@
 
     function stateToProgress(state: State) {
         switch (state) {
-            case State.NONE: return 0;
-            case State.LOADING: return 50;
-            case State.SUCCESS: return 100;
-            case State.FAILURE: return 0;
-            default: throw new Error('unexpected state type');
+            case State.NONE:
+                return 0;
+            case State.LOADING:
+                return 50;
+            case State.SUCCESS:
+                return 100;
+            case State.FAILURE:
+                return 0;
+            default:
+                throw new Error('unexpected state type');
         }
     }
 
