@@ -1,4 +1,4 @@
-import type { CellSignalStrength, Sim, SignalStrength } from '$lib/models/cell';
+import type { CellSignalStrength, SignalStrength, Sim } from '$lib/models/cell';
 import type { Output } from 'valibot';
 import { registerPlugin } from '@capacitor/core';
 

@@ -1,9 +1,9 @@
 <script>
-    import { ProgressBar } from '@skeletonlabs/skeleton';
     import { array, parse } from 'valibot';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
     import { Network } from '$lib/models/wifi';
+    import { ProgressBar } from '@skeletonlabs/skeleton';
     import { WifiWizard2 } from '@awesome-cordova-plugins/wifi-wizard-2';
 </script>
 
