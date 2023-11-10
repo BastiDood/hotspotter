@@ -18,7 +18,7 @@
 
     let sim = false as Output<typeof Sim> | boolean;
     let signal = false as Output<typeof SignalStrength> | boolean;
-    let cell = false as Output<typeof CellSignalStrength> | boolean;
+    let cell = false as Partial<Output<typeof CellSignalStrength>> | boolean;
 
     const toast = getToastStore();
 
