@@ -151,19 +151,19 @@
     </button>
     <ul class="list">
         <li>
-            <ProgressRadial value={stateToProgress(wifiLoadState)} width="w-8" />
+            <ProgressRadial width="w-8" value={stateToProgress(wifiLoadState)} />
             <span>WiFi</span>
         </li>
         <li>
-            <ProgressRadial value={stateToProgress(simLoadState)} width="w-8" />
+            <ProgressRadial width="w-8" value={stateToProgress(simLoadState)} />
             <span>SIM</span>
         </li>
         <li>
-            <ProgressRadial value={stateToProgress(signalLoadState)} width="w-8" />
+            <ProgressRadial width="w-8" value={stateToProgress(signalLoadState)} />
             <span>Overall Signal Strength</span>
         </li>
         <li>
-            <ProgressRadial value={stateToProgress(cellLoadState)} width="w-8" />
+            <ProgressRadial width="w-8" value={stateToProgress(cellLoadState)} />
             <span>Cellular Signal Strength</span>
         </li>
     </ul>
