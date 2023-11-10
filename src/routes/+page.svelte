@@ -132,6 +132,11 @@
                 body: JSON.stringify({ wifi, sim, signal, cell }),
             });
             assert(response.status === 201);
+            toast.trigger({
+                message: 'Successfully uploaded the data.',
+                background: 'variant-filled-success',
+                autohide: false,
+            });
         } catch (err) {
             if (err instanceof Error)
                 toast.trigger({
