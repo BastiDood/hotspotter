@@ -5,4 +5,5 @@ export default {
     appName: 'Opportunistic Sensing',
     webDir: 'build',
     server: { androidScheme: 'https' },
+    plugins: { CapacitorHttp: { enabled: true } },
 } satisfies CapacitorConfig;
