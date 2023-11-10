@@ -109,17 +109,18 @@
         }
     }
 
-    async function upload() {
-        const { value } = await Preferences.get({ key: 'url' });
-        if (value === null) {
-            toast.trigger({
-                message: 'No API endpoint has been set yet.',
-                background: 'variant-filled-error',
-                autohide: false,
-            });
-            return;
-        }
+    async function upload(button: HTMLButtonElement) {
+        button.disabled = true;
         try {
+            const { value } = await Preferences.get({ key: 'url' });
+            if (value === null) {
+                toast.trigger({
+                    message: 'No API endpoint has been set yet.',
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+                return;
+            }
             const [wifi, sim, signal, cell] = await Promise.all([
                 scan(),
                 getSim(),
@@ -145,12 +146,14 @@
                     autohide: false,
                 });
             throw err;
+        } finally {
+            button.disabled = false;
         }
     }
 </script>
 
 <div class="space-y-4">
-    <button type="button" class="variant-filled-primary btn" on:click={upload}>
+    <button type="button" class="variant-filled-primary btn" on:click={({ currentTarget }) => upload(currentTarget)}>
         <ArrowUpTrayIcon class="h-4" />
         <span>Upload</span>
     </button>
