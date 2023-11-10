@@ -9,6 +9,7 @@
         "preview": "vite preview",
         "sync:cap": "cap sync",
         "sync:svelte": "svelte-kit sync",
+        "run:android": "cap run android",
         "fmt": "prettier --plugin=prettier-plugin-svelte --plugin=prettier-plugin-tailwindcss --check .",
         "fmt:fix": "prettier --plugin=prettier-plugin-svelte --plugin=prettier-plugin-tailwindcss --write .",
         "lint": "pnpm lint:html && pnpm lint:css && pnpm lint:js && pnpm lint:svelte",
