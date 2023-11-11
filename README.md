@@ -1,21 +1,23 @@
 # Development
+
 The mobile application is a single-page [SvelteKit] application powered by the [Capacitor] runtime for cross-platform WebView-based applications. However, this project only targets the Android platform for now.
 
 [SvelteKit]: https://kit.svelte.dev/
 [Capacitor]: https://capacitorjs.com/
 
 ## Prerequisites
-* [Node.js]
-* [pnpm]
-* [Android Studio]
-    - `build-tools;30.0.3`
-    - `platform-tools`
-    - `platforms;android-31`
-    - `system-images;android-31;google_apis_playstore;x86_64` (Optional)
-    - `emulator` (Optional)
-    - `extras;google;Android_Emulator_Hypervisor_Driver` (Optional)
-* [OpenJDK 17]
-* Android 12 (API 31)
+
+-   [Node.js]
+-   [pnpm]
+-   [Android Studio]
+    -   `build-tools;30.0.3`
+    -   `platform-tools`
+    -   `platforms;android-31`
+    -   `system-images;android-31;google_apis_playstore;x86_64` (Optional)
+    -   `emulator` (Optional)
+    -   `extras;google;Android_Emulator_Hypervisor_Driver` (Optional)
+-   [OpenJDK 17]
+-   Android 12 (API 31)
 
 [Node.js]: https://nodejs.org/en/download/
 [pnpm]: https://pnpm.io/
@@ -23,6 +25,7 @@ The mobile application is a single-page [SvelteKit] application powered by the [
 [OpenJDK 17]: https://openjdk.org/projects/jdk/17/
 
 ## Development
+
 These are the commands that lets us compile and run our code.
 
 ```bash
@@ -40,6 +43,7 @@ pnpm run:android --target $ID
 ```
 
 ## Code Quality
+
 These are the commands that automate code quality assurance. All `main` code must pass the tests.
 
 ```bash
