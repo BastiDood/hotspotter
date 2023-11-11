@@ -20,6 +20,9 @@ devDependencies:
   '@capacitor/core':
     specifier: ^5.5.1
     version: 5.5.1
+  '@capacitor/filesystem':
+    specifier: ^5.1.4
+    version: 5.1.4(@capacitor/core@5.5.1)
   '@capacitor/geolocation':
     specifier: ^5.0.6
     version: 5.0.6(@capacitor/core@5.5.1)
@@ -217,6 +220,14 @@ packages:
     resolution: {integrity: sha512-VG6Iv8Q7ZAbvjodxpvjcSe0jfxUwZXnvjbi93ehuJ6eYP8U926qLSXyrT/DToZq+F6v/HyGyVgn3mrE/9jW2Tg==}
     dependencies:
       tslib: 2.6.2
+    dev: true
+
+  /@capacitor/filesystem@5.1.4(@capacitor/core@5.5.1):
+    resolution: {integrity: sha512-10EM1KvFMs+pTzxkcflspzxBWcX9sOnS9nTP5Afjr5hn4OxLrwTFySw2Z12Uv6jdN4OnhY3jXtDKXPljXvXILg==}
+    peerDependencies:
+      '@capacitor/core': ^5.1.1
+    dependencies:
+      '@capacitor/core': 5.5.1
     dev: true
 
   /@capacitor/geolocation@5.0.6(@capacitor/core@5.5.1):
