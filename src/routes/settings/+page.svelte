@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { PageData } from './$types';
-    import { Preferences } from '@capacitor/preferences';
     import { assert } from '$lib/assert';
     import { getToastStore } from '@skeletonlabs/skeleton';
+    import { setUrl } from '$lib/plugins/Config';
 
     // eslint-disable-next-line init-declarations
     export let data: PageData;
@@ -12,9 +12,9 @@
 
     async function submit(form: HTMLFormElement) {
         const data = new FormData(form);
-        const value = data.get('url');
-        assert(typeof value === 'string');
-        await Preferences.set({ key: 'url', value });
+        const url = data.get('url');
+        assert(typeof url === 'string');
+        await setUrl(url);
         toast.trigger({
             message: 'New set API endpoint.',
             background: 'variant-filled-success',
