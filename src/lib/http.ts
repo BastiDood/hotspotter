@@ -8,5 +8,5 @@ export async function submit(url: URL, data: Output<typeof Data>) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     });
-    assert(status === 201);
+    assert(status === 201, 'cannot submit data');
 }
