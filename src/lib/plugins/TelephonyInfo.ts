@@ -1,11 +1,26 @@
-import type { CellSignalStrength, SignalStrength, Sim } from '$lib/models/cell';
-import type { Output } from 'valibot';
+import { CellSignalStrength, SignalStrength, Sim } from '$lib/models/cell';
+import { parse, partial } from 'valibot';
 import { registerPlugin } from '@capacitor/core';
 
 interface TelephonyInfoPlugin {
-    getSim(): Promise<Output<typeof Sim>>;
-    getSignalStrength(): Promise<Output<typeof SignalStrength>>;
-    getSignalStrengths(): Promise<Partial<Output<typeof CellSignalStrength>>>;
+    getSim(): Promise<unknown>;
+    getSignalStrength(): Promise<unknown>;
+    getSignalStrengths(): Promise<unknown>;
 }
 
-export const TelephonyInfo = registerPlugin<TelephonyInfoPlugin>('TelephonyInfo');
+const TelephonyInfo = registerPlugin<TelephonyInfoPlugin>('TelephonyInfo');
+
+export async function getSim() {
+    const sim = await TelephonyInfo.getSim();
+    return parse(Sim, sim);
+}
+
+export async function getSignalStrength() {
+    const signal = await TelephonyInfo.getSignalStrength();
+    return parse(SignalStrength, signal);
+}
+
+export async function getSignalStrengths() {
+    const cell = await TelephonyInfo.getSignalStrengths();
+    return parse(partial(CellSignalStrength), cell);
+}

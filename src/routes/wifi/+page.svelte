@@ -1,16 +1,9 @@
 <script lang="ts">
     import { ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
-    import { array, parse } from 'valibot';
     import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
-    import { Network } from '$lib/models/wifi';
-    import { WifiWizard2 } from '@awesome-cordova-plugins/wifi-wizard-2';
-
-    async function scan() {
-        const results = await WifiWizard2.scan();
-        return parse(array(Network), results).sort((a, b) => a.level - b.level);
-    }
+    import { scan } from '$lib/plugins/WifiWizard';
 
     let networks = false as Awaited<ReturnType<typeof scan>> | boolean;
 

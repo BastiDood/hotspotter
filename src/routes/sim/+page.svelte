@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { CellSignalStrength, SignalStrength, Sim } from '$lib/models/cell';
     import { ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
+    import { getSignalStrength, getSignalStrengths, getSim } from '$lib/plugins/TelephonyInfo';
     import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import Common from './Common.svelte';
     import DisplayCdma from './DisplayCdma.svelte';
@@ -14,7 +15,6 @@
     import DisplayWcdma from './DisplayWcdma.svelte';
     import Error from '$lib/alerts/Error.svelte';
     import type { Output } from 'valibot';
-    import { TelephonyInfo } from '$lib/plugins/TelephonyInfo.ts';
 
     let sim = false as Output<typeof Sim> | boolean;
     let signal = false as Output<typeof SignalStrength> | boolean;
@@ -28,11 +28,7 @@
         signal = true;
         cell = true;
         try {
-            [sim, signal, cell] = await Promise.all([
-                TelephonyInfo.getSim(),
-                TelephonyInfo.getSignalStrength(),
-                TelephonyInfo.getSignalStrengths(),
-            ]);
+            [sim, signal, cell] = await Promise.all([getSim(), getSignalStrength(), getSignalStrengths()]);
         } catch (err) {
             sim = false;
             signal = false;

@@ -1,11 +1,9 @@
 <script lang="ts">
+    import * as TelephonyInfo from '$lib/plugins/TelephonyInfo';
+    import * as Wifi from '$lib/plugins/WifiWizard';
     import { ProgressRadial, getToastStore } from '@skeletonlabs/skeleton';
-    import { array, parse } from 'valibot';
     import { ArrowUpTrayIcon } from '@krowten/svelte-heroicons';
-    import { Network } from '$lib/models/wifi';
     import { Preferences } from '@capacitor/preferences';
-    import { TelephonyInfo } from '$lib/plugins/TelephonyInfo';
-    import { WifiWizard2 } from '@awesome-cordova-plugins/wifi-wizard-2';
     import { assert } from '$lib/assert';
 
     const enum State {
@@ -36,10 +34,9 @@
     async function scan() {
         wifiLoadState = State.LOADING;
         try {
-            const wifi = await WifiWizard2.scan();
-            const networks = parse(array(Network), wifi);
+            const wifi = await Wifi.scan();
             wifiLoadState = State.SUCCESS;
-            return networks;
+            return wifi;
         } catch (err) {
             wifiLoadState = State.FAILURE;
             if (err instanceof Error)
