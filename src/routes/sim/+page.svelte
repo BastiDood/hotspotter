@@ -1,7 +1,5 @@
 <script lang="ts">
-    import type { CellSignalStrength, SignalStrength, Sim } from '$lib/models/cell';
-    import { ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
-    import { getCellSignalStrengths, getSignalStrength, getSim } from '$lib/plugins/TelephonyInfo';
+    import { invalidateAll, onNavigate } from '$app/navigation';
     import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import Common from './Common.svelte';
     import DisplayCdma from './DisplayCdma.svelte';
@@ -14,25 +12,27 @@
     import DisplayTdscdma from './DisplayTdscdma.svelte';
     import DisplayWcdma from './DisplayWcdma.svelte';
     import Error from '$lib/alerts/Error.svelte';
-    import type { Output } from 'valibot';
+    import type { PageData } from './$types';
+    import { addScanListener } from '$lib/plugins/TelephonyInfo';
+    import { getToastStore } from '@skeletonlabs/skeleton';
 
-    let sim = false as Output<typeof Sim> | boolean;
-    let signal = false as Output<typeof SignalStrength> | boolean;
-    let cell = false as Partial<Output<typeof CellSignalStrength>> | boolean;
+    // eslint-disable-next-line init-declarations
+    export let data: PageData;
+    $: ({ sim, strength } = data);
+
+    const listener = addScanListener(info => (strength = info));
+    onNavigate(async () => {
+        const handle = await listener;
+        await handle.remove();
+    });
 
     const toast = getToastStore();
 
     async function refresh(button: HTMLButtonElement) {
         button.disabled = true;
-        sim = true;
-        signal = true;
-        cell = true;
         try {
-            [sim, signal, cell] = await Promise.all([getSim(), getSignalStrength(), getCellSignalStrengths()]);
+            await invalidateAll();
         } catch (err) {
-            sim = false;
-            signal = false;
-            cell = false;
             if (err instanceof Error)
                 toast.trigger({
                     message: `${err.name}: ${err.message}`,
@@ -54,27 +54,19 @@
     <div class="prose max-w-none space-y-4 text-center dark:prose-invert">
         <section>
             <h1>SIM Information</h1>
-            {#if typeof sim === 'object'}
+            {#if typeof sim !== 'undefined'}
                 {@const { networkType, carrierId, carrierName, operatorId, operatorName } = sim}
                 <DisplaySim {networkType} {carrierId} {carrierName} {operatorId} {operatorName} />
-            {:else if sim}
-                <ProgressBar />
             {/if}
         </section>
-        <section>
-            <h1>Aggregated Signal Strength</h1>
-            {#if typeof signal === 'object'}
-                {@const { timestamp, level } = signal}
-                {@const date = new Date(timestamp)}
-                <DisplayStrength {date} {level} />
-            {:else if signal}
-                <ProgressBar />
-            {/if}
-        </section>
-        <section>
-            <h1>Signal Quality</h1>
-            {#if typeof cell === 'object'}
-                {@const { cdma, gsm, lte, nr, tdscdma, wcdma } = cell}
+        {#if typeof strength !== 'undefined'}
+            {@const { timestamp, level, cdma, gsm, lte, nr, tdscdma, wcdma } = strength}
+            <section>
+                <h1>Signal Strength</h1>
+                <DisplayStrength {timestamp} {level} />
+            </section>
+            <section>
+                <h1>Cell Signal Strengths</h1>
                 {#if typeof cdma !== 'undefined'}
                     {@const { dbm, asu, level, cdmaDbm, cdmaEcio, cdmaLevel, evdoDbm, evdoEcio, evdoLevel, evdoSnr } =
                         cdma}
@@ -134,9 +126,7 @@
                         <DisplayWcdma {ecNo} />
                     </div>
                 {/if}
-            {:else if cell}
-                <ProgressBar />
-            {/if}
-        </section>
+            </section>
+        {/if}
     </div>
 </div>

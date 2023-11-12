@@ -8,35 +8,22 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 @CapacitorPlugin(name = "TelephonyInfo")
 public class TelephonyInfoPlugin extends Plugin {
     private TelephonyManager api;
+    private Callback callback;
 
-    @Override
-    public void load() throws Error {
-        api = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
+    private class Callback extends TelephonyCallback implements TelephonyCallback.SignalStrengthsListener {
+        @Override
+        public void onSignalStrengthsChanged(SignalStrength strength) {
+            notifyListeners("strength", signalStrengthToJson(strength));
+        }
     }
 
-    @PluginMethod()
-    public void getSim(PluginCall ctx) {
+    private JSONObject signalStrengthToJson(SignalStrength strength) {
+        var now = System.currentTimeMillis();
+        var elapsed = SystemClock.elapsedRealtime();
+        var timestamp = strength.getTimestampMillis();
         var res = new JSObject()
-            .put("networkType", api.getDataNetworkType())
-            .put("carrierId", api.getSimCarrierId())
-            .put("carrierName", api.getSimCarrierIdName().toString())
-            .put("operatorId", api.getSimOperator())
-            .put("operatorName", api.getSimOperatorName());
-        ctx.resolve(res);
-    }
-
-    @PluginMethod()
-    public void getSignalStrength(PluginCall ctx) {
-        var strength = api.getSignalStrength();
-        var res = new JSObject()
-            .put("timestamp", strength.getTimestampMillis())
+            .put("timestamp", now - elapsed + timestamp)
             .put("level", strength.getLevel());
-        ctx.resolve(res);
-    }
-
-    @PluginMethod()
-    public void getCellSignalStrengths(PluginCall ctx) throws Error {
-        var res = new JSObject();
         for (var strength : api.getSignalStrength().getCellSignalStrengths()) {
             var json = new JSObject()
                 .put("dbm", strength.getDbm())
@@ -68,6 +55,7 @@ public class TelephonyInfoPlugin extends Plugin {
                 res.put("lte", json);
             } else if (strength instanceof CellSignalStrengthNr s) {
                 // TODO: getCsiCqiReport
+                // TODO: getTimingAdvanceMicros
                 json.put("csiCqiTableIndex", s.getCsiCqiTableIndex())
                     .put("csiRsrp", s.getCsiRsrp())
                     .put("csiRsrq", s.getCsiRsrq())
@@ -84,6 +72,36 @@ public class TelephonyInfoPlugin extends Plugin {
                 res.put("wcdma", json);
             }
         }
+        return res;
+    }
+
+    @Override
+    public void load() throws Error {
+        var act = getActivity();
+        var exe = act.getMainExecutor();
+        api = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
+        callback = new TelephonyInfoCallback();
+        api.registerTelephonyCallback(callback);
+    }
+
+    @Override
+    public void handleOnDestroy() {
+        api.unregisterTelephonyCallback(callback);
+    }
+
+    @PluginMethod()
+    public void getSim(PluginCall ctx) {
+        var res = new JSObject()
+            .put("networkType", api.getDataNetworkType())
+            .put("carrierId", api.getSimCarrierId())
+            .put("carrierName", api.getSimCarrierIdName().toString())
+            .put("operatorId", api.getSimOperator())
+            .put("operatorName", api.getSimOperatorName());
         ctx.resolve(res);
+    }
+
+    @PluginMethod()
+    public void getSignalStrength(PluginCall ctx) {
+        ctx.resolve(signalStrengthToJson(api.getSignalStrength()));
     }
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let date: Date;
+    export let timestamp: Date;
     // eslint-disable-next-line init-declarations
     export let level: number;
 </script>
@@ -15,7 +15,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>{date.toLocaleString()}</td>
+                <td>{timestamp.toLocaleString()}</td>
                 <td>{level}</td>
             </tr>
         </tbody>

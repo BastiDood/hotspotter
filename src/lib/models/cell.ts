@@ -1,4 +1,4 @@
-import { enum_, merge, number, object, string } from 'valibot';
+import { coerce, date, enum_, merge, number, object, partial, string } from 'valibot';
 
 export enum NetworkType {
     /** Unknown */
@@ -89,7 +89,7 @@ export const Nr = object({
 export const Tdscdma = object({ rscp: number() });
 export const Wcdma = object({ ecNo: number() });
 
-export const CellSignalStrength = object({
+const CellSignalStrength = object({
     cdma: merge([CellSignalInfo, Cdma]),
     gsm: merge([CellSignalInfo, Gsm]),
     lte: merge([CellSignalInfo, Lte]),
@@ -98,10 +98,12 @@ export const CellSignalStrength = object({
     wcdma: merge([CellSignalInfo, Wcdma]),
 });
 
-export const SignalStrength = object({
-    timestamp: number(),
+const SummarySignalStrength = object({
+    timestamp: coerce(date(), input => new Date(input as any)),
     level: number(),
 });
+
+export const SignalStrength = merge([SummarySignalStrength, partial(CellSignalStrength)]);
 
 export const Sim = object({
     networkType: enum_(NetworkType),
