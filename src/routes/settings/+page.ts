@@ -1,7 +1,8 @@
 import type { PageLoad } from './$types';
-import { Preferences } from '@capacitor/preferences';
+import { browser } from '$app/environment';
+import { getUrl } from '$lib/plugins/Config';
 
 export const load = (async () => {
-    const { value } = await Preferences.get({ key: 'url' });
-    return { url: value ?? 'https://example.com/' };
+    const url = browser ? await getUrl() : null;
+    return { url };
 }) satisfies PageLoad;

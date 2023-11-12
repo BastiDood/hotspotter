@@ -7,6 +7,7 @@
     // eslint-disable-next-line init-declarations
     export let data: PageData;
     $: ({ url } = data);
+    $: placeholder = url?.toString() ?? 'https://example.com/';
 
     const toast = getToastStore();
 
@@ -25,7 +26,7 @@
 
 <form on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)}>
     <label>
-        <span>URL</span>
-        <input type="url" name="url" required placeholder={url} class="input px-2 py-1" />
+        <span>API Endpoint</span>
+        <input type="url" name="url" required {placeholder} class="input px-2 py-1" />
     </label>
 </form>
