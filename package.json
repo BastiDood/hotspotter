@@ -31,7 +31,7 @@
         "@skeletonlabs/skeleton": "^2.5.0",
         "@skeletonlabs/tw-plugin": "^0.2.4",
         "@sveltejs/adapter-static": "^2.0.3",
-        "@sveltejs/kit": "^1.27.3",
+        "@sveltejs/kit": "^1.27.5",
         "@tailwindcss/typography": "^0.5.10",
         "@typescript-eslint/eslint-plugin": "^6.10.0",
         "@typescript-eslint/parser": "^6.10.0",
