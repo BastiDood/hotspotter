@@ -24,8 +24,8 @@
     if (browser) {
         const listener = addScanListener(info => (strength = info));
         onNavigate(async () => {
-           const handle = await listener;
-           await handle.remove();
+            const handle = await listener;
+            await handle.remove();
         });
     }
 
