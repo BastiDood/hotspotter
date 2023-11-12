@@ -14,17 +14,20 @@
     import Error from '$lib/alerts/Error.svelte';
     import type { PageData } from './$types';
     import { addScanListener } from '$lib/plugins/TelephonyInfo';
+    import { browser } from '$app/environment';
     import { getToastStore } from '@skeletonlabs/skeleton';
 
     // eslint-disable-next-line init-declarations
     export let data: PageData;
     $: ({ sim, strength } = data);
 
-    const listener = addScanListener(info => (strength = info));
-    onNavigate(async () => {
-        const handle = await listener;
-        await handle.remove();
-    });
+    if (browser) {
+        const listener = addScanListener(info => (strength = info));
+        onNavigate(async () => {
+           const handle = await listener;
+           await handle.remove();
+        });
+    }
 
     const toast = getToastStore();
 

@@ -22,5 +22,5 @@ export async function getSignalStrength() {
 type Strength = Output<typeof SignalStrength>;
 type ScanCallback = (strength: Strength) => void;
 export function addScanListener(callback: ScanCallback) {
-    return TelephonyInfo.addListener('scan', evt => callback(parse(SignalStrength, evt)));
+    return TelephonyInfo.addListener('strength', evt => callback(parse(SignalStrength, evt)));
 }

@@ -4,6 +4,7 @@
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
     import type { PageData } from './$types';
+    import { browser } from '$app/environment';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { onNavigate } from '$app/navigation';
 
@@ -11,11 +12,13 @@
     export let data: PageData;
     $: ({ networks } = data);
 
-    const listener = addScanListener(aps => (networks = aps));
-    onNavigate(async () => {
-        const handle = await listener;
-        await handle.remove();
-    });
+    if (browser) {
+        const listener = addScanListener(aps => (networks = aps));
+        onNavigate(async () => {
+            const handle = await listener;
+            await handle.remove();
+        });
+    }
 
     const toast = getToastStore();
     async function refresh(button: HTMLButtonElement) {
