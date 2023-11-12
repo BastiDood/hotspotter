@@ -5,6 +5,7 @@ import android.net.wifi.*;
 import android.os.SystemClock;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.*;
 import org.json.JSONArray;
@@ -14,7 +15,7 @@ public class WifiInfoPlugin extends Plugin {
     WifiManager api;
     WifiManager.ScanResultsCallback callback;
 
-    private JSONObject scanResultToJson(ScanResult result) {
+    private JSObject scanResultToJson(ScanResult result) {
         // Compute signal level
         var level = api.calculateSignalLevel(result.level);
         var maxLevel = api.getMaxSignalLevel();
@@ -39,23 +40,23 @@ public class WifiInfoPlugin extends Plugin {
             .put("standard", result.getWifiStandard());
     }
 
-    private JSONObject scanResultsToResultJson(List<ScanResult> results) {
+    private JSObject scanResultsToResultJson(List<ScanResult> results) {
         var list = results.stream().map(this::scanResultToJson).collect(Collectors.toList());
         return new JSObject().put("results", new JSONArray(list));
     }
 
     @Override
     public void load() {
-        var activity = getActivity();
-        var exec = activity.getMainExecutor();
-        api = (WifiManager) activity.getSystemService(Context.WIFI_SERVICE);
+        var act = getActivity();
+        var exe = act.getMainExecutor();
+        api = (WifiManager) act.getSystemService(Context.WIFI_SERVICE);
         callback = new WifiManager.ScanResultsCallback() {
             @Override
             public void onScanResultsAvailable() {
                 notifyListeners("scan", scanResultsToResultJson(api.getScanResults()));
             }
         };
-        api.registerScanResultsCallback(exec, callback);
+        api.registerScanResultsCallback(exe, callback);
     }
 
     @Override

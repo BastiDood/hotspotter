@@ -1,6 +1,7 @@
 package ph.edu.up.dcs.ndsg.opsense;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.telephony.*;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
@@ -17,20 +18,20 @@ public class TelephonyInfoPlugin extends Plugin {
         }
     }
 
-    private JSONObject signalStrengthToJson(SignalStrength strength) {
+    private JSObject signalStrengthToJson(SignalStrength strength) {
         var now = System.currentTimeMillis();
         var elapsed = SystemClock.elapsedRealtime();
         var timestamp = strength.getTimestampMillis();
         var res = new JSObject()
             .put("timestamp", now - elapsed + timestamp)
             .put("level", strength.getLevel());
-        for (var strength : api.getSignalStrength().getCellSignalStrengths()) {
+        for (var cell : api.getSignalStrength().getCellSignalStrengths()) {
             var json = new JSObject()
-                .put("dbm", strength.getDbm())
-                .put("asu", strength.getAsuLevel())
-                .put("level", strength.getLevel());
+                .put("dbm", cell.getDbm())
+                .put("asu", cell.getAsuLevel())
+                .put("level", cell.getLevel());
             // TODO: Use `switch` expressions.
-            if (strength instanceof CellSignalStrengthCdma s) {
+            if (cell instanceof CellSignalStrengthCdma s) {
                 json.put("cdmaDbm", s.getCdmaDbm())
                     .put("cdmaEcio", s.getCdmaEcio())
                     .put("cdmaLevel", s.getCdmaLevel())
@@ -39,12 +40,12 @@ public class TelephonyInfoPlugin extends Plugin {
                     .put("evdoLevel", s.getEvdoLevel())
                     .put("evdoSnr", s.getEvdoSnr());
                 res.put("cdma", json);
-            } else if (strength instanceof CellSignalStrengthGsm s) {
+            } else if (cell instanceof CellSignalStrengthGsm s) {
                 json.put("bitErrorRate", s.getBitErrorRate())
                     .put("rssi", s.getRssi())
                     .put("timingAdvance", s.getTimingAdvance());
                 res.put("gsm", json);
-            } else if (strength instanceof CellSignalStrengthLte s) {
+            } else if (cell instanceof CellSignalStrengthLte s) {
                 json.put("cqi", s.getCqi())
                     .put("cqiTableIndex", s.getCqiTableIndex())
                     .put("rsrp", s.getRsrp())
@@ -53,7 +54,7 @@ public class TelephonyInfoPlugin extends Plugin {
                     .put("rssnr", s.getRssnr())
                     .put("timingAdvance", s.getTimingAdvance());
                 res.put("lte", json);
-            } else if (strength instanceof CellSignalStrengthNr s) {
+            } else if (cell instanceof CellSignalStrengthNr s) {
                 // TODO: getCsiCqiReport
                 // TODO: getTimingAdvanceMicros
                 json.put("csiCqiTableIndex", s.getCsiCqiTableIndex())
@@ -64,10 +65,10 @@ public class TelephonyInfoPlugin extends Plugin {
                     .put("ssRsrq", s.getSsRsrq())
                     .put("ssSinr", s.getSsSinr());
                 res.put("nr", json);
-            } else if (strength instanceof CellSignalStrengthTdscdma s) {
+            } else if (cell instanceof CellSignalStrengthTdscdma s) {
                 json.put("rscp", s.getRscp());
                 res.put("tdscdma", json);
-            } else if (strength instanceof CellSignalStrengthWcdma s) {
+            } else if (cell instanceof CellSignalStrengthWcdma s) {
                 json.put("ecNo", s.getEcNo());
                 res.put("wcdma", json);
             }
@@ -80,8 +81,8 @@ public class TelephonyInfoPlugin extends Plugin {
         var act = getActivity();
         var exe = act.getMainExecutor();
         api = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
-        callback = new TelephonyInfoCallback();
-        api.registerTelephonyCallback(callback);
+        callback = new Callback();
+        api.registerTelephonyCallback(exe, callback);
     }
 
     @Override
