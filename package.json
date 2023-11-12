@@ -19,8 +19,6 @@
         "lint:svelte": "svelte-check --tsconfig ./tsconfig.json"
     },
     "devDependencies": {
-        "@awesome-cordova-plugins/core": "^6.4.0",
-        "@awesome-cordova-plugins/wifi-wizard-2": "^6.4.0",
         "@capacitor/android": "^5.5.1",
         "@capacitor/cli": "^5.5.1",
         "@capacitor/core": "^5.5.1",
@@ -38,8 +36,6 @@
         "@typescript-eslint/eslint-plugin": "^6.10.0",
         "@typescript-eslint/parser": "^6.10.0",
         "autoprefixer": "^10.4.16",
-        "cordova-plugin-wifiwizard2": "^3.1.1",
-        "es6-promise-plugin": "^4.2.2",
         "eslint": "^8.53.0",
         "eslint-config-prettier": "^9.0.0",
         "eslint-plugin-svelte": "^2.35.0",

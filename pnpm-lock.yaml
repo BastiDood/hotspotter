@@ -5,12 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 devDependencies:
-  '@awesome-cordova-plugins/core':
-    specifier: ^6.4.0
-    version: 6.4.0(rxjs@7.8.1)
-  '@awesome-cordova-plugins/wifi-wizard-2':
-    specifier: ^6.4.0
-    version: 6.4.0(@awesome-cordova-plugins/core@6.4.0)(rxjs@7.8.1)
   '@capacitor/android':
     specifier: ^5.5.1
     version: 5.5.1(@capacitor/core@5.5.1)
@@ -62,12 +56,6 @@ devDependencies:
   autoprefixer:
     specifier: ^10.4.16
     version: 10.4.16(postcss@8.4.31)
-  cordova-plugin-wifiwizard2:
-    specifier: ^3.1.1
-    version: 3.1.1
-  es6-promise-plugin:
-    specifier: ^4.2.2
-    version: 4.2.2
   eslint:
     specifier: ^8.53.0
     version: 8.53.0
@@ -138,26 +126,6 @@ packages:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.20
-    dev: true
-
-  /@awesome-cordova-plugins/core@6.4.0(rxjs@7.8.1):
-    resolution: {integrity: sha512-06I5JdTgAgKTby+VG+3sQF5+z4RNCEyVl6y7tz2rICx8MURL1biuh3oGGN1rCQQjsuMZcX5siMBr0NF/OHqxLQ==}
-    peerDependencies:
-      rxjs: ^5.5.0 || ^6.5.0 || ^7.3.0
-    dependencies:
-      '@types/cordova': 11.0.3
-      rxjs: 7.8.1
-    dev: true
-
-  /@awesome-cordova-plugins/wifi-wizard-2@6.4.0(@awesome-cordova-plugins/core@6.4.0)(rxjs@7.8.1):
-    resolution: {integrity: sha512-ULcWkzaLZHc+d8qpQ2nXZ9y+uI8RLxv+uwjl8KnaCooAlR4Bnu8oIHKD7MaOwZfbuVHxf9m7vB6vI391IOY/hw==}
-    peerDependencies:
-      '@awesome-cordova-plugins/core': ^6.0.1
-      rxjs: ^5.5.0 || ^6.5.0 || ^7.3.0
-    dependencies:
-      '@awesome-cordova-plugins/core': 6.4.0(rxjs@7.8.1)
-      '@types/cordova': 11.0.3
-      rxjs: 7.8.1
     dev: true
 
   /@babel/code-frame@7.22.13:
@@ -858,10 +826,6 @@ packages:
 
   /@types/cookie@0.5.4:
     resolution: {integrity: sha512-7z/eR6O859gyWIAjuvBWFzNURmf2oPBmJlfVWkwehU5nzIyjwBsTh7WMmEEV4JFnHuQ3ex4oyTvfKzcyJVDBNA==}
-    dev: true
-
-  /@types/cordova@11.0.3:
-    resolution: {integrity: sha512-kyuRQ40/NWQVhqGIHq78Ehu2Bf9Mlg0LhmSmis6ZFJK7z933FRfYi8tHe/k/0fB+PGfCf95rJC6TO7dopaFvAg==}
     dev: true
 
   /@types/estree@1.0.5:
@@ -1577,11 +1541,6 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /cordova-plugin-wifiwizard2@3.1.1:
-    resolution: {integrity: sha512-Vd4aYUAxCTR6+zhhSOToWi67wT4Vycq4lYB4HnnxFWxrL3ewuKshq9eLxrrwIHwPvPI4u4g06+5jO9PnwEiKOw==}
-    engines: {cordovaDependencies: {3.0.0: {cordova-android: '>=5.0.0'}}}
-    dev: true
-
   /core-js@2.6.12:
     resolution: {integrity: sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==}
     deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
@@ -1892,10 +1851,6 @@ packages:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}
     dependencies:
       is-arrayish: 0.2.1
-    dev: true
-
-  /es6-promise-plugin@4.2.2:
-    resolution: {integrity: sha512-uoA4aVplXI9oqUYJFBAVRwAqIN9/n9JgrTAUGX3qPbnSZVE5yY1+6/MsoN5f4xsaPO62WjPHOdtts6okMN6tNA==}
     dev: true
 
   /es6-promise@3.3.1:

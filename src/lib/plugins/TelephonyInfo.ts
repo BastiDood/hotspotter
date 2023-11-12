@@ -1,8 +1,8 @@
 import { CellSignalStrength, SignalStrength, Sim } from '$lib/models/cell';
+import { type Plugin, registerPlugin } from '@capacitor/core';
 import { parse, partial } from 'valibot';
-import { registerPlugin } from '@capacitor/core';
 
-interface TelephonyInfoPlugin {
+interface TelephonyInfoPlugin extends Plugin {
     getSim(): Promise<unknown>;
     getSignalStrength(): Promise<unknown>;
     getSignalStrengths(): Promise<unknown>;

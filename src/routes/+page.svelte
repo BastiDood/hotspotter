@@ -3,7 +3,7 @@
     import * as Cache from '$lib/plugins/Cache';
     import * as Config from '$lib/plugins/Config';
     import * as TelephonyInfo from '$lib/plugins/TelephonyInfo';
-    import * as Wifi from '$lib/plugins/WifiWizard';
+    import * as WifiInfo from '$lib/plugins/WifiInfo';
     import { ArrowPathIcon, ArrowUpTrayIcon } from '@krowten/svelte-heroicons';
     import { ProgressRadial, getToastStore } from '@skeletonlabs/skeleton';
     import type { Data } from '$lib/models/api';
@@ -37,7 +37,7 @@
     async function scan() {
         wifiLoadState = State.LOADING;
         try {
-            const wifi = await Wifi.scan();
+            const wifi = await WifiInfo.performOneshotScan();
             wifiLoadState = State.SUCCESS;
             return wifi;
         } catch (err) {
