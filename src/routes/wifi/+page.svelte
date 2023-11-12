@@ -6,7 +6,6 @@
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
     import type { Output } from 'valibot';
-    import type { Snapshot } from './$types';
     import Success from '$lib/alerts/Success.svelte';
     import { onNavigate } from '$app/navigation';
 
@@ -15,15 +14,6 @@
     function setNetworks(aps: AccessPoints) {
         networks = aps.sort((a, b) => b.rssi - a.rssi);
     }
-
-    export const snapshot = {
-        capture() {
-            return networks;
-        },
-        restore(aps) {
-            networks = aps;
-        },
-    } satisfies Snapshot<AccessPoints>;
 
     const listener = addScanListener(setNetworks);
     onNavigate(async () => {

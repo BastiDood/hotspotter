@@ -1,7 +1,7 @@
 import { type Output, array, boolean, object, parse } from 'valibot';
 import { type Plugin, registerPlugin } from '@capacitor/core';
 import { AccessPoint } from '$lib/models/wifi';
-import { assert } from '$lib/assert';
+import { deferred } from '$lib/util';
 
 interface WifiInfoPlugin extends Plugin {
     startScan(): Promise<unknown>;
@@ -24,11 +24,11 @@ export function addScanListener(callback: ScanCallback) {
 }
 
 export async function performOneshotScan() {
-    let networks = null as AccessPoints | null;
-    const handle = await addScanListener(aps => {
-        networks = aps;
-    });
-    await handle.remove();
-    assert(networks !== null);
-    return networks;
+    const { promise, resolve } = deferred<AccessPoints>();
+    const handle = await addScanListener(resolve);
+    try {
+        return await startScan() ? await promise : null;
+    } finally {
+        await handle.remove();
+    }
 }
