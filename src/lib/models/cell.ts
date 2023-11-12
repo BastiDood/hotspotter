@@ -99,6 +99,7 @@ const CellSignalStrength = object({
 });
 
 const SummarySignalStrength = object({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     timestamp: coerce(date(), input => new Date(input as any)),
     level: number(),
 });

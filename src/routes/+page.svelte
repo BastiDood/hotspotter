@@ -90,25 +90,6 @@
         }
     }
 
-    let cellLoadState = State.NONE;
-    async function getSignalStrengths() {
-        cellLoadState = State.LOADING;
-        try {
-            const cell = await TelephonyInfo.getCellSignalStrengths();
-            cellLoadState = State.SUCCESS;
-            return cell;
-        } catch (err) {
-            cellLoadState = State.FAILURE;
-            if (err instanceof Error)
-                toast.trigger({
-                    message: `${err.name}: ${err.message}`,
-                    background: 'variant-filled-error',
-                    autohide: false,
-                });
-            throw err;
-        }
-    }
-
     async function upload(button: HTMLButtonElement) {
         button.disabled = true;
         try {
@@ -122,14 +103,8 @@
                 return;
             }
 
-            const [wifi, sim, signal, cell] = await Promise.all([
-                scan(),
-                getSim(),
-                getSignalStrength(),
-                getSignalStrengths(),
-            ]);
-
-            const body = { wifi, sim, signal, cell };
+            const [wifi, sim, strength] = await Promise.all([scan(), getSim(), getSignalStrength()]);
+            const body = { wifi, sim, strength };
             try {
                 await Api.submit(url, body);
             } catch (err) {
@@ -253,11 +228,7 @@
         </li>
         <li>
             <ProgressRadial width="w-8" value={stateToProgress(signalLoadState)} />
-            <span>Overall Signal Strength</span>
-        </li>
-        <li>
-            <ProgressRadial width="w-8" value={stateToProgress(cellLoadState)} />
-            <span>Cellular Signal Strength</span>
+            <span>Signal Strength</span>
         </li>
     </ul>
 </div>
