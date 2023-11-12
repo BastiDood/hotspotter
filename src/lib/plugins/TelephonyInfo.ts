@@ -5,7 +5,7 @@ import { parse, partial } from 'valibot';
 interface TelephonyInfoPlugin extends Plugin {
     getSim(): Promise<unknown>;
     getSignalStrength(): Promise<unknown>;
-    getSignalStrengths(): Promise<unknown>;
+    getCellSignalStrengths(): Promise<unknown>;
 }
 
 const TelephonyInfo = registerPlugin<TelephonyInfoPlugin>('TelephonyInfo');
@@ -20,7 +20,7 @@ export async function getSignalStrength() {
     return parse(SignalStrength, signal);
 }
 
-export async function getSignalStrengths() {
-    const cell = await TelephonyInfo.getSignalStrengths();
+export async function getCellSignalStrengths() {
+    const cell = await TelephonyInfo.getCellSignalStrengths();
     return parse(partial(CellSignalStrength), cell);
 }

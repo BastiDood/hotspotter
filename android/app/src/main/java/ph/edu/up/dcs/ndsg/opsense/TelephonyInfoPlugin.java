@@ -35,7 +35,7 @@ public class TelephonyInfoPlugin extends Plugin {
     }
 
     @PluginMethod()
-    public void getSignalStrengths(PluginCall ctx) throws Error {
+    public void getCellSignalStrengths(PluginCall ctx) throws Error {
         var res = new JSObject();
         for (var strength : api.getSignalStrength().getCellSignalStrengths()) {
             var json = new JSObject()

@@ -95,7 +95,7 @@
     async function getSignalStrengths() {
         cellLoadState = State.LOADING;
         try {
-            const cell = await TelephonyInfo.getSignalStrengths();
+            const cell = await TelephonyInfo.getCellSignalStrengths();
             cellLoadState = State.SUCCESS;
             return cell;
         } catch (err) {

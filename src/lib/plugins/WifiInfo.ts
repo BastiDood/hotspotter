@@ -27,7 +27,7 @@ export async function performOneshotScan() {
     const { promise, resolve } = deferred<AccessPoints>();
     const handle = await addScanListener(resolve);
     try {
-        return await startScan() ? await promise : null;
+        return (await startScan()) ? await promise : null;
     } finally {
         await handle.remove();
     }
