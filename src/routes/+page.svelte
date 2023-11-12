@@ -38,7 +38,6 @@
         wifiLoadState = State.LOADING;
         try {
             const wifi = await WifiInfo.performOneshotScan();
-            if (wifi === null) throw new RangeError('Scan request failed.');
             wifiLoadState = State.SUCCESS;
             return wifi;
         } catch (err) {

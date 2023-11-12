@@ -1,21 +1,17 @@
 <script lang="ts">
-    import { ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
     import { addScanListener, startScan } from '$lib/plugins/WifiInfo';
-    import type { AccessPoint } from '$lib/models/wifi';
     import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
-    import type { Output } from 'valibot';
-    import Success from '$lib/alerts/Success.svelte';
+    import type { PageData } from './$types';
+    import { getToastStore } from '@skeletonlabs/skeleton';
     import { onNavigate } from '$app/navigation';
 
-    type AccessPoints = Output<typeof AccessPoint>[];
-    let networks = [] as AccessPoints;
-    function setNetworks(aps: AccessPoints) {
-        networks = aps.sort((a, b) => b.rssi - a.rssi);
-    }
+    // eslint-disable-next-line init-declarations
+    export let data: PageData;
+    $: ({ networks } = data);
 
-    const listener = addScanListener(setNetworks);
+    const listener = addScanListener(aps => (networks = aps));
     onNavigate(async () => {
         const handle = await listener;
         await handle.remove();
@@ -52,12 +48,5 @@
         <ArrowPathIcon class="h-4" />
         <span>Scan</span>
     </button>
-    {#await listener}
-        <ProgressBar />
-    {:then}
-        <Success>Now listening for Wi-Fi updates...</Success>
-        <DisplayNetworks {networks} />
-    {:catch err}
-        <Error>{err}</Error>
-    {/await}
+    <DisplayNetworks {networks} />
 </div>
