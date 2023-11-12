@@ -76,7 +76,7 @@ public class TelephonyInfoPlugin extends Plugin {
     }
 
     @Override
-    public void load() throws Error {
+    public void load() {
         var act = getActivity();
         var exe = act.getMainExecutor();
         api = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
