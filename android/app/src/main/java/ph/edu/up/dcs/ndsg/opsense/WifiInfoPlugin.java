@@ -41,6 +41,7 @@ public class WifiInfoPlugin extends Plugin {
     }
 
     private JSObject scanResultsToResultJson(List<ScanResult> results) {
+        results.sort((a, b) -> b.level - a.level);
         var list = results.stream().map(this::scanResultToJson).collect(Collectors.toList());
         return new JSObject().put("results", new JSONArray(list));
     }
