@@ -10,7 +10,8 @@
 
     // eslint-disable-next-line init-declarations
     export let data: PageData;
-    $: ({ networks } = data);
+    $: ({ results } = data);
+    $: networks = results ?? [];
 
     if (browser) {
         const listener = addScanListener(aps => (networks = aps));

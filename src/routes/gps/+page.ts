@@ -9,7 +9,7 @@ async function getLocation() {
     return Geolocation.getCurrentPosition({ enableHighAccuracy: true });
 }
 
-export const load = (async () => {
-    const position = browser ? await getLocation() : null;
+export const load = (() => {
+    const position = browser ? getLocation() : null;
     return { position };
 }) satisfies PageLoad;

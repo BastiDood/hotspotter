@@ -19,7 +19,7 @@ export async function startScan() {
 const AccessPointsResult = object({ results: array(AccessPoint) });
 export async function getScanResults() {
     const output = await WifiInfo.getScanResults();
-    return parse(AccessPointsResult, output).results;
+    return parse(AccessPointsResult, output).results.sort((a, b) => b.rssi - a.rssi);
 }
 
 type AccessPoints = Output<typeof AccessPoint>[];
