@@ -2,6 +2,7 @@
     import * as Api from '$lib/http';
     import * as Cache from '$lib/plugins/Cache';
     import * as Config from '$lib/plugins/Config';
+    import * as Location from '$lib/plugins/Location';
     import * as TelephonyInfo from '$lib/plugins/TelephonyInfo';
     import * as WifiInfo from '$lib/plugins/WifiInfo';
     import { ArrowPathIcon, ArrowUpTrayIcon } from '@krowten/svelte-heroicons';
@@ -32,6 +33,26 @@
     }
 
     const toast = getToastStore();
+
+    let gpsLoadState = State.NONE;
+    async function getLocation() {
+        gpsLoadState = State.LOADING;
+        try {
+            const location = await Location.getLocation();
+            if (location === null) throw new RangeError('Location query failed.');
+            gpsLoadState = State.SUCCESS;
+            return location;
+        } catch (err) {
+            gpsLoadState = State.FAILURE;
+            if (err instanceof Error)
+                toast.trigger({
+                    message: `${err.name}: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+            throw err;
+        }
+    }
 
     let wifiLoadState = State.NONE;
     async function scan() {
@@ -103,8 +124,28 @@
                 return;
             }
 
-            const [wifi, sim, strength] = await Promise.all([scan(), getSim(), getSignalStrength()]);
-            const body = { wifi, sim, strength };
+            const [
+                {
+                    timestamp,
+                    coords: { latitude, longitude, accuracy, altitude, altitudeAccuracy, speed, heading },
+                },
+                wifi,
+                sim,
+                strength,
+            ] = await Promise.all([getLocation(), scan(), getSim(), getSignalStrength()]);
+
+            const gps = {
+                timestamp: new Date(timestamp),
+                latitude,
+                longitude,
+                coordsAccuracy: accuracy,
+                altitude,
+                altitudeAccuracy,
+                speed,
+                heading,
+            };
+
+            const body = { gps, wifi, sim, strength };
             try {
                 await Api.submit(url, body);
             } catch (err) {
@@ -218,6 +259,10 @@
         <span>Sync</span>
     </button>
     <ul class="list">
+        <li>
+            <ProgressRadial width="w-8" value={stateToProgress(gpsLoadState)} />
+            <span>GPS</span>
+        </li>
         <li>
             <ProgressRadial width="w-8" value={stateToProgress(wifiLoadState)} />
             <span>WiFi</span>

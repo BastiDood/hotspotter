@@ -27,6 +27,7 @@
 
     onDestroy(() => {
         map?.remove();
+        map = null;
     });
 </script>
 
