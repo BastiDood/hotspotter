@@ -1,6 +1,6 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let csiCqiTableIndex: number;
+    export let csiCqiTableIndex: number | null;
     // eslint-disable-next-line init-declarations
     export let csiRsrp: number;
     // eslint-disable-next-line init-declarations

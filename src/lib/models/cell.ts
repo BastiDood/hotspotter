@@ -1,4 +1,4 @@
-import { coerce, date, enum_, merge, number, object, partial, string } from 'valibot';
+import { coerce, date, enum_, merge, nullable, number, object, partial, string } from 'valibot';
 
 export enum NetworkType {
     /** Unknown */
@@ -67,7 +67,7 @@ export const Gsm = object({
 
 export const Lte = object({
     cqi: number(),
-    cqiTableIndex: number(),
+    cqiTableIndex: nullable(number()),
     rsrp: number(),
     rsrq: number(),
     rssi: number(),
@@ -76,7 +76,7 @@ export const Lte = object({
 });
 
 export const Nr = object({
-    csiCqiTableIndex: number(),
+    csiCqiTableIndex: nullable(number()),
     csiRsrp: number(),
     csiRsrq: number(),
     csiSinr: number(),

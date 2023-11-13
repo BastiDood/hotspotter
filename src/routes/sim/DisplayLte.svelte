@@ -6,7 +6,7 @@
     // eslint-disable-next-line init-declarations
     export let cqi: number;
     // eslint-disable-next-line init-declarations
-    export let cqiTableIndex: number;
+    export let cqiTableIndex: number | null;
     // eslint-disable-next-line init-declarations
     export let rsrp: number;
     // eslint-disable-next-line init-declarations

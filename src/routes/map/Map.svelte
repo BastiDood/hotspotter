@@ -3,14 +3,22 @@
     import type { Map } from 'leaflet';
     import { assert } from '$lib/assert';
 
+    // eslint-disable-next-line init-declarations
+    export let zoom: number;
+    // eslint-disable-next-line init-declarations
+    export let latitude: number;
+    // eslint-disable-next-line init-declarations
+    export let longitude: number;
+
     let div = null as HTMLDivElement | null;
     let map = null as Map | null;
+    $: map?.setView([latitude, longitude], zoom);
 
     onMount(async () => {
+        assert(div !== null);
         await import('leaflet/dist/leaflet.css');
         const L = await import('leaflet');
-        assert(div !== null);
-        map = L.map(div).setView([14.599512, 120.984222], 5);
+        map = L.map(div);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 20,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -19,7 +27,6 @@
 
     onDestroy(() => {
         map?.remove();
-        map = null;
     });
 </script>
 
