@@ -12,6 +12,6 @@
         <ChartBarSquareIcon slot="lead" class="h-8" />
         <LightSwitch slot="trail" />
     </AppBar>
-    <div class="m-4"><slot /></div>
+    <slot />
     <NavBar slot="footer" />
 </AppShell>

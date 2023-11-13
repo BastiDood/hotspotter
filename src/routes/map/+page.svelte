@@ -1,5 +1,5 @@
 <script>
-    import Error from '$lib/alerts/Error.svelte';
+    import Map from './Map.svelte';
 </script>
 
-<Error>TODO: Leaflet.js Map</Error>
+<Map />
