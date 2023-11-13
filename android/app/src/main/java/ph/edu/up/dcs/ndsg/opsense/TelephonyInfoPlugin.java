@@ -1,7 +1,7 @@
 package ph.edu.up.dcs.ndsg.opsense;
 
 import android.content.Context;
-import android.os.SystemClock;
+import android.os.*;
 import android.telephony.*;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
@@ -18,14 +18,14 @@ public class TelephonyInfoPlugin extends Plugin {
         }
     }
 
-    private JSObject signalStrengthToJson(SignalStrength strength) {
+    private static JSObject signalStrengthToJson(SignalStrength strength) {
         var now = System.currentTimeMillis();
         var elapsed = SystemClock.elapsedRealtime();
         var timestamp = strength.getTimestampMillis();
         var res = new JSObject()
             .put("timestamp", now - elapsed + timestamp)
             .put("level", strength.getLevel());
-        for (var cell : api.getSignalStrength().getCellSignalStrengths()) {
+        for (var cell : strength.getCellSignalStrengths()) {
             var json = new JSObject()
                 .put("dbm", cell.getDbm())
                 .put("asu", cell.getAsuLevel())
@@ -47,7 +47,7 @@ public class TelephonyInfoPlugin extends Plugin {
                 res.put("gsm", json);
             } else if (cell instanceof CellSignalStrengthLte s) {
                 json.put("cqi", s.getCqi())
-                    .put("cqiTableIndex", s.getCqiTableIndex())
+                    .put("cqiTableIndex", Build.VERSION.SDK_INT < Build.VERSION_CODES.S ? null : s.getCqiTableIndex())
                     .put("rsrp", s.getRsrp())
                     .put("rsrq", s.getRsrq())
                     .put("rssi", s.getRssi())
@@ -57,7 +57,7 @@ public class TelephonyInfoPlugin extends Plugin {
             } else if (cell instanceof CellSignalStrengthNr s) {
                 // TODO: getCsiCqiReport
                 // TODO: getTimingAdvanceMicros
-                json.put("csiCqiTableIndex", s.getCsiCqiTableIndex())
+                json.put("csiCqiTableIndex", Build.VERSION.SDK_INT < Build.VERSION_CODES.S ? null : s.getCsiCqiTableIndex())
                     .put("csiRsrp", s.getCsiRsrp())
                     .put("csiRsrq", s.getCsiRsrq())
                     .put("csiSinr", s.getCsiSinr())
