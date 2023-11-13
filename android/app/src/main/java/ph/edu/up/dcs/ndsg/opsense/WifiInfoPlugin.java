@@ -23,7 +23,7 @@ public class WifiInfoPlugin extends Plugin {
         // Compute Unix timestamp
         var now = System.currentTimeMillis();
         var elapsed = SystemClock.elapsedRealtime();
-        var timestamp = TimeUnit.MICROSECONDS.convert(result.timestamp, TimeUnit.MILLISECONDS);
+        var timestamp = TimeUnit.MICROSECONDS.toMillis(result.timestamp);
         var unix = now - elapsed + timestamp;
 
         return new JSObject()
