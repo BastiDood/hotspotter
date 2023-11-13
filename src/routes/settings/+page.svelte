@@ -10,7 +10,6 @@
     $: placeholder = url?.toString() ?? 'https://example.com/';
 
     const toast = getToastStore();
-
     async function submit(form: HTMLFormElement) {
         const data = new FormData(form);
         const url = data.get('url');
