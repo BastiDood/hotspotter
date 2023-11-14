@@ -10,6 +10,7 @@
     $: ({ position } = data);
     $: lat = position?.coords.latitude ?? 0;
     $: long = position?.coords.longitude ?? 0;
+    $: radius = position?.coords.accuracy;
 
     // eslint-disable-next-line init-declarations
     let id: string | undefined;
@@ -27,4 +28,4 @@
     });
 </script>
 
-<Map zoom={15} latitude={lat} longitude={long} />
+<Map zoom={15} {radius} latitude={lat} longitude={long} />

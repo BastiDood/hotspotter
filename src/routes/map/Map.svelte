@@ -1,11 +1,12 @@
 <script lang="ts">
-    import type { LatLngTuple, Map, Marker } from 'leaflet';
+    import type { Circle, LatLngTuple, Map, Marker } from 'leaflet';
     import { onDestroy, onMount } from 'svelte';
     import { assert } from '$lib/assert';
     import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
     import iconUrl from 'leaflet/dist/images/marker-icon.png';
     import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
+    export let radius = 0;
     // eslint-disable-next-line init-declarations
     export let zoom: number;
     // eslint-disable-next-line init-declarations
@@ -16,10 +17,15 @@
     let div = null as HTMLDivElement | null;
     let map = null as Map | null;
     let marker = null as Marker | null;
+    let circle = null as Circle | null;
 
     $: coords = [latitude, longitude] as LatLngTuple;
     $: map?.setZoom(zoom);
-    $: marker?.setLatLng(coords);
+    $: circle?.setRadius(radius);
+    $: {
+        marker?.setLatLng(coords);
+        circle?.setLatLng(coords);
+    }
 
     onMount(async () => {
         await import('leaflet/dist/leaflet.css');
@@ -39,6 +45,7 @@
         assert(div !== null);
         map = L.map(div).setView(coords, zoom);
         marker = L.marker(coords, { icon }).addTo(map);
+        circle = L.circle(coords, { color: '#3b82f6', fill: true, radius }).addTo(map);
 
         map.addEventListener('zoom', ({ type, sourceTarget }) => {
             assert(type === 'zoom');
@@ -53,8 +60,10 @@
     });
 
     onDestroy(() => {
+        circle?.remove();
         marker?.remove();
         map?.remove();
+        circle = null;
         marker = null;
         map = null;
     });
