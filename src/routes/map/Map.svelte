@@ -18,19 +18,12 @@
     let marker = null as Marker | null;
 
     $: coords = [latitude, longitude] as LatLngTuple;
-    $: map?.setView(coords, zoom);
+    $: map?.setZoom(zoom);
     $: marker?.setLatLng(coords);
 
     onMount(async () => {
-        assert(div !== null);
         await import('leaflet/dist/leaflet.css');
         const L = await import('leaflet');
-        map = L.map(div);
-
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 20,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        }).addTo(map);
 
         const icon = L.icon({
             iconUrl,
@@ -43,11 +36,26 @@
             shadowSize: [41, 41],
         });
 
+        assert(div !== null);
+        map = L.map(div).setView(coords, zoom);
         marker = L.marker(coords, { icon }).addTo(map);
+
+        map.addEventListener('zoom', ({ type, sourceTarget }) => {
+            assert(type === 'zoom');
+            assert(sourceTarget instanceof L.Map);
+            zoom = sourceTarget.getZoom();
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
     });
 
     onDestroy(() => {
+        marker?.remove();
         map?.remove();
+        marker = null;
         map = null;
     });
 </script>
