@@ -5,7 +5,7 @@ import { assert } from '$lib/assert';
 import { filterMap } from '$lib/util';
 
 async function readFile(path: string) {
-    const { data } = await Filesystem.readFile({ path, directory: Directory.Cache });
+    const { data } = await Filesystem.readFile({ path, directory: Directory.Cache, encoding: Encoding.UTF8 });
     assert(typeof data === 'string');
     const payload = parse(Data, JSON.parse(data));
     return { path, payload };
