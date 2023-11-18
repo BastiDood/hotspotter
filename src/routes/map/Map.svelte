@@ -1,72 +1,66 @@
 <script lang="ts">
-    import type { Circle, LatLngTuple, Map, Marker } from 'leaflet';
+    import 'ol/ol.css';
     import { onDestroy, onMount } from 'svelte';
+    import { Circle } from 'ol/geom';
+    import Collection from 'ol/Collection';
+    import type { Coordinate } from 'ol/coordinate';
+    import Feature from 'ol/Feature';
+    import Fill from 'ol/style/Fill';
+    import Map from 'ol/Map';
+    import OpenStreetMap from 'ol/source/OSM';
+    import Stroke from 'ol/style/Stroke';
+    import Style from 'ol/style/Style';
+    import TileLayer from 'ol/layer/WebGLTile';
+    import VectorLayer from 'ol/layer/Vector';
+    import VectorSource from 'ol/source/Vector';
+    import View from 'ol/View';
     import { assert } from '$lib/assert';
-    import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-    import iconUrl from 'leaflet/dist/images/marker-icon.png';
-    import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-    export let radius = 0;
+    let target = null as HTMLDivElement | null;
+    let view = null as View | null;
+    let map = null as Map | null;
+
     // eslint-disable-next-line init-declarations
     export let zoom: number;
+    $: view?.setZoom(zoom);
+
     // eslint-disable-next-line init-declarations
-    export let latitude: number;
-    // eslint-disable-next-line init-declarations
-    export let longitude: number;
+    export let center: Coordinate;
+    export let radius = 0;
 
-    let div = null as HTMLDivElement | null;
-    let map = null as Map | null;
-    let marker = null as Marker | null;
-    let circle = null as Circle | null;
+    const user = new Circle(center, radius);
+    $: user.setCenter(center);
+    $: user.setRadius(radius);
 
-    $: coords = [latitude, longitude] as LatLngTuple;
-    $: map?.setZoom(zoom);
-    $: circle?.setRadius(radius);
-    $: {
-        marker?.setLatLng(coords);
-        circle?.setLatLng(coords);
-    }
+    const feature = new Feature({ geometry: user });
+    feature.setStyle(
+        new Style({
+            fill: new Fill({ color: '#4f46e566' }),
+            stroke: new Stroke({ color: '#0ea5e988', width: 4 }),
+        }),
+    );
 
-    onMount(async () => {
-        await import('leaflet/dist/leaflet.css');
-        const L = await import('leaflet');
+    export const features = new Collection<Feature>();
 
-        const icon = L.icon({
-            iconUrl,
-            iconRetinaUrl,
-            shadowUrl,
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            tooltipAnchor: [16, -28],
-            shadowSize: [41, 41],
+    onMount(() => {
+        assert(target !== null);
+        view = new View({ center, zoom, enableRotation: false });
+        map = new Map({
+            target,
+            view,
+            layers: [
+                new TileLayer({ source: new OpenStreetMap() }),
+                new VectorLayer({ source: new VectorSource({ features }) }),
+                new VectorLayer({ source: new VectorSource({ features: new Collection([feature]) }) }),
+            ],
         });
-
-        assert(div !== null);
-        map = L.map(div).setView(coords, zoom);
-        marker = L.marker(coords, { icon }).addTo(map);
-        circle = L.circle(coords, { color: '#3b82f6', fill: true, radius }).addTo(map);
-
-        map.addEventListener('zoom', ({ type, sourceTarget }) => {
-            assert(type === 'zoom');
-            assert(sourceTarget instanceof L.Map);
-            zoom = sourceTarget.getZoom();
-        });
-
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 20,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        }).addTo(map);
     });
 
     onDestroy(() => {
-        circle?.remove();
-        marker?.remove();
-        map?.remove();
-        circle = null;
-        marker = null;
+        view = null;
+        map?.dispose();
         map = null;
     });
 </script>
 
-<div bind:this={div} class="h-full"></div>
+<div bind:this={target} class="h-full"></div>
