@@ -1,5 +1,5 @@
 import {
-array,
+    array,
     coerce,
     date,
     enum_,
@@ -116,7 +116,7 @@ export const Tdscdma = object({
 export const Wcdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
     asu: number([safeInteger(), minValue(0), maxValue(96)]),
-    ec_no: nullable(number([safeInteger(), minValue(-24), maxValue(-1)]))
+    ec_no: nullable(number([safeInteger(), minValue(-24), maxValue(-1)])),
 });
 
 export const CellSignalStrength = object({
@@ -129,7 +129,7 @@ export const CellSignalStrength = object({
 });
 
 export const SignalStrength = merge([
-    // deno-lint-ignore no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     object({ timestamp: coerce(date(), input => new Date(input as any)) }),
     partial(CellSignalStrength),
 ]);
