@@ -6,7 +6,6 @@
     import DisplayLte from './DisplayLte.svelte';
     import DisplayNr from './DisplayNr.svelte';
     import DisplaySim from './DisplaySim.svelte';
-    import DisplayStrength from './DisplayStrength.svelte';
     import DisplayTdscdma from './DisplayTdscdma.svelte';
     import DisplayWcdma from './DisplayWcdma.svelte';
     import type { PageData } from './$types';
@@ -31,20 +30,36 @@
     <section>
         <h1>SIM Information</h1>
         {#if typeof sim !== 'undefined'}
-            {@const { networkType, carrierId, carrierName, operatorId, operatorName } = sim}
+            {@const {
+                network_type: networkType,
+                carrier_id: carrierId,
+                carrier_name: carrierName,
+                operator_id: operatorId,
+                operator_name: operatorName,
+            } = sim}
             <DisplaySim {networkType} {carrierId} {carrierName} {operatorId} {operatorName} />
         {/if}
     </section>
     {#if typeof strength !== 'undefined'}
-        {@const { timestamp, level, cdma, gsm, lte, nr, tdscdma, wcdma } = strength}
+        {@const { timestamp, cdma, gsm, lte, nr, tdscdma, wcdma } = strength}
         <section>
             <h1>Signal Strength</h1>
-            <DisplayStrength {timestamp} {level} />
         </section>
         <section>
             <h1>Cell Signal Strengths</h1>
             {#if typeof cdma !== 'undefined'}
-                {@const { dbm, asu, level, cdmaDbm, cdmaEcio, cdmaLevel, evdoDbm, evdoEcio, evdoLevel, evdoSnr } = cdma}
+                {@const {
+                    dbm,
+                    asu,
+                    level,
+                    cdma_dbm: cdmaDbm,
+                    cdma_ecio: cdmaEcio,
+                    cdma_level: cdmaLevel,
+                    evdo_dbm: evdoDbm,
+                    evdo_ecio: evdoEcio,
+                    evdo_level: evdoLevel,
+                    evdo_snr: evdoSnr,
+                } = cdma}
                 <div class="card p-2">
                     <div>
                         <h2>Summary</h2>
@@ -61,7 +76,7 @@
                 </div>
             {/if}
             {#if typeof gsm !== 'undefined'}
-                {@const { dbm, asu, level, rssi, bitErrorRate, timingAdvance } = gsm}
+                {@const { dbm, asu, level, rssi, bit_error_rate: bitErrorRate, timing_advance: timingAdvance } = gsm}
                 <div class="card p-2">
                     <h2>GSM</h2>
                     <Common {dbm} {asu} {level} />
@@ -69,7 +84,18 @@
                 </div>
             {/if}
             {#if typeof lte !== 'undefined'}
-                {@const { dbm, asu, level, rssi, timingAdvance, cqi, cqiTableIndex, rsrp, rsrq, rssnr } = lte}
+                {@const {
+                    dbm,
+                    asu,
+                    level,
+                    rssi,
+                    timing_advance: timingAdvance,
+                    cqi,
+                    cqi_table_index: cqiTableIndex,
+                    rsrp,
+                    rsrq,
+                    rssnr,
+                } = lte}
                 <div class="card p-2">
                     <h2>LTE</h2>
                     <Common {dbm} {asu} {level} />
@@ -77,7 +103,19 @@
                 </div>
             {/if}
             {#if typeof nr !== 'undefined'}
-                {@const { dbm, asu, level, csiCqiTableIndex, csiRsrp, csiRsrq, csiSinr, ssRsrp, ssRsrq, ssSinr } = nr}
+                {@const {
+                    dbm,
+                    asu,
+                    level,
+                    csi_cqi_report: csiCqiReport,
+                    csi_cqi_table_index: csiCqiTableIndex,
+                    csi_rsrp: csiRsrp,
+                    csi_rsrq: csiRsrq,
+                    csi_sinr: csiSinr,
+                    ss_rsrp: ssRsrp,
+                    ss_rsrq: ssRsrq,
+                    ss_sinr: ssSinr,
+                } = nr}
                 <div class="card p-2">
                     <h2>NR</h2>
                     <Common {dbm} {asu} {level} />
@@ -93,7 +131,7 @@
                 </div>
             {/if}
             {#if typeof wcdma !== 'undefined'}
-                {@const { dbm, asu, level, ecNo } = wcdma}
+                {@const { dbm, asu, level, ec_no: ecNo } = wcdma}
                 <div class="card p-2">
                     <Common {dbm} {asu} {level} />
                     <h2>WCDMA</h2>

@@ -2,17 +2,17 @@
     // eslint-disable-next-line init-declarations
     export let csiCqiTableIndex: number | null;
     // eslint-disable-next-line init-declarations
-    export let csiRsrp: number;
+    export let csiRsrp: number | null;
     // eslint-disable-next-line init-declarations
-    export let csiRsrq: number;
+    export let csiRsrq: number | null;
     // eslint-disable-next-line init-declarations
-    export let csiSinr: number;
+    export let csiSinr: number | null;
     // eslint-disable-next-line init-declarations
-    export let ssRsrp: number;
+    export let ssRsrp: number | null;
     // eslint-disable-next-line init-declarations
-    export let ssRsrq: number;
+    export let ssRsrq: number | null;
     // eslint-disable-next-line init-declarations
-    export let ssSinr: number;
+    export let ssSinr: number | null;
 </script>
 
 <div class="table-container">

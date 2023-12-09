@@ -1,6 +1,6 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let rscp: number;
+    export let rscp: number | null;
 </script>
 
 <div class="table-container">

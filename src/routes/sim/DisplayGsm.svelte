@@ -1,8 +1,8 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let rssi: number;
+    export let rssi: number | null;
     // eslint-disable-next-line init-declarations
-    export let bitErrorRate: number;
+    export let bitErrorRate: number | null;
     // eslint-disable-next-line init-declarations
     export let timingAdvance: number;
 </script>

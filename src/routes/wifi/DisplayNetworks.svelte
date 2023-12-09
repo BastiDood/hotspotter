@@ -25,12 +25,12 @@
             </tr>
         </thead>
         <tbody>
-            {#each networks as { timestamp, bssid, ssid, standard, rssi, level, maxLevel, channelWidth, frequency, centerFreq0, centerFreq1 } (bssid)}
+            {#each networks as { wifi_timestamp, bssid, ssid, standard, rssi, level, max_level, channel_width, frequency, center_freq_0, center_freq_1 } (bssid)}
                 <tr>
-                    <td>{timestamp.toLocaleString()}</td>
+                    <td>{wifi_timestamp.toLocaleString()}</td>
                     <td>{standard}</td>
                     <td>
-                        <Ratings spacing="" max={maxLevel} value={level}>
+                        <Ratings spacing="" max={max_level} value={level}>
                             <StarIcon class="h-4" slot="empty" />
                             <StarIcon class="h-4" slot="full" solid />
                         </Ratings>
@@ -38,10 +38,10 @@
                     <td>{bssid}</td>
                     <td>{ssid}</td>
                     <td>{rssi}</td>
-                    <td>{channelWidth}</td>
+                    <td>{channel_width}</td>
                     <td>{frequency}</td>
-                    <td>{centerFreq0}</td>
-                    <td>{centerFreq1}</td>
+                    <td>{center_freq_0}</td>
+                    <td>{center_freq_1}</td>
                 </tr>
             {/each}
         </tbody>

@@ -1,6 +1,6 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let ecNo: number;
+    export let ecNo: number | null;
 </script>
 
 <div class="table-container">
