@@ -17,14 +17,7 @@ The mobile application is a single-page [SvelteKit] application powered by the [
     -   `emulator` (Optional)
     -   `extras;google;Android_Emulator_Hypervisor_Driver` (Optional)
 -   [OpenJDK 21]
--   Android 12 (API 31)
-
-> [!IMPORTANT]
-> Although future versions of the app aim to bring the minimum version lower, Android 12 (API 31) is necessary because of the following essential features:
-> * [`android.net.wifi.WifiManager#registerScanResultsCallback`](https://developer.android.com/reference/android/net/wifi/WifiManager#registerScanResultsCallback(java.util.concurrent.Executor,%20android.net.wifi.WifiManager.ScanResultsCallback))
-> * [`android.net.wifi.WifiManager#unregisterScanResultsCallback`](https://developer.android.com/reference/android/net/wifi/WifiManager#unregisterScanResultsCallback(android.net.wifi.WifiManager.ScanResultsCallback))
-> * [`android.telephony.TelephonyManager#registerTelephonyCallback`](https://developer.android.com/reference/android/telephony/TelephonyManager#registerTelephonyCallback(java.util.concurrent.Executor,%20android.telephony.TelephonyCallback))
-> * [`android.telephony.TelephonyManager#unregisterTelephonyCallback`](https://developer.android.com/reference/android/telephony/TelephonyManager#unregisterTelephonyCallback(android.telephony.TelephonyCallback))
+-   Android 9 (API 28)
 
 [Node.js]: https://nodejs.org/en/download/
 [pnpm]: https://pnpm.io/
