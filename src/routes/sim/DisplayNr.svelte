@@ -1,5 +1,7 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
+    export let csiCqiReport: number[] | null;
+    // eslint-disable-next-line init-declarations
     export let csiCqiTableIndex: number | null;
     // eslint-disable-next-line init-declarations
     export let csiRsrp: number | null;
@@ -19,6 +21,7 @@
     <table class="table">
         <thead>
             <tr>
+                <th>Channel State Infomration and Channel Quality Indicator Report</th>
                 <th>Channel State Infomration and Channel Quality Indicator Table Index</th>
                 <th>Channel State Information Channel Quality Indicator</th>
                 <th>Channel State Information Channel Quality Indicator Table Index</th>
@@ -29,6 +32,7 @@
         </thead>
         <tbody>
             <tr>
+                <td>{csiCqiReport}</td>
                 <td>{csiCqiTableIndex}</td>
                 <td>{csiRsrp}</td>
                 <td>{csiRsrq}</td>

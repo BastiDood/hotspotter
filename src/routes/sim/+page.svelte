@@ -43,10 +43,8 @@
     {#if typeof strength !== 'undefined'}
         {@const { timestamp, cdma, gsm, lte, nr, tdscdma, wcdma } = strength}
         <section>
-            <h1>Signal Strength</h1>
-        </section>
-        <section>
             <h1>Cell Signal Strengths</h1>
+            <p>As of {timestamp.toLocaleString()}.</p>
             {#if typeof cdma !== 'undefined'}
                 {@const {
                     dbm,
@@ -119,7 +117,7 @@
                 <div class="card p-2">
                     <h2>NR</h2>
                     <Common {dbm} {asu} {level} />
-                    <DisplayNr {csiCqiTableIndex} {csiRsrp} {csiRsrq} {csiSinr} {ssRsrp} {ssRsrq} {ssSinr} />
+                    <DisplayNr {csiCqiReport} {csiCqiTableIndex} {csiRsrp} {csiRsrq} {csiSinr} {ssRsrp} {ssRsrq} {ssSinr} />
                 </div>
             {/if}
             {#if typeof tdscdma !== 'undefined'}
