@@ -1,7 +1,7 @@
-import { SignalStrength, Sim } from '$lib/models/cell';
-import { array, object } from 'valibot';
-import { AccessPoint } from '$lib/models/wifi';
-import { Location } from './gps';
+import { CellSignalInfo, SignalStrength, Sim } from './cell.ts';
+import { array, merge, number, object } from 'valibot';
+import { AccessPoint } from './wifi.ts';
+import { Location } from './gps.ts';
 
 export const Data = object({
     gps: Location,
@@ -9,3 +9,11 @@ export const Data = object({
     sim: Sim,
     strength: SignalStrength,
 });
+
+const Circle = object({
+    lon: number(),
+    lat: number(),
+    rad: number(),
+});
+
+export const DataPoints = array(merge([CellSignalInfo, Circle]));

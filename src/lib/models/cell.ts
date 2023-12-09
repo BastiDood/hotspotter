@@ -1,4 +1,18 @@
-import { coerce, date, enum_, merge, nullable, number, object, partial, string } from 'valibot';
+import {
+array,
+    coerce,
+    date,
+    enum_,
+    maxValue,
+    merge,
+    minValue,
+    nullable,
+    number,
+    object,
+    partial,
+    safeInteger,
+    string,
+} from 'valibot';
 
 export enum NetworkType {
     /** Unknown */
@@ -44,52 +58,68 @@ export enum NetworkType {
 }
 
 export const CellSignalInfo = object({
-    dbm: number(),
-    asu: number(),
-    level: number(),
+    level: number([safeInteger(), minValue(0), maxValue(4)]),
 });
 
 export const Cdma = object({
-    cdmaDbm: number(),
-    cdmaEcio: number(),
-    cdmaLevel: number(),
-    evdoDbm: number(),
-    evdoEcio: number(),
-    evdoLevel: number(),
-    evdoSnr: number(),
+    dbm: number([safeInteger()]),
+    asu: number([safeInteger(), minValue(1), maxValue(16)]), // FIXME: Validate powers of two.
+    cdma_dbm: number([safeInteger()]),
+    cdma_ecio: number([safeInteger()]),
+    cdma_level: number([safeInteger(), minValue(0), maxValue(4)]),
+    evdo_dbm: number([safeInteger()]),
+    evdo_ecio: number([safeInteger()]),
+    evdo_level: number([safeInteger(), minValue(0), maxValue(4)]),
+    evdo_snr: number([safeInteger(), minValue(0), maxValue(8)]),
 });
 
 export const Gsm = object({
-    bitErrorRate: number(),
-    rssi: number(),
-    timingAdvance: number(),
+    dbm: number([safeInteger()]),
+    asu: number([safeInteger(), minValue(0), maxValue(31)]),
+    bit_error_rate: nullable(number([safeInteger(), minValue(0), maxValue(7)])),
+    rssi: nullable(number([safeInteger(), minValue(-113), maxValue(-51)])),
+    timing_advance: number([safeInteger()]),
 });
 
 export const Lte = object({
-    cqi: number(),
-    cqiTableIndex: nullable(number()),
-    rsrp: number(),
-    rsrq: number(),
-    rssi: number(),
-    rssnr: number(),
-    timingAdvance: number(),
+    dbm: number([safeInteger()]),
+    asu: number([safeInteger(), minValue(0), maxValue(97)]),
+    cqi: nullable(number([safeInteger(), minValue(0), maxValue(15)])),
+    cqi_table_index: nullable(number([safeInteger(), minValue(1), maxValue(6)])),
+    rsrp: nullable(number([safeInteger(), minValue(-140), maxValue(-43)])),
+    rsrq: nullable(number([safeInteger()])),
+    rssi: nullable(number([safeInteger(), minValue(-113), maxValue(-51)])),
+    rssnr: nullable(number([safeInteger(), minValue(-20), maxValue(30)])),
+    timing_advance: nullable(number([safeInteger(), minValue(0), maxValue(1282)])),
 });
 
 export const Nr = object({
-    csiCqiTableIndex: nullable(number()),
-    csiRsrp: number(),
-    csiRsrq: number(),
-    csiSinr: number(),
-    ssRsrp: number(),
-    ssRsrq: number(),
-    ssSinr: number(),
-    timingAdvanceMicros: number(),
+    dbm: number([safeInteger(), minValue(-140), maxValue(-44)]),
+    asu: number([safeInteger(), minValue(0), maxValue(97)]),
+    csi_cqi_report: nullable(array(number([safeInteger(), minValue(0), maxValue(15)]))),
+    csi_cqi_table_index: nullable(number([safeInteger(), minValue(0), maxValue(2)])),
+    csi_rsrp: nullable(number([safeInteger(), minValue(-156), maxValue(-31)])),
+    csi_rsrq: nullable(number([safeInteger(), minValue(-20), maxValue(-3)])),
+    csi_sinr: nullable(number([safeInteger(), minValue(-23), maxValue(23)])),
+    ss_rsrp: nullable(number([safeInteger(), minValue(-156), maxValue(-31)])),
+    ss_rsrq: nullable(number([safeInteger(), minValue(-43), maxValue(20)])),
+    ss_sinr: nullable(number([safeInteger(), minValue(-23), maxValue(40)])),
+    timing_advance_micros: nullable(number([safeInteger(), minValue(0), maxValue(1282)])),
 });
 
-export const Tdscdma = object({ rscp: number() });
-export const Wcdma = object({ ecNo: number() });
+export const Tdscdma = object({
+    dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
+    asu: number([safeInteger(), minValue(0), maxValue(96)]),
+    rscp: nullable(number([safeInteger(), minValue(-120), maxValue(-24)])),
+});
 
-const CellSignalStrength = object({
+export const Wcdma = object({
+    dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
+    asu: number([safeInteger(), minValue(0), maxValue(96)]),
+    ec_no: nullable(number([safeInteger(), minValue(-24), maxValue(-1)]))
+});
+
+export const CellSignalStrength = object({
     cdma: merge([CellSignalInfo, Cdma]),
     gsm: merge([CellSignalInfo, Gsm]),
     lte: merge([CellSignalInfo, Lte]),
@@ -98,18 +128,16 @@ const CellSignalStrength = object({
     wcdma: merge([CellSignalInfo, Wcdma]),
 });
 
-const SummarySignalStrength = object({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    timestamp: coerce(date(), input => new Date(input as any)),
-    level: number(),
-});
-
-export const SignalStrength = merge([SummarySignalStrength, partial(CellSignalStrength)]);
+export const SignalStrength = merge([
+    // deno-lint-ignore no-explicit-any
+    object({ timestamp: coerce(date(), input => new Date(input as any)) }),
+    partial(CellSignalStrength),
+]);
 
 export const Sim = object({
-    networkType: enum_(NetworkType),
-    carrierId: number(),
-    carrierName: string(),
-    operatorId: string(),
-    operatorName: string(),
+    network_type: enum_(NetworkType),
+    carrier_id: number(),
+    carrier_name: string(),
+    operator_id: string(),
+    operator_name: string(),
 });
