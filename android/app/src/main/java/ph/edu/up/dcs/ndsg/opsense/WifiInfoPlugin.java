@@ -2,7 +2,7 @@ package ph.edu.up.dcs.ndsg.opsense;
 
 import android.content.*;
 import android.net.wifi.*;
-import android.os.SystemClock;
+import android.os.*;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import java.util.List;
@@ -14,6 +14,9 @@ import org.json.JSONArray;
 public class WifiInfoPlugin extends Plugin {
     WifiManager api;
     WifiManager.ScanResultsCallback callback;
+
+    /** Android 11 and below just hard-coded into five tiers. */
+    private static final int DEFAULT_MAX_LEVEL = 5;
 
     private JSObject scanResultToJson(ScanResult result) {
         var now = System.currentTimeMillis();
@@ -33,17 +36,9 @@ public class WifiInfoPlugin extends Plugin {
             .put("wifi_timestamp", unix)
             .put("standard", standard == ScanResult.WIFI_STANDARD_UNKNOWN ? null : standard);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            // Old versions of Android just hard-coded into five tiers.
-            var level = api.calculateSignalLevel(result.level, 5);
-            json.put("level", level).put("max_level", 5);
-        } else {
-            var level = api.calculateSignalLevel(result.level);
-            var maxLevel = api.getMaxSignalLevel();
-            json.put("level", level).put("max_level", maxLevel);
-        }
-
-        return json;
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+            ? json.put("level", api.calculateSignalLevel(result.level, DEFAULT_MAX_LEVEL)).put("max_level", DEFAULT_MAX_LEVEL)
+            : json.put("level", api.calculateSignalLevel(result.level)).put("max_level", api.getMaxSignalLevel());
     }
 
     private JSObject scanResultsToResultJson(List<ScanResult> results) {
@@ -60,6 +55,7 @@ public class WifiInfoPlugin extends Plugin {
         callback = new WifiManager.ScanResultsCallback() {
             @Override
             public void onScanResultsAvailable() {
+                // noinspection MissingPermission
                 notifyListeners("scan", scanResultsToResultJson(api.getScanResults()));
             }
         };
@@ -80,6 +76,7 @@ public class WifiInfoPlugin extends Plugin {
 
     @PluginMethod()
     public void getScanResults(PluginCall ctx) {
+        // noinspection MissingPermission
         ctx.resolve(scanResultsToResultJson(api.getScanResults()));
     }
 }
