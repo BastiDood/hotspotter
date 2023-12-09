@@ -12,8 +12,8 @@ The mobile application is a single-page [SvelteKit] application powered by the [
 -   [Android Studio]
     -   `build-tools;30.0.3`
     -   `platform-tools`
-    -   `platforms;android-34`
-    -   `system-images;android-34;google_apis_playstore;x86_64` (Optional)
+    -   `platforms;android-33`
+    -   `system-images;android-33;google_apis_playstore;x86_64` (Optional)
     -   `emulator` (Optional)
     -   `extras;google;Android_Emulator_Hypervisor_Driver` (Optional)
 -   [OpenJDK 21]
