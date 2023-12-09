@@ -97,7 +97,7 @@
                 <div class="card p-2">
                     <h2>LTE</h2>
                     <Common {dbm} {asu} {level} />
-                    <DisplayLte {rssi} {timingAdvance} {cqi} {cqiTableIndex} {rsrp} {rsrq} {rssnr} />
+                    <DisplayLte {timingAdvance} {rssi} {cqi} {cqiTableIndex} {rsrp} {rsrq} {rssnr} />
                 </div>
             {/if}
             {#if typeof nr !== 'undefined'}
@@ -117,7 +117,16 @@
                 <div class="card p-2">
                     <h2>NR</h2>
                     <Common {dbm} {asu} {level} />
-                    <DisplayNr {csiCqiReport} {csiCqiTableIndex} {csiRsrp} {csiRsrq} {csiSinr} {ssRsrp} {ssRsrq} {ssSinr} />
+                    <DisplayNr
+                        {csiCqiReport}
+                        {csiCqiTableIndex}
+                        {csiRsrp}
+                        {csiRsrq}
+                        {csiSinr}
+                        {ssRsrp}
+                        {ssRsrq}
+                        {ssSinr}
+                    />
                 </div>
             {/if}
             {#if typeof tdscdma !== 'undefined'}

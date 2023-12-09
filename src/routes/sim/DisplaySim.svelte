@@ -2,9 +2,9 @@
     // eslint-disable-next-line init-declarations
     export let networkType: number;
     // eslint-disable-next-line init-declarations
-    export let carrierId: number;
+    export let carrierId: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let carrierName: string;
+    export let carrierName: string | null | undefined;
     // eslint-disable-next-line init-declarations
     export let operatorId: string;
     // eslint-disable-next-line init-declarations

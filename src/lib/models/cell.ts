@@ -7,8 +7,10 @@ import {
     merge,
     minValue,
     nullable,
+    nullish,
     number,
     object,
+    optional,
     partial,
     safeInteger,
     string,
@@ -76,47 +78,47 @@ export const Cdma = object({
 export const Gsm = object({
     dbm: number([safeInteger()]),
     asu: number([safeInteger(), minValue(0), maxValue(31)]),
-    bit_error_rate: nullable(number([safeInteger(), minValue(0), maxValue(7)])),
-    rssi: nullable(number([safeInteger(), minValue(-113), maxValue(-51)])),
-    timing_advance: number([safeInteger()]),
+    bit_error_rate: nullish(number([safeInteger(), minValue(0), maxValue(7)])),
+    rssi: nullish(number([safeInteger(), minValue(-113), maxValue(-51)])),
+    timing_advance: nullish(number([safeInteger()])),
 });
 
 export const Lte = object({
     dbm: number([safeInteger()]),
     asu: number([safeInteger(), minValue(0), maxValue(97)]),
-    cqi: nullable(number([safeInteger(), minValue(0), maxValue(15)])),
-    cqi_table_index: nullable(number([safeInteger(), minValue(1), maxValue(6)])),
-    rsrp: nullable(number([safeInteger(), minValue(-140), maxValue(-43)])),
-    rsrq: nullable(number([safeInteger()])),
-    rssi: nullable(number([safeInteger(), minValue(-113), maxValue(-51)])),
-    rssnr: nullable(number([safeInteger(), minValue(-20), maxValue(30)])),
+    cqi: nullish(number([safeInteger(), minValue(0), maxValue(15)])),
+    cqi_table_index: nullish(number([safeInteger(), minValue(1), maxValue(6)])),
+    rsrp: nullish(number([safeInteger(), minValue(-140), maxValue(-43)])),
+    rsrq: nullish(number([safeInteger()])),
+    rssi: nullish(number([safeInteger(), minValue(-113), maxValue(-51)])),
+    rssnr: nullish(number([safeInteger(), minValue(-20), maxValue(30)])),
     timing_advance: nullable(number([safeInteger(), minValue(0), maxValue(1282)])),
 });
 
 export const Nr = object({
     dbm: number([safeInteger(), minValue(-140), maxValue(-44)]),
     asu: number([safeInteger(), minValue(0), maxValue(97)]),
-    csi_cqi_report: nullable(array(number([safeInteger(), minValue(0), maxValue(15)]))),
-    csi_cqi_table_index: nullable(number([safeInteger(), minValue(0), maxValue(2)])),
-    csi_rsrp: nullable(number([safeInteger(), minValue(-156), maxValue(-31)])),
-    csi_rsrq: nullable(number([safeInteger(), minValue(-20), maxValue(-3)])),
-    csi_sinr: nullable(number([safeInteger(), minValue(-23), maxValue(23)])),
-    ss_rsrp: nullable(number([safeInteger(), minValue(-156), maxValue(-31)])),
-    ss_rsrq: nullable(number([safeInteger(), minValue(-43), maxValue(20)])),
-    ss_sinr: nullable(number([safeInteger(), minValue(-23), maxValue(40)])),
-    timing_advance_micros: nullable(number([safeInteger(), minValue(0), maxValue(1282)])),
+    csi_cqi_report: optional(array(number([safeInteger(), minValue(0), maxValue(15)]))),
+    csi_cqi_table_index: nullish(number([safeInteger(), minValue(0), maxValue(2)])),
+    csi_rsrp: nullish(number([safeInteger(), minValue(-156), maxValue(-31)])),
+    csi_rsrq: nullish(number([safeInteger(), minValue(-20), maxValue(-3)])),
+    csi_sinr: nullish(number([safeInteger(), minValue(-23), maxValue(23)])),
+    ss_rsrp: nullish(number([safeInteger(), minValue(-156), maxValue(-31)])),
+    ss_rsrq: nullish(number([safeInteger(), minValue(-43), maxValue(20)])),
+    ss_sinr: nullish(number([safeInteger(), minValue(-23), maxValue(40)])),
+    timing_advance_micros: nullish(number([safeInteger(), minValue(0), maxValue(1282)])),
 });
 
 export const Tdscdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
     asu: number([safeInteger(), minValue(0), maxValue(96)]),
-    rscp: nullable(number([safeInteger(), minValue(-120), maxValue(-24)])),
+    rscp: nullish(number([safeInteger(), minValue(-120), maxValue(-24)])),
 });
 
 export const Wcdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
     asu: number([safeInteger(), minValue(0), maxValue(96)]),
-    ec_no: nullable(number([safeInteger(), minValue(-24), maxValue(-1)])),
+    ec_no: nullish(number([safeInteger(), minValue(-24), maxValue(-1)])),
 });
 
 export const CellSignalStrength = object({
@@ -136,8 +138,8 @@ export const SignalStrength = merge([
 
 export const Sim = object({
     network_type: enum_(NetworkType),
-    carrier_id: nullable(number()),
-    carrier_name: nullable(string()),
+    carrier_id: nullish(number()),
+    carrier_name: nullish(string()),
     operator_id: string(),
     operator_name: string(),
 });

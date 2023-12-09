@@ -1,20 +1,20 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let csiCqiReport: number[] | null;
+    export let csiCqiReport: number[] | undefined;
     // eslint-disable-next-line init-declarations
-    export let csiCqiTableIndex: number | null;
+    export let csiCqiTableIndex: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let csiRsrp: number | null;
+    export let csiRsrp: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let csiRsrq: number | null;
+    export let csiRsrq: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let csiSinr: number | null;
+    export let csiSinr: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let ssRsrp: number | null;
+    export let ssRsrp: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let ssRsrq: number | null;
+    export let ssRsrq: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let ssSinr: number | null;
+    export let ssSinr: number | null | undefined;
 </script>
 
 <div class="table-container">

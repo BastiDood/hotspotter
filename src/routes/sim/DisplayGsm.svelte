@@ -1,10 +1,10 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let rssi: number | null;
+    export let rssi: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let bitErrorRate: number | null;
+    export let bitErrorRate: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let timingAdvance: number;
+    export let timingAdvance: number | null | undefined;
 </script>
 
 <div class="table-container">

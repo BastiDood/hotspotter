@@ -1,18 +1,18 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let rssi: number | null;
-    // eslint-disable-next-line init-declarations
     export let timingAdvance: number | null;
     // eslint-disable-next-line init-declarations
-    export let cqi: number | null;
+    export let rssi: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let cqiTableIndex: number | null;
+    export let cqi: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let rsrp: number | null;
+    export let cqiTableIndex: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let rsrq: number | null;
+    export let rsrp: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let rssnr: number | null;
+    export let rsrq: number | null | undefined;
+    // eslint-disable-next-line init-declarations
+    export let rssnr: number | null | undefined;
 </script>
 
 <div class="table-container">
