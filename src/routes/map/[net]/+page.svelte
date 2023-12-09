@@ -18,7 +18,9 @@
     let map = null as Map | null;
     $: if (map !== null && typeof markers !== 'undefined') {
         map.features.clear();
-        map.features.extend(markers.map(({ lon, lat }) => new Feature({ geometry: new Point(fromLonLat([lon, lat])) })));
+        map.features.extend(
+            markers.map(({ lon, lat }) => new Feature({ geometry: new Point(fromLonLat([lon, lat])) })),
+        );
     }
 
     // eslint-disable-next-line init-declarations

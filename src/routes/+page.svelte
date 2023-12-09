@@ -138,9 +138,9 @@
                 timestamp: new Date(timestamp),
                 latitude,
                 longitude,
-                coordsAccuracy: accuracy,
+                coords_accuracy: accuracy,
                 altitude,
-                altitudeAccuracy,
+                altitude_accuracy: altitudeAccuracy ?? null,
                 speed,
                 heading,
             };

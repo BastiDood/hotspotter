@@ -21,11 +21,13 @@
 
     // eslint-disable-next-line init-declarations
     export let gps: Circle;
-    const gpsFeature = new Feature<Circle>;
-    gpsFeature.setStyle(new Style({
-        fill: new Fill({ color: '#4f46e566' }),
-        stroke: new Stroke({ color: '#0ea5e988', width: 4 }),
-    }));
+    const gpsFeature = new Feature<Circle>();
+    gpsFeature.setStyle(
+        new Style({
+            fill: new Fill({ color: '#4f46e566' }),
+            stroke: new Stroke({ color: '#0ea5e988', width: 4 }),
+        }),
+    );
     $: gpsFeature.setGeometry(gps);
 
     let view = null as View | null;
