@@ -12,17 +12,22 @@ The mobile application is a single-page [SvelteKit] application powered by the [
 -   [Android Studio]
     -   `build-tools;30.0.3`
     -   `platform-tools`
-    -   `platforms;android-31`
-    -   `system-images;android-31;google_apis_playstore;x86_64` (Optional)
+    -   `platforms;android-34`
+    -   `system-images;android-34;google_apis_playstore;x86_64` (Optional)
     -   `emulator` (Optional)
     -   `extras;google;Android_Emulator_Hypervisor_Driver` (Optional)
--   [OpenJDK 17]
--   Android 12 (API 31)
+-   [OpenJDK 21]
+-   Android 10 (API 29)
+
+> [!IMPORTANT]
+> Android 10 (API 29) is necessary because of the following essential features:
+> * [`android.net.wifi.WifiManager#registerScanResultsCallback`](https://developer.android.com/reference/android/net/wifi/WifiManager#registerScanResultsCallback(java.util.concurrent.Executor,%20android.net.wifi.WifiManager.ScanResultsCallback))
+> * [`android.content.Context#getMainExecutor`](https://developer.android.com/reference/android/content/Context#getMainExecutor())
 
 [Node.js]: https://nodejs.org/en/download/
 [pnpm]: https://pnpm.io/
 [Android Studio]: https://developer.android.com/studio
-[OpenJDK 17]: https://openjdk.org/projects/jdk/17/
+[OpenJDK 21]: https://openjdk.org/projects/jdk/21/
 
 ## Development
 
