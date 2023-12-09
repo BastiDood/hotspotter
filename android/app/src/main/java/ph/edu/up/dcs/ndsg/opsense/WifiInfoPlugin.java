@@ -16,28 +16,34 @@ public class WifiInfoPlugin extends Plugin {
     WifiManager.ScanResultsCallback callback;
 
     private JSObject scanResultToJson(ScanResult result) {
-        // Compute signal level
-        var level = api.calculateSignalLevel(result.level);
-        var maxLevel = api.getMaxSignalLevel();
-
-        // Compute Unix timestamp
         var now = System.currentTimeMillis();
         var elapsed = SystemClock.elapsedRealtime();
         var timestamp = TimeUnit.MICROSECONDS.toMillis(result.timestamp);
         var unix = now - elapsed + timestamp;
 
-        return new JSObject()
+        var standard = result.getWifiStandard();
+        var json = new JSObject()
             .put("bssid", result.BSSID)
             .put("ssid", result.SSID)
             .put("rssi", result.level)
-            .put("level", level)
-            .put("maxLevel", maxLevel)
             .put("frequency", result.frequency)
-            .put("channelWidth", result.channelWidth)
-            .put("centerFreq0", result.centerFreq0)
-            .put("centerFreq1", result.centerFreq1)
-            .put("timestamp", unix)
-            .put("standard", result.getWifiStandard());
+            .put("channel_width", result.channelWidth)
+            .put("center_freq_0", result.centerFreq0)
+            .put("center_freq_1", result.centerFreq1)
+            .put("wifi_timestamp", unix)
+            .put("standard", standard == ScanResult.WIFI_STANDARD_UNKNOWN ? null : standard);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            // Old versions of Android just hard-coded into five tiers.
+            var level = api.calculateSignalLevel(result.level, 5);
+            json.put("level", level).put("max_level", 5);
+        } else {
+            var level = api.calculateSignalLevel(result.level);
+            var maxLevel = api.getMaxSignalLevel();
+            json.put("level", level).put("max_level", maxLevel);
+        }
+
+        return json;
     }
 
     private JSObject scanResultsToResultJson(List<ScanResult> results) {
