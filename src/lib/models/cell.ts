@@ -136,8 +136,8 @@ export const SignalStrength = merge([
 
 export const Sim = object({
     network_type: enum_(NetworkType),
-    carrier_id: number(),
-    carrier_name: string(),
+    carrier_id: nullable(number()),
+    carrier_name: nullable(string()),
     operator_id: string(),
     operator_name: string(),
 });
