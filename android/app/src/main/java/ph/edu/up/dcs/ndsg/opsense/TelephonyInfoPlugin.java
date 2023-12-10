@@ -138,7 +138,7 @@ public class TelephonyInfoPlugin extends Plugin {
             .put("network_type", api.getNetworkType())
             .put("operator_id", api.getSimOperator())
             .put("operator_name", api.getSimOperatorName());
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             var carrierId = api.getSimCarrierId();
             var carrierName = api.getSimCarrierIdName();
             json.put("carrier_id", carrierId == TelephonyManager.UNKNOWN_CARRIER_ID ? null : carrierId);
