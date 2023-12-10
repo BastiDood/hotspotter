@@ -44,35 +44,35 @@ public class TelephonyInfoPlugin extends Plugin {
             } else if (cell instanceof CellSignalStrengthGsm s) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     var timingAdvance = s.getTimingAdvance();
-                    json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? null : timingAdvance);
+                    json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvance);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         var bitErrorRate = s.getBitErrorRate();
-                        json.put("bit_error_rate", bitErrorRate == CellInfo.UNAVAILABLE ? null : bitErrorRate);
+                        json.put("bit_error_rate", bitErrorRate == CellInfo.UNAVAILABLE ? JSObject.NULL : bitErrorRate);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             var rssi = s.getRssi();
-                            json.put("rssi", rssi == CellInfo.UNAVAILABLE ? null : rssi);
+                            json.put("rssi", rssi == CellInfo.UNAVAILABLE ? JSObject.NULL : rssi);
                         }
                     }
                 }
                 res.put("gsm", json);
             } else if (cell instanceof CellSignalStrengthLte s) {
                 var timingAdvance = s.getTimingAdvance();
-                json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? null : timingAdvance);
+                json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvance);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     var cqi = s.getCqi();
                     var rsrp = s.getRsrp();
                     var rsrq = s.getRsrq();
                     var rssnr = s.getRssnr();
-                    json.put("cqi", cqi == CellInfo.UNAVAILABLE ? null : cqi)
-                        .put("rsrp", rsrp == CellInfo.UNAVAILABLE ? null : rsrp)
-                        .put("rsrq", rsrq == CellInfo.UNAVAILABLE ? null : rsrq)
-                        .put("rssnr", rssnr == CellInfo.UNAVAILABLE ? null : rssnr);
+                    json.put("cqi", cqi == CellInfo.UNAVAILABLE ? JSObject.NULL : cqi)
+                        .put("rsrp", rsrp == CellInfo.UNAVAILABLE ? JSObject.NULL : rsrp)
+                        .put("rsrq", rsrq == CellInfo.UNAVAILABLE ? JSObject.NULL : rsrq)
+                        .put("rssnr", rssnr == CellInfo.UNAVAILABLE ? JSObject.NULL : rssnr);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         var rssi = s.getRssi();
-                        json.put("rssi", rssi == CellInfo.UNAVAILABLE ? null : rssi);
+                        json.put("rssi", rssi == CellInfo.UNAVAILABLE ? JSObject.NULL : rssi);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             var cqiTableIndex = s.getCqiTableIndex();
-                            json.put("cqi_table_index", cqiTableIndex == CellInfo.UNAVAILABLE ? null : cqiTableIndex);
+                            json.put("cqi_table_index", cqiTableIndex == CellInfo.UNAVAILABLE ? JSObject.NULL : cqiTableIndex);
                         }
                     }
                 }
@@ -85,16 +85,16 @@ public class TelephonyInfoPlugin extends Plugin {
                     var ssRsrp = s.getSsRsrp();
                     var ssRsrq = s.getSsRsrq();
                     var ssSinr = s.getSsSinr();
-                    json.put("csi_rsrp", csiRsrp == CellInfo.UNAVAILABLE ? null : csiRsrp)
-                        .put("csi_rsrq", csiRsrq == CellInfo.UNAVAILABLE ? null : csiRsrq)
-                        .put("csi_sinr", csiSinr == CellInfo.UNAVAILABLE ? null : csiSinr)
-                        .put("ss_rsrp", ssRsrp == CellInfo.UNAVAILABLE ? null : ssRsrp)
-                        .put("ss_rsrq", ssRsrq == CellInfo.UNAVAILABLE ? null : ssRsrq)
-                        .put("ss_sinr", ssSinr == CellInfo.UNAVAILABLE ? null : ssSinr);
+                    json.put("csi_rsrp", csiRsrp == CellInfo.UNAVAILABLE ? JSObject.NULL : csiRsrp)
+                        .put("csi_rsrq", csiRsrq == CellInfo.UNAVAILABLE ? JSObject.NULL : csiRsrq)
+                        .put("csi_sinr", csiSinr == CellInfo.UNAVAILABLE ? JSObject.NULL : csiSinr)
+                        .put("ss_rsrp", ssRsrp == CellInfo.UNAVAILABLE ? JSObject.NULL : ssRsrp)
+                        .put("ss_rsrq", ssRsrq == CellInfo.UNAVAILABLE ? JSObject.NULL : ssRsrq)
+                        .put("ss_sinr", ssSinr == CellInfo.UNAVAILABLE ? JSObject.NULL : ssSinr);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         var csiCqiTableIndex = s.getCsiCqiTableIndex();
                         json.put("csi_cqi_report", s.getCsiCqiReport())
-                            .put("csi_cqi_table_index", csiCqiTableIndex == CellInfo.UNAVAILABLE ? null : csiCqiTableIndex);
+                            .put("csi_cqi_table_index", csiCqiTableIndex == CellInfo.UNAVAILABLE ? JSObject.NULL : csiCqiTableIndex);
                         // TODO(34): getTimingAdvanceMicros
                     }
                 }
@@ -102,13 +102,13 @@ public class TelephonyInfoPlugin extends Plugin {
             } else if (cell instanceof CellSignalStrengthTdscdma s) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     var rscp = s.getRscp();
-                    json.put("rscp", rscp == CellInfo.UNAVAILABLE ? null : rscp);
+                    json.put("rscp", rscp == CellInfo.UNAVAILABLE ? JSObject.NULL : rscp);
                 }
                 res.put("tdscdma", json);
             } else if (cell instanceof CellSignalStrengthWcdma s) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     var ecNo = s.getEcNo();
-                    json.put("ec_no", ecNo == CellInfo.UNAVAILABLE ? null : ecNo);
+                    json.put("ec_no", ecNo == CellInfo.UNAVAILABLE ? JSObject.NULL : ecNo);
                 }
                 res.put("wcdma", json);
             }
@@ -141,8 +141,8 @@ public class TelephonyInfoPlugin extends Plugin {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             var carrierId = api.getSimCarrierId();
             var carrierName = api.getSimCarrierIdName();
-            json.put("carrier_id", carrierId == TelephonyManager.UNKNOWN_CARRIER_ID ? null : carrierId);
-            json.put("carrier_name", carrierName == null ? null : carrierName.toString());
+            json.put("carrier_id", carrierId == TelephonyManager.UNKNOWN_CARRIER_ID ? JSObject.NULL : carrierId);
+            json.put("carrier_name", carrierName == null ? JSObject.NULL : carrierName.toString());
         }
         ctx.resolve(json);
     }
