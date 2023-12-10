@@ -144,7 +144,7 @@
 
         const body = { gps, wifi, sim, strength };
         try {
-            await Api.submit(url, body);
+            console.log(await Api.submit(url, body));
         } catch (err) {
             const uri = await Cache.write(body);
             toast.trigger({
@@ -219,7 +219,7 @@
         // This is better than the alternative where we delete the reading before
         // a successful transmission, in which case there is the possibility for
         // the data to be deleted yet the transmission fails.
-        await Api.submit(url, data);
+        console.log(await Api.submit(url, data));
         await Cache.remove(path);
     }
 

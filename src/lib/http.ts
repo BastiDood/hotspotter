@@ -3,10 +3,11 @@ import type { Output } from 'valibot';
 import { assert } from './assert';
 
 export async function submit(url: URL, data: Output<typeof Data>) {
-    const { status } = await fetch(url, {
+    const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     });
-    assert(status === 201, 'cannot submit data');
+    assert(response.status === 201);
+    return response.text();
 }
