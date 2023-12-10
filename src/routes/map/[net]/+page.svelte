@@ -1,14 +1,15 @@
 <script lang="ts">
     import { Circle, Point } from 'ol/geom';
+    import { onMount, tick } from 'svelte';
     import Error from '$lib/alerts/Error.svelte';
     import Feature from 'ol/Feature';
     import { Geolocation } from '@capacitor/geolocation';
     import Map from './Map.svelte';
     import type { PageData } from './$types';
     import { ProgressBar } from '@skeletonlabs/skeleton';
+    import { assert } from '$lib/assert';
     import { fromLonLat } from 'ol/proj';
     import { getLocation } from '$lib/plugins/Location';
-    import { onMount } from 'svelte';
     import { onNavigate } from '$app/navigation';
 
     // eslint-disable-next-line init-declarations
@@ -35,13 +36,20 @@
             gps = null;
             return;
         }
+
         const { longitude, latitude, accuracy } = position.coords;
-        gps = new Circle(fromLonLat([longitude, latitude]), accuracy);
+        const coords = fromLonLat([longitude, latitude]);
+
+        gps = new Circle(coords, accuracy);
         watcher = Geolocation.watchPosition({ enableHighAccuracy: true }, position => {
             if (position === null) return;
             const { longitude, latitude, accuracy } = position.coords;
             gps?.setCenterAndRadius(fromLonLat([longitude, latitude]), accuracy);
         });
+
+        await tick();
+        assert(map !== null);
+        map.setViewCenter(coords);
     });
 
     onNavigate(async () => {

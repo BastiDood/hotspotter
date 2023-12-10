@@ -3,6 +3,7 @@
     import { onDestroy, onMount } from 'svelte';
     import type { Circle } from 'ol/geom';
     import Collection from 'ol/Collection';
+    import type { Coordinate } from 'ol/coordinate';
     import Feature from 'ol/Feature';
     import Fill from 'ol/style/Fill';
     import Map from 'ol/Map';
@@ -14,7 +15,6 @@
     import VectorSource from 'ol/source/Vector';
     import View from 'ol/View';
     import { assert } from '$lib/assert';
-    import { fromLonLat } from 'ol/proj';
 
     let target = null as HTMLDivElement | null;
     let map = null as Map | null;
@@ -31,8 +31,8 @@
     $: gpsFeature.setGeometry(gps);
 
     let view = null as View | null;
-    export function setViewCenter(longitude: number, latitude: number) {
-        view?.setCenter(fromLonLat([longitude, latitude]));
+    export function setViewCenter(coords: Coordinate) {
+        view?.setCenter(coords);
     }
 
     /** Data points for the readings. */
