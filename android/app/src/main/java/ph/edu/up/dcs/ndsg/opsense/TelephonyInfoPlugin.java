@@ -64,7 +64,7 @@ public class TelephonyInfoPlugin extends Plugin {
                     var rsrq = s.getRsrq();
                     var rssnr = s.getRssnr();
                     json.put("cqi", cqi == CellInfo.UNAVAILABLE ? null : cqi)
-                        .put("rsrp", rsrp == CellInfo.UNAVAILABLE ? null : cqi)
+                        .put("rsrp", rsrp == CellInfo.UNAVAILABLE ? null : rsrp)
                         .put("rsrq", rsrq == CellInfo.UNAVAILABLE ? null : rsrq)
                         .put("rssnr", rssnr == CellInfo.UNAVAILABLE ? null : rssnr);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
