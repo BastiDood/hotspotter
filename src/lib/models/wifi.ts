@@ -2,7 +2,7 @@ import {
     coerce,
     date,
     enum_,
-    mac64,
+    mac,
     maxLength,
     maxValue,
     minLength,
@@ -31,7 +31,7 @@ export enum Standard {
 }
 
 export const AccessPoint = object({
-    bssid: string([mac64()]),
+    bssid: string([mac()]),
     ssid: string([minLength(2), maxLength(32)]),
     rssi: number([safeInteger()]),
     level: number([safeInteger()]),
