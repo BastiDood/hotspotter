@@ -7,7 +7,7 @@ import { parse } from 'valibot';
 
 async function fetchMarkers(mode: string) {
     const url = await getUrl();
-    if (url === null) throw error(400, 'Base API endpoint not set.');
+    if (typeof url === 'undefined') throw error(400, 'Base API endpoint not set.');
     const response = await fetch(new URL(`api/level/${mode}`, url.href));
     if (response.status !== 200) throw error(502, `[${response.status}]: ${response.statusText}`);
     const json = await response.json();
