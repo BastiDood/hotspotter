@@ -134,6 +134,7 @@ export const SignalStrength = merge([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     object({ timestamp: coerce(date(), input => new Date(input as any)) }),
     partial(CellSignalStrength),
+    CellSignalInfo,
 ]);
 
 export const Sim = object({
