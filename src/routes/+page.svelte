@@ -184,6 +184,8 @@
     async function loop(button: HTMLButtonElement) {
         button.disabled = true;
         try {
+            // Note that `isLoopMode` is modified externally via the `SlideToggle`.
+            // eslint-disable-next-line no-unmodified-loop-condition
             while (isLoopMode) {
                 isLooping = true;
                 try {
@@ -192,8 +194,10 @@
                 } finally {
                     isLooping = false;
                 }
-                const interval = await Config.getScanInterval();
-                await new Promise(resolve => setTimeout(resolve, interval ?? 10_000));
+                const interval = (await Config.getScanInterval()) ?? 10_000;
+                await new Promise(resolve => {
+                    setTimeout(resolve, interval);
+                });
             }
         } catch (err) {
             if (err instanceof Error)
