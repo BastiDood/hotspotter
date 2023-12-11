@@ -32,7 +32,7 @@ export enum Standard {
 
 export const AccessPoint = object({
     bssid: string([mac()]),
-    ssid: string([minLength(2), maxLength(32)]),
+    ssid: string([maxLength(32)]),
     rssi: number([safeInteger()]),
     level: number([safeInteger()]),
     max_level: number([safeInteger()]),
