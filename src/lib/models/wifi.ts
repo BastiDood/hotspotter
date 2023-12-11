@@ -5,7 +5,6 @@ import {
     mac,
     maxLength,
     maxValue,
-    minLength,
     minValue,
     nullable,
     number,
