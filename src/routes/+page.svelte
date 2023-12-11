@@ -164,6 +164,7 @@
 
     async function oneshot(button: HTMLButtonElement) {
         button.disabled = true;
+        isLooping = true;
         try {
             await upload();
         } catch (err) {
@@ -176,6 +177,7 @@
             throw err;
         } finally {
             button.disabled = false;
+            isLooping = false;
         }
     }
 
