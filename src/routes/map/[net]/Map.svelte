@@ -20,8 +20,6 @@
     let target = null as HTMLDivElement | null;
     let map = null as Map | null;
 
-    // eslint-disable-next-line init-declarations
-    export let gps: Circle;
     const gpsFeature = new Feature<Circle>();
     gpsFeature.setStyle(
         new Style({
@@ -29,6 +27,9 @@
             stroke: new Stroke({ color: '#0ea5e988', width: 4 }),
         }),
     );
+
+    // eslint-disable-next-line init-declarations
+    export let gps: Circle;
     $: gpsFeature.setGeometry(gps);
 
     let view = null as View | null;
@@ -40,7 +41,7 @@
     $: tileUrl = $modeCurrent
         ? 'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{scale}.png'
         : 'https://tiles.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{scale}.png';
-    $: console.log(tileUrl), osmLayer.setSource(new OpenStreetMap({ url: tileUrl }));
+    $: osmLayer.setSource(new OpenStreetMap({ url: tileUrl }));
 
     /** Data points for the readings. */
     export const features = new Collection<Feature>();
