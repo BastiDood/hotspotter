@@ -162,9 +162,10 @@
         return true;
     }
 
-    async function oneshot(button: HTMLButtonElement) {
-        button.disabled = true;
-        isLooping = true;
+    let isPending = false;
+
+    async function oneshot() {
+        isPending = true;
         try {
             await upload();
         } catch (err) {
@@ -176,41 +177,35 @@
                 });
             throw err;
         } finally {
-            button.disabled = false;
-            isLooping = false;
+            isPending = false;
         }
     }
 
     let isLoopMode = false;
-    let isLooping = false;
-    async function loop(button: HTMLButtonElement) {
-        button.disabled = true;
-        try {
-            // Note that `isLoopMode` is modified externally via the `SlideToggle`.
-            // eslint-disable-next-line no-unmodified-loop-condition
-            while (isLoopMode) {
-                isLooping = true;
-                try {
-                    const result = await upload();
-                    if (result === null) break;
-                } finally {
-                    isLooping = false;
-                }
-                const interval = (await Config.getScanInterval()) ?? 10_000;
-                await new Promise(resolve => {
-                    setTimeout(resolve, interval);
-                });
+    async function loop() {
+        // Note that `isLoopMode` is modified externally via the `SlideToggle`.
+        // eslint-disable-next-line no-unmodified-loop-condition
+        while (isLoopMode) {
+            isPending = true;
+            try {
+                const result = await upload();
+                if (result === null) break;
+            } catch (err) {
+                if (err instanceof Error)
+                    toast.trigger({
+                        message: `${err.name}: ${err.message}`,
+                        background: 'variant-filled-error',
+                        autohide: false,
+                    });
+                throw err;
+            } finally {
+                isPending = false;
             }
-        } catch (err) {
-            if (err instanceof Error)
-                toast.trigger({
-                    message: `${err.name}: ${err.message}`,
-                    background: 'variant-filled-error',
-                    autohide: false,
-                });
-            throw err;
-        } finally {
-            button.disabled = false;
+            const scanInterval = await Config.getScanInterval();
+            const interval = scanInterval ?? 10_000;
+            await new Promise(resolve => {
+                setTimeout(resolve, interval);
+            });
         }
     }
 
@@ -225,8 +220,8 @@
         await Cache.remove(path);
     }
 
-    async function sync(button: HTMLButtonElement) {
-        button.disabled = true;
+    async function sync() {
+        isPending = true;
         try {
             const url = await Config.getUrl();
             if (typeof url === 'undefined') {
@@ -282,13 +277,13 @@
                 });
             throw err;
         } finally {
-            button.disabled = false;
+            isPending = false;
         }
     }
 </script>
 
 <div class="space-y-4">
-    <SlideToggle active="bg-tertiary-400" name="loop-mode" bind:checked={isLoopMode} disabled={isLooping} required>
+    <SlideToggle active="bg-tertiary-400" name="loop-mode" required bind:checked={isLoopMode} disabled={isPending}>
         {#if isLoopMode}
             Loop
         {:else}
@@ -297,28 +292,16 @@
     </SlideToggle>
     <div>
         {#if isLoopMode}
-            <button
-                type="button"
-                class="variant-filled-primary btn"
-                on:click={({ currentTarget }) => loop(currentTarget)}
-            >
+            <button type="button" class="variant-filled-primary btn" on:click={loop} disabled={isPending}>
                 <ArrowPathIcon class="h-4" />
                 <span>Loop</span>
             </button>
         {:else}
-            <button
-                type="button"
-                class="variant-filled-primary btn"
-                on:click={({ currentTarget }) => oneshot(currentTarget)}
-            >
+            <button type="button" class="variant-filled-primary btn" on:click={oneshot} disabled={isPending}>
                 <ArrowUpTrayIcon class="h-4" />
                 <span>Upload</span>
             </button>
-            <button
-                type="button"
-                class="variant-filled-secondary btn"
-                on:click={({ currentTarget }) => sync(currentTarget)}
-            >
+            <button type="button" class="variant-filled-secondary btn" on:click={sync} disabled={isPending}>
                 <CloudArrowUpIcon class="h-4" />
                 <span>Sync</span>
             </button>
