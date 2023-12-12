@@ -6,4 +6,5 @@ export default {
     webDir: 'build',
     server: { androidScheme: 'https' },
     plugins: { CapacitorHttp: { enabled: true } },
+    android: { minWebViewVersion: 120 },
 } satisfies CapacitorConfig;
