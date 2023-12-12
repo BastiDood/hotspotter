@@ -1,19 +1,22 @@
-import { DataPoints } from '$lib/models/api';
+import { MarkerMode, fetchMarkers } from '$lib/http';
 import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
-import { error } from '@sveltejs/kit';
 import { getUrl } from '$lib/plugins/Config';
-import { parse } from 'valibot';
+import { error } from '@sveltejs/kit';
 
-async function fetchMarkers(mode: string) {
-    const url = await getUrl();
-    if (typeof url === 'undefined') throw error(400, 'Base API endpoint not set.');
-    const response = await fetch(new URL(`api/level/${mode}`, url.href));
-    if (response.status !== 200) throw error(502, `[${response.status}]: ${response.statusText}`);
-    const json = await response.json();
-    return parse(DataPoints, json, { abortEarly: true });
-}
-
-export const load = (({ params: { net } }) => {
-    if (browser) return { markers: fetchMarkers(net) };
+export const load = (async ({ params: { net } }) => {
+    if (!browser) return;
+    const base = await getUrl();
+    if (typeof base === 'undefined') return { markers: null };
+    switch (net) {
+        case MarkerMode.Cdma:
+        case MarkerMode.Gsm:
+        case MarkerMode.Lte:
+        case MarkerMode.Nr:
+        case MarkerMode.Tdscdma:
+        case MarkerMode.Wcdma:
+            return { markers: fetchMarkers(base, net) };
+        default:
+            throw error(404, 'unknown marker mode');
+    }
 }) satisfies PageLoad;
