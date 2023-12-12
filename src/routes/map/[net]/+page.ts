@@ -4,7 +4,7 @@ import { browser } from '$app/environment';
 import { error } from '@sveltejs/kit';
 import { getUrl } from '$lib/plugins/Config';
 
-export const load = (async ({ params: { net } }) => {
+export const load = (async ({ fetch, params: { net } }) => {
     if (!browser) return;
     const base = await getUrl();
     if (typeof base === 'undefined') return { markers: null };
@@ -15,7 +15,7 @@ export const load = (async ({ params: { net } }) => {
         case MarkerMode.Nr:
         case MarkerMode.Tdscdma:
         case MarkerMode.Wcdma:
-            return { markers: fetchMarkers(base, net) };
+            return { markers: fetchMarkers(fetch, base, net) };
         default:
             throw error(404, 'unknown marker mode');
     }

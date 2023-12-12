@@ -17,7 +17,7 @@
     $: ({ markers } = data);
 
     let map = null as Map | null;
-    $: if (map !== null && typeof markers !== 'undefined') {
+    $: if (map !== null && markers !== null &&typeof markers !== 'undefined') {
         map.features.clear();
         map.features.extend(
             markers.map(({ lon, lat }) => new Feature({ geometry: new Point(fromLonLat([lon, lat])) })),
