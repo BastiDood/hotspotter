@@ -15,6 +15,7 @@
     import VectorSource from 'ol/source/Vector';
     import View from 'ol/View';
     import { assert } from '$lib/assert';
+    import { modeCurrent } from '@skeletonlabs/skeleton';
 
     let target = null as HTMLDivElement | null;
     let map = null as Map | null;
@@ -35,9 +36,14 @@
         view?.setCenter(coords);
     }
 
+    const osmLayer = new TileLayer({ preload: Infinity });
+    $: tileUrl = $modeCurrent
+        ? 'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{scale}.png'
+        : 'https://tiles.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{scale}.png';
+    $: console.log(tileUrl), osmLayer.setSource(new OpenStreetMap({ url: tileUrl }));
+
     /** Data points for the readings. */
     export const features = new Collection<Feature>();
-
     onMount(() => {
         assert(target !== null);
         view = new View({ zoom: 15, enableRotation: false });
@@ -45,7 +51,7 @@
             target,
             view,
             layers: [
-                new TileLayer({ source: new OpenStreetMap() }),
+                osmLayer,
                 new VectorLayer({ source: new VectorSource({ features }) }),
                 new VectorLayer({ source: new VectorSource({ features: new Collection([gpsFeature]) }) }),
             ],
