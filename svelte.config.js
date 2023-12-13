@@ -5,5 +5,6 @@ import { vitePreprocess } from '@sveltejs/kit/vite';
 export default {
     extensions: ['.svelte'],
     preprocess: vitePreprocess(),
-    kit: { adapter: adapter() },
+    // HACK: We turn off strict mode so that API endpoints can work.
+    kit: { adapter: adapter({ strict: false }) },
 };
