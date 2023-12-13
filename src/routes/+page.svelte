@@ -181,6 +181,13 @@
         }
     }
 
+    let timeout = null as ReturnType<typeof setTimeout> | null;
+    function resetTimeout() {
+        if (timeout === null) return;
+        clearTimeout(timeout);
+        timeout = null;
+    }
+
     let isLoopMode = false;
     async function loop() {
         // Note that `isLoopMode` is modified externally via the `SlideToggle`.
@@ -203,9 +210,11 @@
             }
             const scanInterval = await Config.getScanInterval();
             const interval = scanInterval ?? 10_000;
+            // eslint-disable-next-line no-loop-func
             await new Promise(resolve => {
-                setTimeout(resolve, interval);
+                timeout = setTimeout(resolve, interval);
             });
+            timeout = null;
         }
     }
 
@@ -283,7 +292,14 @@
 </script>
 
 <div class="space-y-4">
-    <SlideToggle active="bg-tertiary-400" name="loop-mode" required bind:checked={isLoopMode} disabled={isPending}>
+    <SlideToggle
+        active="bg-tertiary-400"
+        name="loop-mode"
+        required
+        disabled={isPending}
+        bind:checked={isLoopMode}
+        on:change={resetTimeout}
+    >
         {#if isLoopMode}
             Loop
         {:else}
