@@ -64,8 +64,8 @@
 </script>
 
 <button
-    class="variant-filled-primary btn-icon absolute left-2 top-16"
+    class="variant-filled-primary btn-icon absolute bottom-2 left-2"
     on:click={({ currentTarget }) => handleClick(currentTarget)}
 >
-    <WifiIcon strokeWidth="1" class="m-auto h-4" />
+    <WifiIcon class="m-auto h-4" />
 </button>
