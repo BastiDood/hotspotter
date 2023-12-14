@@ -3,6 +3,7 @@
 
 /.svelte-kit
 /build
+/data
 
 /.vscode
 /node_modules
