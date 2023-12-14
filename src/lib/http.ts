@@ -36,13 +36,14 @@ export async function fetchHexagonAccessPoints(
     minY: number,
     maxX: number,
     maxY: number,
+    signal?: AbortSignal,
 ) {
     const url = new URL('api/wifi/points', base);
     url.searchParams.set('min-x', minX.toString());
     url.searchParams.set('min-y', minY.toString());
     url.searchParams.set('max-x', maxX.toString());
     url.searchParams.set('max-y', maxY.toString());
-    const response = await http(url);
+    const response = await http(url, { signal });
     assert(response.status === 200);
     const json = await response.json();
     return parse(HexagonAccessPointAggregation, json, { abortEarly: true });
