@@ -1,6 +1,7 @@
 <script lang="ts">
     import 'ol/ol.css';
     import { onDestroy, onMount } from 'svelte';
+    import { AccessPointControl } from './Control';
     import type { Circle } from 'ol/geom';
     import Collection from 'ol/Collection';
     import type { Coordinate } from 'ol/coordinate';
@@ -34,25 +35,33 @@
         : 'https://tiles.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{scale}.png';
     $: osmLayer.setSource(new OpenStreetMap({ url: tileUrl }));
 
-    /** Data points for the readings. */
-    export const features = new Collection<Feature>();
-
     let map = null as Map | null;
     export function setViewCenter(coords: Coordinate) {
         map?.getView().setCenter(coords);
     }
 
+    // eslint-disable-next-line init-declarations
     let target: HTMLDivElement | undefined;
     onMount(() => {
+        const view = new View({ zoom: 15, enableRotation: false });
+        const hexFeatures = new Collection<Feature>();
         map = new Map({
             target,
-            view: new View({ zoom: 15, enableRotation: false }),
+            view,
             layers: [
                 osmLayer,
-                new VectorLayer({ source: new VectorSource({ features }) }),
+                new VectorLayer({
+                    source: new VectorSource({ features: hexFeatures }),
+                    style(feature) {
+                        const density = feature.get('density');
+                        if (typeof density === 'number')
+                            return [new Style({ fill: new Fill({ color: [79, 70, 229, density] }) })];
+                    },
+                }),
                 new VectorLayer({ source: new VectorSource({ features: new Collection([gpsFeature]) }) }),
             ],
         });
+        map.getControls().extend([new AccessPointControl(view, hexFeatures)]);
     });
 
     onDestroy(() => {
