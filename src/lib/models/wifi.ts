@@ -14,7 +14,6 @@ import {
 } from 'valibot';
 
 export enum Standard {
-    UNKNOWN = 0,
     /** 802.11a/b/g */
     LEGACY = 1,
     /** 802.11n */
