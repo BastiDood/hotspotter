@@ -1,12 +1,11 @@
 <script lang="ts">
     import DisplayGeolocation from './DisplayGeolocation.svelte';
     import { Geolocation } from '@capacitor/geolocation';
-    import type { PageData } from './$types';
     import { browser } from '$app/environment';
     import { onNavigate } from '$app/navigation';
 
     // eslint-disable-next-line init-declarations
-    export let data: PageData;
+    export let data;
     $: ({ position } = data);
 
     if (browser) {

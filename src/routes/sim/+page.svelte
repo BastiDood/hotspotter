@@ -8,14 +8,13 @@
     import DisplaySim from './DisplaySim.svelte';
     import DisplayTdscdma from './DisplayTdscdma.svelte';
     import DisplayWcdma from './DisplayWcdma.svelte';
-    import type { PageData } from './$types';
     import { Ratings } from '@skeletonlabs/skeleton';
     import { addScanListener } from '$lib/plugins/TelephonyInfo';
     import { browser } from '$app/environment';
     import { onNavigate } from '$app/navigation';
 
     // eslint-disable-next-line init-declarations
-    export let data: PageData;
+    export let data;
     $: ({ sim, strength } = data);
 
     if (browser) {

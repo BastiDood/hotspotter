@@ -1,12 +1,11 @@
 <script lang="ts">
     import { setScanInterval, setUrl } from '$lib/plugins/Config';
-    import type { PageData } from './$types';
     import { assert } from '$lib/assert';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { invalidateAll } from '$app/navigation';
 
     // eslint-disable-next-line init-declarations
-    export let data: PageData;
+    export let data;
     $: ({ scanInterval, url } = data);
 
     const toast = getToastStore();

@@ -3,13 +3,12 @@
     import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
-    import type { PageData } from './$types';
     import { browser } from '$app/environment';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { onNavigate } from '$app/navigation';
 
     // eslint-disable-next-line init-declarations
-    export let data: PageData;
+    export let data;
     $: ({ results } = data);
     $: networks = results ?? [];
 
