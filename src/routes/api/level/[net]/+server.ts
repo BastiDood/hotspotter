@@ -8,7 +8,6 @@ import {
     fetchWcdmaCoords,
 } from '$lib/server/db';
 import { MarkerMode } from '$lib/http';
-import type { RequestHandler } from './$types';
 
 function route(net: string) {
     switch (net) {
@@ -29,8 +28,7 @@ function route(net: string) {
     }
 }
 
-// eslint-disable-next-line func-style
-export const GET: RequestHandler = async ({ params: { net } }) => {
+export async function GET({ params: { net } }) {
     const coords = await route(net)();
     return json(coords);
-};
+}

@@ -1,5 +1,4 @@
 import { error, json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
 import { aggregateAccessPoints } from '$lib/server/db';
 
 function extractNumberFromQuery(params: URLSearchParams, query: string) {
@@ -9,8 +8,7 @@ function extractNumberFromQuery(params: URLSearchParams, query: string) {
     return Number.isFinite(result) ? result : null;
 }
 
-// eslint-disable-next-line func-style
-export const GET: RequestHandler = async ({ url: { searchParams } }) => {
+export async function GET({ url: { searchParams } }) {
     const extract = extractNumberFromQuery.bind(null, searchParams);
 
     const minX = extract('min-x');
@@ -28,4 +26,4 @@ export const GET: RequestHandler = async ({ url: { searchParams } }) => {
     const result = await aggregateAccessPoints(minX, minY, maxX, maxY);
     if (result === null) return new Response(null, { status: 404 });
     return json(result);
-};
+}
