@@ -9,5 +9,6 @@ export default {
     preprocess: vitePreprocess(),
     // HACK: We turn off strict mode so that API endpoints can work.
     // HACK: Prefer a more sustainable adapter switcher solution.
+    // eslint-disable-next-line no-undef
     kit: { adapter: process.env.MOBILE === '1' ? adapterStatic({ strict: false }) : adapterVercel() },
 };
