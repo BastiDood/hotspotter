@@ -41,7 +41,7 @@
             state = null;
 
             const feats = hexes.map(({ hex_id, count }) => {
-                const density = count / max * 0.9;
+                const density = (count / max) * 0.9;
                 const geometry = new Polygon([cellToBoundary(hex_id, true)]).transform(
                     'EPSG:4326',
                     view.getProjection(),
