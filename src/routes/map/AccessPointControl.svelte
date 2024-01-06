@@ -1,14 +1,15 @@
 <script lang="ts">
     import type Collection from 'ol/Collection';
     import Feature from 'ol/Feature';
+    import { Icon } from '@steeze-ui/svelte-icon';
     import Polygon from 'ol/geom/Polygon';
     import type View from 'ol/View';
-    import { WifiIcon } from '@krowten/svelte-heroicons';
     import { assert } from '$lib/assert';
     import { cellToBoundary } from 'h3-js';
     import { fetchHexagonAccessPoints } from '$lib/http';
     import { getUrl } from '$lib/plugins/Config';
     import { onDestroy } from 'svelte';
+    import { Wifi as src } from '@steeze-ui/heroicons';
     import { transformExtent } from 'ol/proj';
 
     // eslint-disable-next-line init-declarations
@@ -67,5 +68,5 @@
     class="variant-filled-primary btn-icon absolute bottom-2 left-2"
     on:click={({ currentTarget }) => handleClick(currentTarget)}
 >
-    <WifiIcon class="m-auto h-4" />
+    <Icon {src} class="m-auto h-4" />
 </button>

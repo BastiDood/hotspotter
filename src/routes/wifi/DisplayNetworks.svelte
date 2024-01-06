@@ -1,8 +1,9 @@
 <script lang="ts">
     import type { AccessPoint } from '$lib/models/wifi';
+    import { Icon } from '@steeze-ui/svelte-icon';
     import type { Output } from 'valibot';
     import { Ratings } from '@skeletonlabs/skeleton';
-    import { StarIcon } from '@krowten/svelte-heroicons';
+    import { Star as src } from '@steeze-ui/heroicons';
 
     // eslint-disable-next-line init-declarations
     export let networks: Output<typeof AccessPoint>[];
@@ -31,8 +32,8 @@
                     <td>{standard}</td>
                     <td>
                         <Ratings spacing="" max={max_level} value={level}>
-                            <StarIcon class="h-4" slot="empty" />
-                            <StarIcon class="h-4" slot="full" solid />
+                            <Icon {src} class="h-4" slot="empty" />
+                            <Icon {src} class="h-4" slot="full" solid />
                         </Ratings>
                     </td>
                     <td>{bssid}</td>

@@ -1,6 +1,7 @@
 <script lang="ts">
+    import { Icon } from '@steeze-ui/svelte-icon';
     import { Ratings } from '@skeletonlabs/skeleton';
-    import { StarIcon } from '@krowten/svelte-heroicons';
+    import { Star as src } from '@steeze-ui/heroicons';
 
     // eslint-disable-next-line init-declarations
     export let dbm: number;
@@ -11,8 +12,8 @@
 </script>
 
 <Ratings spacing="" max={4} value={level}>
-    <StarIcon class="h-4" slot="empty" />
-    <StarIcon class="h-4" slot="full" solid />
+    <Icon {src} class="h-4" slot="empty" />
+    <Icon {src} class="h-4" slot="full" solid />
 </Ratings>
 <div class="table-container">
     <table class="table">

@@ -1,11 +1,12 @@
 <script lang="ts">
     import { addScanListener, startScan } from '$lib/plugins/WifiInfo';
-    import { ArrowPathIcon } from '@krowten/svelte-heroicons';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
+    import { Icon } from '@steeze-ui/svelte-icon';
     import { browser } from '$app/environment';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { onNavigate } from '$app/navigation';
+    import { ArrowPath as src } from '@steeze-ui/heroicons';
 
     // eslint-disable-next-line init-declarations
     export let data;
@@ -48,7 +49,7 @@
 
 <div class="space-y-4">
     <button type="button" class="variant-filled-primary btn" on:click={({ currentTarget }) => refresh(currentTarget)}>
-        <ArrowPathIcon class="h-4" />
+        <Icon {src} class="h-4" />
         <span>Scan</span>
     </button>
     <DisplayNetworks {networks} />

@@ -5,9 +5,10 @@
     import * as Location from '$lib/plugins/Location';
     import * as TelephonyInfo from '$lib/plugins/TelephonyInfo';
     import * as WifiInfo from '$lib/plugins/WifiInfo';
-    import { ArrowPathIcon, ArrowUpTrayIcon, CloudArrowUpIcon } from '@krowten/svelte-heroicons';
+    import { ArrowPath, ArrowUpTray, CloudArrowUp } from '@steeze-ui/heroicons';
     import { ProgressRadial, SlideToggle, getToastStore } from '@skeletonlabs/skeleton';
     import type { Data } from '$lib/models/api';
+    import { Icon } from '@steeze-ui/svelte-icon';
     import type { Output } from 'valibot';
 
     const enum State {
@@ -309,16 +310,16 @@
     <div>
         {#if isLoopMode}
             <button type="button" class="variant-filled-primary btn" on:click={loop} disabled={isPending}>
-                <ArrowPathIcon class="h-4" />
+                <Icon src={ArrowPath} class="h-4" />
                 <span>Loop</span>
             </button>
         {:else}
             <button type="button" class="variant-filled-primary btn" on:click={oneshot} disabled={isPending}>
-                <ArrowUpTrayIcon class="h-4" />
+                <Icon src={ArrowUpTray} class="h-4" />
                 <span>Upload</span>
             </button>
             <button type="button" class="variant-filled-secondary btn" on:click={sync} disabled={isPending}>
-                <CloudArrowUpIcon class="h-4" />
+                <Icon src={CloudArrowUp} class="h-4" />
                 <span>Sync</span>
             </button>
         {/if}
