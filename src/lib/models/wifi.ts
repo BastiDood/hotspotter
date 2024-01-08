@@ -1,4 +1,5 @@
 import {
+    type Output,
     coerce,
     date,
     enum_,
@@ -42,3 +43,5 @@ export const AccessPoint = object({
     wifi_timestamp: coerce(date(), input => new Date(input as any)),
     standard: nullable(enum_(Standard)),
 });
+
+export type AccessPoint = Output<typeof AccessPoint>;

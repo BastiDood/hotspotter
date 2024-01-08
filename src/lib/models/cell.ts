@@ -1,4 +1,5 @@
 import {
+    type Output,
     array,
     coerce,
     date,
@@ -63,6 +64,8 @@ export const CellSignalInfo = object({
     level: number([safeInteger(), minValue(0), maxValue(4)]),
 });
 
+export type CellSignalInfo = Output<typeof CellSignalInfo>;
+
 export const Cdma = object({
     dbm: number([safeInteger()]),
     asu: number([safeInteger(), minValue(1), maxValue(16)]), // FIXME: Validate powers of two.
@@ -75,6 +78,8 @@ export const Cdma = object({
     evdo_snr: number([safeInteger(), minValue(0), maxValue(8)]),
 });
 
+export type Cdma = Output<typeof Cdma>;
+
 export const Gsm = object({
     dbm: number([safeInteger()]),
     asu: number([safeInteger(), minValue(0), maxValue(31)]),
@@ -82,6 +87,8 @@ export const Gsm = object({
     rssi: nullish(number([safeInteger(), minValue(-113), maxValue(-51)])),
     timing_advance: nullish(number([safeInteger()])),
 });
+
+export type Gsm = Output<typeof Gsm>;
 
 export const Lte = object({
     dbm: number([safeInteger()]),
@@ -94,6 +101,8 @@ export const Lte = object({
     rssnr: nullish(number([safeInteger(), minValue(-20), maxValue(30)])),
     timing_advance: nullable(number([safeInteger(), minValue(0), maxValue(1282)])),
 });
+
+export type Lte = Output<typeof Lte>;
 
 export const Nr = object({
     dbm: number([safeInteger(), minValue(-140), maxValue(-44)]),
@@ -109,17 +118,23 @@ export const Nr = object({
     timing_advance_micros: nullish(number([safeInteger(), minValue(0), maxValue(1282)])),
 });
 
+export type Nr = Output<typeof Nr>;
+
 export const Tdscdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
     asu: number([safeInteger(), minValue(0), maxValue(96)]),
     rscp: nullish(number([safeInteger(), minValue(-120), maxValue(-24)])),
 });
 
+export type Tdscdma = Output<typeof Tdscdma>;
+
 export const Wcdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
     asu: number([safeInteger(), minValue(0), maxValue(96)]),
     ec_no: nullish(number([safeInteger(), minValue(-24), maxValue(-1)])),
 });
+
+export type Wcdma = Output<typeof Wcdma>;
 
 export const CellSignalStrength = object({
     cdma: merge([CellSignalInfo, Cdma]),
@@ -130,12 +145,16 @@ export const CellSignalStrength = object({
     wcdma: merge([CellSignalInfo, Wcdma]),
 });
 
+export type CellSignalStrength = Output<typeof CellSignalStrength>;
+
 export const SignalStrength = merge([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     object({ timestamp: coerce(date(), input => new Date(input as any)) }),
     partial(CellSignalStrength),
     CellSignalInfo,
 ]);
+
+export type SignalStrength = Output<typeof SignalStrength>;
 
 export const Sim = object({
     network_type: enum_(NetworkType),
@@ -144,3 +163,5 @@ export const Sim = object({
     operator_id: string(),
     operator_name: string(),
 });
+
+export type Sim = Output<typeof SignalStrength>;
