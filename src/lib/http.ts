@@ -48,3 +48,23 @@ export async function fetchHexagonAccessPoints(
     const json = await response.json();
     return parse(HexagonAccessPointAggregation, json, { abortEarly: true });
 }
+
+export async function fetchCellScore(
+    http: typeof fetch,
+    base: URL,
+    longitude: number,
+    latitude: number,
+    signal?: AbortSignal,
+) {
+    const url = new URL('api/score', base);
+    url.searchParams.set('lon', longitude.toString());
+    url.searchParams.set('lat', latitude.toString());
+
+    const response = await http(url, { signal });
+    assert(response.status === 200);
+
+    const json = await response.text();
+    const score = Number(json);
+    assert(Number.isFinite(score));
+    return score;
+}
