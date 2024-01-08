@@ -1,7 +1,9 @@
 import { browser } from '$app/environment';
 import { getLocation } from '$lib/plugins/Location';
+import { getUrl } from '$lib/plugins/Config';
 
 export async function load() {
-    const position = browser ? await getLocation() : null;
-    return { position };
+    if (!browser) return { position: null };
+    const [url, position] = await Promise.all([getUrl(), getLocation()]);
+    return { url, position };
 }
