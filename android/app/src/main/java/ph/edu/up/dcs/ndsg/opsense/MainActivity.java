@@ -8,6 +8,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle bundle) {
         registerPlugin(TelephonyInfoPlugin.class);
         registerPlugin(WifiInfoPlugin.class);
+        registerPlugin(CredentialPlugin.class);
         super.onCreate(bundle);
     }
 }
