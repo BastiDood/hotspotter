@@ -1,7 +1,7 @@
-import { CellSignalInfo, SignalStrength, Sim } from './cell.ts';
+import { CellSignalInfo, SignalStrength, Sim } from './cell';
 import { array, merge, minValue, number, object, safeInteger, string } from 'valibot';
-import { AccessPoint } from './wifi.ts';
-import { Location } from './gps.ts';
+import { AccessPoint } from './wifi';
+import { Location } from './gps';
 
 export const Data = object({
     gps: Location,

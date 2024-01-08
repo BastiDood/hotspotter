@@ -1,6 +1,6 @@
-import { type Data, DataPoints, HexagonAccessPointAggregation } from '$lib/models/api.ts';
+import { type Data, DataPoints, HexagonAccessPointAggregation } from '$lib/models/api';
 import { type Output, bigint, object, parse, string, uuid } from 'valibot';
-import { POSTGRES_URL } from '$lib/server/env.ts';
+import { POSTGRES_URL } from '$lib/server/env';
 import { assert } from '$lib/assert';
 import pg from 'postgres';
 
