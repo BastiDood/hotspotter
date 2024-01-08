@@ -1,20 +1,13 @@
 <script lang="ts">
     import 'ol/ol.css';
+    import { Collection, Feature, Map, View } from 'ol';
+    import { Fill, Stroke, Style } from 'ol/style';
+    import { OSM as OpenStreetMap, Vector as VectorSource } from 'ol/source';
+    import { Vector as VectorLayer, WebGLTile as WebGLTileLayer } from 'ol/layer';
     import { onDestroy, onMount } from 'svelte';
     import { AccessPointControl } from './Control';
     import type { Circle } from 'ol/geom';
-    import Collection from 'ol/Collection';
     import type { Coordinate } from 'ol/coordinate';
-    import Feature from 'ol/Feature';
-    import Fill from 'ol/style/Fill';
-    import Map from 'ol/Map';
-    import OpenStreetMap from 'ol/source/OSM';
-    import Stroke from 'ol/style/Stroke';
-    import Style from 'ol/style/Style';
-    import TileLayer from 'ol/layer/WebGLTile';
-    import VectorLayer from 'ol/layer/Vector';
-    import VectorSource from 'ol/source/Vector';
-    import View from 'ol/View';
     import { modeCurrent } from '@skeletonlabs/skeleton';
 
     const gpsFeature = new Feature<Circle>();
@@ -29,7 +22,7 @@
     export let gps: Circle;
     $: gpsFeature.setGeometry(gps);
 
-    const osmLayer = new TileLayer({ preload: Infinity });
+    const osmLayer = new WebGLTileLayer({ preload: Infinity });
     $: tileUrl = $modeCurrent
         ? 'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{scale}.png'
         : 'https://tiles.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{scale}.png';
@@ -55,7 +48,12 @@
                     style(feature) {
                         const density = feature.get('density');
                         if (typeof density === 'number')
-                            return [new Style({ fill: new Fill({ color: [79, 70, 229, density] }) })];
+                            return [
+                                new Style({
+                                    fill: new Fill({ color: [79, 70, 229, density] }),
+                                    stroke: new Stroke(),
+                                }),
+                            ];
                     },
                 }),
                 new VectorLayer({ source: new VectorSource({ features: new Collection([gpsFeature]) }) }),
