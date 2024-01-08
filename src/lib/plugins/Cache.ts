@@ -1,6 +1,6 @@
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { type Output, parse } from 'valibot';
-import { Data } from '$lib/models/api';
+import { Data, type Data as TData } from '$lib/models/api';
 import { assert } from '$lib/assert';
 import { filterMap } from '$lib/util';
 
@@ -27,7 +27,7 @@ export async function read() {
     return readings.sort((a, b) => parseInt(b.path, 10) - parseInt(a.path, 10));
 }
 
-export async function write(data: Output<typeof Data>) {
+export async function write(data: TData) {
     const { uri } = await Filesystem.writeFile({
         data: JSON.stringify(data),
         path: `${Date.now()}.json`,
