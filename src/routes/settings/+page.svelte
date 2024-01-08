@@ -1,8 +1,11 @@
 <script lang="ts">
+    import { Avatar, ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
     import { setScanInterval, setUrl } from '$lib/plugins/Config';
+    import Error from '$lib/alerts/Error.svelte';
+    import { GOOGLE_WEB_CLIENT_ID } from '$lib/env';
     import { assert } from '$lib/assert';
-    import { getToastStore } from '@skeletonlabs/skeleton';
     import { invalidateAll } from '$app/navigation';
+    import { signIn } from '$lib/plugins/Credential';
 
     // eslint-disable-next-line init-declarations
     export let data;
@@ -33,6 +36,17 @@
     }
 </script>
 
+<!-- TODO: Use proper sign-in flow. -->
+{#await signIn(GOOGLE_WEB_CLIENT_ID)}
+    <ProgressBar />
+{:then { name, email, picture }}
+    <a href="mailto:{email}" class="card flex items-center gap-2 p-4">
+        <Avatar width="w-8" src={picture} />
+        <span>{name}</span>
+    </a>
+{:catch err}
+    <Error>{err}</Error>
+{/await}
 <form on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)} class="space-y-4">
     <label class="space-y-2">
         <span>Base URL for API</span>
