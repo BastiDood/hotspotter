@@ -12,7 +12,7 @@
         "noUncheckedIndexedAccess": true,
         "allowImportingTsExtensions": true,
         "moduleResolution": "Bundler",
-        "module": "NodeNext"
+        "module": "ESNext"
     }
     // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias.
 }
