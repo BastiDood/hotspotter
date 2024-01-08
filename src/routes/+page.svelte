@@ -5,7 +5,7 @@
     import * as Location from '$lib/plugins/Location';
     import * as TelephonyInfo from '$lib/plugins/TelephonyInfo';
     import * as WifiInfo from '$lib/plugins/WifiInfo';
-    import { ArrowPath, ArrowUpTray, CloudArrowUp } from '@steeze-ui/heroicons';
+    import { ArrowPath, ArrowUpTray, CloudArrowUp, Trash } from '@steeze-ui/heroicons';
     import { ProgressRadial, SlideToggle, getToastStore } from '@skeletonlabs/skeleton';
     import type { Data } from '$lib/models/api';
     import { Icon } from '@steeze-ui/svelte-icon';
@@ -290,6 +290,27 @@
             isPending = false;
         }
     }
+
+    async function clear() {
+        isPending = true;
+        try {
+            await Cache.clear();
+            toast.trigger({
+                message: 'Cache cleared.',
+                background: 'variant-filled-success',
+            });
+        } catch (err) {
+            if (err instanceof Error)
+                toast.trigger({
+                    message: `${err.name}: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+            throw err;
+        } finally {
+            isPending = false;
+        }
+    }
 </script>
 
 <div class="space-y-4">
@@ -323,6 +344,10 @@
                 <span>Sync</span>
             </button>
         {/if}
+        <button type="button" class="variant-filled-error btn" on:click={clear} disabled={isPending}>
+            <Icon src={Trash} class="h-4" />
+            <span>Clear</span>
+        </button>
     </div>
     <ul class="list">
         <li>

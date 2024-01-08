@@ -1,8 +1,8 @@
-import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
-import { type Output, parse } from 'valibot';
 import { Data, type Data as TData } from '$lib/models/api';
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { assert } from '$lib/assert';
 import { filterMap } from '$lib/util';
+import { parse } from 'valibot';
 
 async function readFile(path: string) {
     const { data } = await Filesystem.readFile({ path, directory: Directory.Cache, encoding: Encoding.UTF8 });
@@ -39,4 +39,8 @@ export async function write(data: TData) {
 
 export function remove(path: string) {
     return Filesystem.deleteFile({ path, directory: Directory.Cache });
+}
+
+export function clear(path = '.') {
+    return Filesystem.rmdir({ path, directory: Directory.Cache, recursive: true });
 }
