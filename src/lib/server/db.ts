@@ -1,11 +1,11 @@
 import { type Data, DataPoints, HexagonAccessPointAggregation } from '$lib/models/api.ts';
 import { type Output, bigint, object, parse, string, uuid } from 'valibot';
+import { POSTGRES_URL } from '$lib/server/env.ts';
 import { assert } from '$lib/assert';
-import env from '$lib/server/env.ts';
 import pg from 'postgres';
 
 // Global (private) connection pool
-const sql = pg(env.POSTGRES_URL, { types: { bigint: pg.BigInt }, ssl: 'prefer' });
+const sql = pg(POSTGRES_URL, { types: { bigint: pg.BigInt }, ssl: 'prefer' });
 
 const BigId = object({ id: bigint() });
 const Uuid = object({ id: string([uuid()]) });
