@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 export default {
-    appId: 'ph.edu.up.dcs.ndsg.opsense',
-    appName: 'Opportunistic Sensing',
+    appId: 'ph.edu.upd.dcs.ndsg.hotspotter',
+    appName: 'Hotspotter',
     webDir: 'build',
     server: { androidScheme: 'https' },
     plugins: { CapacitorHttp: { enabled: true } },

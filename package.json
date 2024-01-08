@@ -1,5 +1,5 @@
 {
-    "name": "op-sense",
+    "name": "hotspotter",
     "version": "0.0.0",
     "type": "module",
     "packageManager": "pnpm@8.14.0",

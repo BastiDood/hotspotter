@@ -1,8 +1,7 @@
-package ph.edu.up.dcs.ndsg.opsense;
+package ph.edu.upd.dcs.ndsg.hotspotter;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
-import ph.edu.up.dcs.ndsg.opsense.*;
 
 public class MainActivity extends BridgeActivity {
     @Override

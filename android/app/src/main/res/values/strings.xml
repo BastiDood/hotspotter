@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Opportunistic Sensing</string>
-    <string name="title_activity_main">Opportunistic Sensing</string>
-    <string name="package_name">ph.edu.up.dcs.ndsg.opsense</string>
-    <string name="custom_url_scheme">ph.edu.up.dcs.ndsg.opsense</string>
+    <string name="app_name">Hotspotter</string>
+    <string name="title_activity_main">Hotspotter</string>
+    <string name="package_name">ph.edu.upd.dcs.ndsg.hotspotter</string>
+    <string name="custom_url_scheme">ph.edu.upd.dcs.ndsg.hotspotter</string>
 </resources>

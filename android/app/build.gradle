@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "ph.edu.up.dcs.ndsg.opsense"
+    namespace "ph.edu.upd.dcs.ndsg.hotspotter"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ph.edu.up.dcs.ndsg.opsense"
+        applicationId "ph.edu.upd.dcs.ndsg.hotspotter"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

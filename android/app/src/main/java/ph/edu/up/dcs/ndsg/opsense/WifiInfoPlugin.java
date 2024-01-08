@@ -1,4 +1,4 @@
-package ph.edu.up.dcs.ndsg.opsense;
+package ph.edu.upd.dcs.ndsg.hotspotter;
 
 import android.content.*;
 import android.net.wifi.*;
