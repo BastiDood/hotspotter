@@ -153,7 +153,7 @@ export async function aggregateAccessPoints(minX: number, minY: number, maxX: nu
 
 export async function computeCellScore(longitude: number, latitude: number) {
     const [first, ...rest] =
-        await sql`SELECT sum(score) result FROM (SELECT pi() / 2 - atan(count(index)::DOUBLE PRECISION) score FROM (SELECT * FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), 9)) index) _ LEFT JOIN hotspotter.readings ON index = h3_lat_lng_to_cell(coords::POINT, 9) GROUP BY index)`.execute();
+        await sql`SELECT sum(score) result FROM (SELECT pi() / 2 - atan(count(index)::DOUBLE PRECISION) score FROM (SELECT * FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), 9)) index) neighbors LEFT JOIN hotspotter.readings ON index = h3_lat_lng_to_cell(coords::POINT, 9) GROUP BY index) _`.execute();
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(CountResult, first).result;
