@@ -2,7 +2,7 @@ import { type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api'
 import { type Output, parse } from 'valibot';
 import { assert } from './assert';
 
-export async function uploadReading(http: typeof fetch, base: URL, data: Output<typeof Data>) {
+export async function uploadReading(base: URL, data: Output<typeof Data>, http = fetch) {
     const url = new URL('api/reading', base);
     const response = await http(url, {
         method: 'POST',
@@ -22,7 +22,7 @@ export const enum MarkerMode {
     Wcdma = 'wcdma',
 }
 
-export async function fetchMarkers(http: typeof fetch, base: URL, mode: MarkerMode) {
+export async function fetchMarkers(base: URL, mode: MarkerMode, http = fetch) {
     const response = await http(new URL(`api/level/${mode}`, base));
     assert(response.status === 200);
     const json = await response.json();
@@ -30,13 +30,13 @@ export async function fetchMarkers(http: typeof fetch, base: URL, mode: MarkerMo
 }
 
 export async function fetchHexagonAccessPoints(
-    http: typeof fetch,
     base: URL,
     minX: number,
     minY: number,
     maxX: number,
     maxY: number,
     signal?: AbortSignal,
+    http = fetch,
 ) {
     const url = new URL('api/wifi/points', base);
     url.searchParams.set('min-x', minX.toString());
@@ -50,11 +50,11 @@ export async function fetchHexagonAccessPoints(
 }
 
 export async function fetchCellScore(
-    http: typeof fetch,
     base: URL,
     longitude: number,
     latitude: number,
     signal?: AbortSignal,
+    http = fetch,
 ) {
     const url = new URL('api/score', base);
     url.searchParams.set('lon', longitude.toString());

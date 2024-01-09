@@ -26,7 +26,7 @@
         coords: { longitude, latitude, accuracy, altitude, altitudeAccuracy, speed, heading },
     } = position}
     {@const date = new Date(timestamp)}
-    {#await fetchCellScore(fetch, url, longitude, latitude)}
+    {#await fetchCellScore(url, longitude, latitude)}
         <ProgressBar />
     {:then score}
         <div class="card p-8">Initial score is {score}.</div>

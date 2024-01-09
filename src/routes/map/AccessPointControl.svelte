@@ -37,7 +37,7 @@
             assert(typeof maxY !== 'undefined');
 
             state = new AbortController();
-            const hexes = await fetchHexagonAccessPoints(fetch, base, minX, minY, maxX, maxY, state.signal);
+            const hexes = await fetchHexagonAccessPoints(base, minX, minY, maxX, maxY, state.signal);
             // eslint-disable-next-line require-atomic-updates
             state = null;
 

@@ -145,7 +145,7 @@
 
         const body = { gps, wifi, sim, strength };
         try {
-            console.log(await Api.uploadReading(fetch, url, body));
+            console.log(await Api.uploadReading(url, body));
         } catch (err) {
             const uri = await Cache.write(body);
             toast.trigger({
@@ -226,7 +226,7 @@
         // This is better than the alternative where we delete the reading before
         // a successful transmission, in which case there is the possibility for
         // the data to be deleted yet the transmission fails.
-        console.log(await Api.uploadReading(fetch, url, data));
+        console.log(await Api.uploadReading(url, data));
         await Cache.remove(path);
     }
 
