@@ -10,6 +10,7 @@ const sql = pg(POSTGRES_URL, { types: { bigint: pg.BigInt }, ssl: 'prefer' });
 const BigId = object({ id: bigint() });
 const Uuid = object({ id: string([uuid()]) });
 const CountResult = object({ result: number() });
+const HexResult = object({ result: HexagonAccessPointCount });
 
 export function uploadReading({ gps, sim, strength, wifi }: Output<typeof Data>) {
     return sql.begin(async sql => {
@@ -146,9 +147,9 @@ function resolveResolutionFromComputedHexagonArea(area: number) {
 export async function aggregateAccessPoints(minX: number, minY: number, maxX: number, maxY: number) {
     const resolution = resolveResolutionFromComputedHexagonArea(haversine(minX, minY, maxX, maxY));
     const [first, ...rest] =
-        await sql`SELECT jsonb_object_agg(hex, count) FROM (SELECT hex, count(DISTINCT bssid) FROM (SELECT reading_id, h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM hotspotter.readings WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hexes JOIN hotspotter.wifi USING (reading_id) GROUP BY hex) _ WHERE _ IS NOT NULL`;
+        await sql`SELECT jsonb_object_agg(hex, count) result FROM (SELECT hex, count(DISTINCT bssid) FROM (SELECT reading_id, h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM hotspotter.readings WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hexes JOIN hotspotter.wifi USING (reading_id) GROUP BY hex) _ WHERE _ IS NOT NULL`;
     assert(rest.length === 0);
-    return typeof first === 'undefined' ? null : parse(HexagonAccessPointCount, first);
+    return typeof first === 'undefined' ? null : parse(HexResult, first).result;
 }
 
 export async function computeCellScore(longitude: number, latitude: number) {
