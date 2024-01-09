@@ -41,7 +41,7 @@
             // eslint-disable-next-line require-atomic-updates
             state = null;
 
-            const MAX_ACCESS_POINTS = 20;
+            const MAX_ACCESS_POINTS = 50;
             const feats = Object.entries(hexes).map(([hex, count]) => {
                 const clamped = Math.min(Number(count), MAX_ACCESS_POINTS);
                 const density = (clamped / MAX_ACCESS_POINTS) * 0.9;
