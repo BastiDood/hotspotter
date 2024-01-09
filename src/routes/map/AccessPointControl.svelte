@@ -43,7 +43,7 @@
 
             const MAX_ACCESS_POINTS = 20;
             const feats = Object.entries(hexes).map(([hex, count]) => {
-                const clamped = Math.min(count, MAX_ACCESS_POINTS);
+                const clamped = Math.min(Number(count), MAX_ACCESS_POINTS);
                 const density = (clamped / MAX_ACCESS_POINTS) * 0.9;
                 const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', view.getProjection());
                 return new Feature({ geometry, density });

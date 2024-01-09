@@ -1,5 +1,5 @@
 import { CellSignalInfo, SignalStrength, Sim } from './cell';
-import { type Output, array, merge, number, object, record, safeInteger } from 'valibot';
+import { type Output, array, merge, number, object, record, bigint } from 'valibot';
 import { AccessPoint } from './wifi';
 import { Location } from './gps';
 
@@ -21,5 +21,5 @@ const Circle = object({
 export const DataPoints = array(merge([CellSignalInfo, Circle]));
 export type DataPoints = Output<typeof DataPoints>;
 
-export const HexagonAccessPointCount = record(number([safeInteger()]));
+export const HexagonAccessPointCount = record(bigint());
 export type HexagonAccessPointCount = Output<typeof HexagonAccessPointCount>;
