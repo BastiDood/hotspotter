@@ -1,4 +1,4 @@
-import { type Data, DataPoints, HexagonAccessPointAggregation } from '$lib/models/api';
+import { type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
 import { type Output, parse } from 'valibot';
 import { assert } from './assert';
 
@@ -46,7 +46,7 @@ export async function fetchHexagonAccessPoints(
     const response = await http(url, { signal });
     assert(response.status === 200);
     const json = await response.json();
-    return parse(HexagonAccessPointAggregation, json, { abortEarly: true });
+    return parse(HexagonAccessPointCount, json, { abortEarly: true });
 }
 
 export async function fetchCellScore(

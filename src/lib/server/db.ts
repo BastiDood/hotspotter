@@ -1,4 +1,4 @@
-import { type Data, DataPoints, HexagonAccessPointAggregation } from '$lib/models/api';
+import { type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
 import { type Output, bigint, number, object, parse, string, uuid } from 'valibot';
 import { POSTGRES_URL } from '$lib/server/env';
 import { assert } from '$lib/assert';
@@ -16,42 +16,42 @@ export function uploadReading({ gps, sim, strength, wifi }: Output<typeof Data>)
         const [cdma, ...cdmaRest] =
             typeof strength.cdma === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.cdma ${sql(strength.cdma)} RETURNING cdma_id id`.execute();
+                : await sql`INSERT INTO hotspotter.cdma ${sql(strength.cdma)} RETURNING cdma_id id`;
         assert(cdmaRest.length === 0);
         const cdmaId = typeof cdma === 'undefined' ? null : parse(BigId, cdma, { abortEarly: true }).id;
 
         const [gsm, ...gsmRest] =
             typeof strength.gsm === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.gsm ${sql(strength.gsm)} RETURNING gsm_id id`.execute();
+                : await sql`INSERT INTO hotspotter.gsm ${sql(strength.gsm)} RETURNING gsm_id id`;
         assert(gsmRest.length === 0);
         const gsmId = typeof gsm === 'undefined' ? null : parse(BigId, gsm, { abortEarly: true }).id;
 
         const [lte, ...lteRest] =
             typeof strength.lte === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.lte ${sql(strength.lte)} RETURNING lte_id id`.execute();
+                : await sql`INSERT INTO hotspotter.lte ${sql(strength.lte)} RETURNING lte_id id`;
         assert(lteRest.length === 0);
         const lteId = typeof lte === 'undefined' ? null : parse(BigId, lte, { abortEarly: true }).id;
 
         const [nr, ...nrRest] =
             typeof strength.nr === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.nr ${sql(strength.nr)} RETURNING nr_id id`.execute();
+                : await sql`INSERT INTO hotspotter.nr ${sql(strength.nr)} RETURNING nr_id id`;
         assert(nrRest.length === 0);
         const nrId = typeof nr === 'undefined' ? null : parse(BigId, nr, { abortEarly: true }).id;
 
         const [tdscdma, ...tdscdmaRest] =
             typeof strength.tdscdma === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.tdscdma ${sql(strength.tdscdma)} RETURNING tdscdma id`.execute();
+                : await sql`INSERT INTO hotspotter.tdscdma ${sql(strength.tdscdma)} RETURNING tdscdma id`;
         assert(tdscdmaRest.length === 0);
         const tdscdmaId = typeof tdscdma === 'undefined' ? null : parse(BigId, tdscdma, { abortEarly: true }).id;
 
         const [wcdma, ...wcdmaRest] =
             typeof strength.wcdma === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.wcdma ${sql(strength.wcdma)} RETURNING wcdma id`.execute();
+                : await sql`INSERT INTO hotspotter.wcdma ${sql(strength.wcdma)} RETURNING wcdma id`;
         assert(wcdmaRest.length === 0);
         const wcdmaId = typeof wcdma === 'undefined' ? null : parse(BigId, wcdma, { abortEarly: true }).id;
 
@@ -63,7 +63,7 @@ export function uploadReading({ gps, sim, strength, wifi }: Output<typeof Data>)
                 gps.altitude_accuracy
             }, ${gps.speed}, ${gps.heading}, ${sim.network_type}, ${sim.carrier_id ?? null}, ${sim.operator_id}, ${
                 strength.timestamp
-            }, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`.execute();
+            }, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`;
 
         assert(rest.length === 0);
         assert(typeof first !== 'undefined');
@@ -75,37 +75,37 @@ export function uploadReading({ gps, sim, strength, wifi }: Output<typeof Data>)
 
 export async function fetchCdmaCoords() {
     const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT cdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE cdma_id IS NOT NULL) _ JOIN hotspotter.cdma USING (cdma_id)`.execute();
+        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT cdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE cdma_id IS NOT NULL) _ JOIN hotspotter.cdma USING (cdma_id)`;
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
 export async function fetchGsmCoords() {
     const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT gsm_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE gsm_id IS NOT NULL) _ JOIN hotspotter.gsm USING (gsm_id)`.execute();
+        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT gsm_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE gsm_id IS NOT NULL) _ JOIN hotspotter.gsm USING (gsm_id)`;
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
 export async function fetchLteCoords() {
     const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT lte_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE lte_id IS NOT NULL) _ JOIN hotspotter.lte USING (lte_id)`.execute();
+        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT lte_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE lte_id IS NOT NULL) _ JOIN hotspotter.lte USING (lte_id)`;
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
 export async function fetchNrCoords() {
     const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT nr_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE nr_id IS NOT NULL) _ JOIN hotspotter.nr USING (nr_id)`.execute();
+        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT nr_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE nr_id IS NOT NULL) _ JOIN hotspotter.nr USING (nr_id)`;
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
 export async function fetchTdscdmaCoords() {
     const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT tdscdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE tdscdma_id IS NOT NULL) _ JOIN hotspotter.tdscdma USING (tdscdma_id)`.execute();
+        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT tdscdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE tdscdma_id IS NOT NULL) _ JOIN hotspotter.tdscdma USING (tdscdma_id)`;
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
 export async function fetchWcdmaCoords() {
     const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT wcdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE wcdma_id IS NOT NULL) _ JOIN hotspotter.wcdma USING (wcdma_id)`.execute();
+        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT wcdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE wcdma_id IS NOT NULL) _ JOIN hotspotter.wcdma USING (wcdma_id)`;
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
@@ -146,14 +146,14 @@ function resolveResolutionFromComputedHexagonArea(area: number) {
 export async function aggregateAccessPoints(minX: number, minY: number, maxX: number, maxY: number) {
     const resolution = resolveResolutionFromComputedHexagonArea(haversine(minX, minY, maxX, maxY));
     const [first, ...rest] =
-        await sql`SELECT * FROM (SELECT max(count), jsonb_agg(hex) hexes FROM (SELECT hex_id, count(DISTINCT bssid)::INT FROM (SELECT reading_id, h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex_id FROM hotspotter.readings WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) ids JOIN hotspotter.wifi USING (reading_id) WHERE hex_id IS NOT NULL GROUP BY hex_id) hex) _ WHERE _ IS NOT NULL`.execute();
+        await sql`SELECT jsonb_object_agg(hex, count) FROM (SELECT hex, count(DISTINCT bssid) FROM (SELECT reading_id, h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM hotspotter.readings WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hexes JOIN hotspotter.wifi USING (reading_id) GROUP BY hex) _ WHERE _ IS NOT NULL`;
     assert(rest.length === 0);
-    return typeof first === 'undefined' ? null : parse(HexagonAccessPointAggregation, first);
+    return typeof first === 'undefined' ? null : parse(HexagonAccessPointCount, first);
 }
 
 export async function computeCellScore(longitude: number, latitude: number) {
     const [first, ...rest] =
-        await sql`SELECT sum(score) result FROM (SELECT pi() / 2 - atan(count(index)::DOUBLE PRECISION) score FROM (SELECT * FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), 9)) index) neighbors LEFT JOIN hotspotter.readings ON index = h3_lat_lng_to_cell(coords::POINT, 9) GROUP BY index) _`.execute();
+        await sql`SELECT sum(score) result FROM (SELECT pi() / 2 - atan(count(index)::DOUBLE PRECISION) score FROM (SELECT * FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), 9)) index) neighbors LEFT JOIN hotspotter.readings ON index = h3_lat_lng_to_cell(coords::POINT, 9) GROUP BY index) _`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(CountResult, first).result;

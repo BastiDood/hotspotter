@@ -51,7 +51,7 @@
                             return [
                                 new Style({
                                     fill: new Fill({ color: [79, 70, 229, density] }),
-                                    stroke: new Stroke(),
+                                    stroke: new Stroke({ color: [79, 70, 229], width: 2 }),
                                 }),
                             ];
                     },

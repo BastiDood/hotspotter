@@ -37,16 +37,15 @@
             assert(typeof maxY !== 'undefined');
 
             state = new AbortController();
-            const { max, hexes } = await fetchHexagonAccessPoints(fetch, base, minX, minY, maxX, maxY, state.signal);
+            const hexes = await fetchHexagonAccessPoints(fetch, base, minX, minY, maxX, maxY, state.signal);
             // eslint-disable-next-line require-atomic-updates
             state = null;
 
-            const feats = hexes.map(({ hex_id, count }) => {
-                const density = (count / max) * 0.9;
-                const geometry = new Polygon([cellToBoundary(hex_id, true)]).transform(
-                    'EPSG:4326',
-                    view.getProjection(),
-                );
+            const MAX_ACCESS_POINTS = 20;
+            const feats = Object.entries(hexes).map(([hex, count]) => {
+                const clamped = Math.min(count, MAX_ACCESS_POINTS);
+                const density = (clamped / MAX_ACCESS_POINTS) * 0.9;
+                const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', view.getProjection());
                 return new Feature({ geometry, density });
             });
 
