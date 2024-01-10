@@ -37,10 +37,10 @@ export async function write(data: TData) {
     return uri;
 }
 
-export function remove(path: string) {
-    return Filesystem.deleteFile({ path, directory: Directory.Cache });
+export async function remove(path: string) {
+    await Filesystem.deleteFile({ path, directory: Directory.Cache });
 }
 
-export function clear(path = '.') {
-    return Filesystem.rmdir({ path, directory: Directory.Cache, recursive: true });
+export async function clear(path = '.') {
+    await Filesystem.rmdir({ path, directory: Directory.Cache, recursive: true });
 }

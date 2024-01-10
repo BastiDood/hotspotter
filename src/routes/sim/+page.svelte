@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { ProgressRadial, Ratings } from '@skeletonlabs/skeleton';
+    import { getSignalStrength, getSim } from '$lib/plugins/TelephonyInfo';
     import Common from './Common.svelte';
     import DisplayCdma from './DisplayCdma.svelte';
     import DisplayEvdo from './DisplayEvdo.svelte';
@@ -8,39 +10,33 @@
     import DisplaySim from './DisplaySim.svelte';
     import DisplayTdscdma from './DisplayTdscdma.svelte';
     import DisplayWcdma from './DisplayWcdma.svelte';
-    import { Ratings } from '@skeletonlabs/skeleton';
-    import { addScanListener } from '$lib/plugins/TelephonyInfo';
-    import { browser } from '$app/environment';
-    import { onNavigate } from '$app/navigation';
-
-    // eslint-disable-next-line init-declarations
-    export let data;
-    $: ({ sim, strength } = data);
-
-    if (browser) {
-        const listener = addScanListener(info => (strength = info));
-        onNavigate(async () => {
-            const handle = await listener;
-            await handle.remove();
-        });
-    }
+    import Error from '$lib/alerts/Error.svelte';
 </script>
 
 <div class="prose max-w-none space-y-4 text-center dark:prose-invert">
     <section>
         <h1>SIM Information</h1>
-        {#if typeof sim !== 'undefined'}
-            {@const {
-                network_type: networkType,
-                carrier_id: carrierId,
-                carrier_name: carrierName,
-                operator_id: operatorId,
-                operator_name: operatorName,
-            } = sim}
-            <DisplaySim {networkType} {carrierId} {carrierName} {operatorId} {operatorName} />
-        {/if}
+        {#await getSim()}
+            <div class="flex h-full items-center justify-center">
+                <ProgressRadial />
+            </div>
+        {:then { network_type, carrier_id, carrier_name, operator_id, operator_name }}
+            <DisplaySim
+                networkType={network_type}
+                carrierId={carrier_id}
+                carrierName={carrier_name}
+                operatorId={operator_id}
+                operatorName={operator_name}
+            />
+        {:catch err}
+            <Error>{err}</Error>
+        {/await}
     </section>
-    {#if typeof strength !== 'undefined'}
+    {#await getSignalStrength()}
+        <div class="flex h-full items-center justify-center">
+            <ProgressRadial />
+        </div>
+    {:then strength}
         {@const { timestamp, level, cdma, gsm, lte, nr, tdscdma, wcdma } = strength}
         <section>
             <h1>Cell Signal Strengths</h1>
@@ -147,5 +143,7 @@
                 </div>
             {/if}
         </section>
-    {/if}
+    {:catch err}
+        <Error>{err}</Error>
+    {/await}
 </div>

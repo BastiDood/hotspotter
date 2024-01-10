@@ -24,8 +24,9 @@ export async function getScanResults() {
 
 type AccessPoints = Output<typeof AccessPoint>[];
 type ScanCallback = (networks: AccessPoints) => void;
-export function addScanListener(callback: ScanCallback) {
-    return WifiInfo.addListener('scan', evt => callback(parse(AccessPointsResult, evt).results));
+export async function addScanListener(callback: ScanCallback) {
+    const id = await WifiInfo.addListener('scan', evt => callback(parse(AccessPointsResult, evt).results));
+    return id;
 }
 
 export async function performOneshotScan() {

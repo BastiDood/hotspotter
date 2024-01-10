@@ -12,6 +12,7 @@
 {:then { coords }}
     <Map {coords} />
 {:catch err}
+    <!-- eslint-disable-next-line no-undef -->
     {#if err instanceof GeolocationPositionError}
         {@const { code, message } = err}
         <Error>[{code}]: {message}</Error>

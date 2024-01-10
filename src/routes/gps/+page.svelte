@@ -13,6 +13,7 @@
     {@const date = new Date(timestamp)}
     <DisplayGeolocation {date} {longitude} {latitude} {accuracy} {altitude} {altitudeAccuracy} {speed} {heading} />
 {:catch err}
+    <!-- eslint-disable-next-line no-undef -->
     {#if err instanceof GeolocationPositionError}
         {@const { code, message } = err}
         <Error>[{code}]: {message}</Error>

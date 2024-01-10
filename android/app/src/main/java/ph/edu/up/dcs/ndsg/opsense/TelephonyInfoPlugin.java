@@ -9,14 +9,6 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 @CapacitorPlugin(name = "TelephonyInfo")
 public class TelephonyInfoPlugin extends Plugin {
     private TelephonyManager api;
-    private Callback callback;
-
-    private class Callback extends TelephonyCallback implements TelephonyCallback.SignalStrengthsListener {
-        @Override
-        public void onSignalStrengthsChanged(SignalStrength strength) {
-            notifyListeners("strength", signalStrengthToJson(strength));
-        }
-    }
 
     private static JSObject signalStrengthToJson(SignalStrength strength) {
         var now = System.currentTimeMillis();
@@ -95,7 +87,10 @@ public class TelephonyInfoPlugin extends Plugin {
                         var csiCqiTableIndex = s.getCsiCqiTableIndex();
                         json.put("csi_cqi_report", s.getCsiCqiReport())
                             .put("csi_cqi_table_index", csiCqiTableIndex == CellInfo.UNAVAILABLE ? JSObject.NULL : csiCqiTableIndex);
-                        // TODO(34): getTimingAdvanceMicros
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            var timingAdvanceMicros = s.getTimingAdvanceMicros();
+                            json.put("timing_advance_micros", timingAdvanceMicros == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvanceMicros);
+                        }
                     }
                 }
                 res.put("nr", json);
@@ -121,13 +116,6 @@ public class TelephonyInfoPlugin extends Plugin {
         var act = getActivity();
         var exe = act.getMainExecutor();
         api = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
-        callback = new Callback();
-        api.registerTelephonyCallback(exe, callback);
-    }
-
-    @Override
-    public void handleOnDestroy() {
-        api.unregisterTelephonyCallback(callback);
     }
 
     @PluginMethod()
@@ -141,8 +129,8 @@ public class TelephonyInfoPlugin extends Plugin {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             var carrierId = api.getSimCarrierId();
             var carrierName = api.getSimCarrierIdName();
-            json.put("carrier_id", carrierId == TelephonyManager.UNKNOWN_CARRIER_ID ? JSObject.NULL : carrierId);
-            json.put("carrier_name", carrierName == null ? JSObject.NULL : carrierName.toString());
+            json.put("carrier_id", carrierId == TelephonyManager.UNKNOWN_CARRIER_ID ? JSObject.NULL : carrierId)
+                .put("carrier_name", carrierName == null ? JSObject.NULL : carrierName.toString());
         }
         ctx.resolve(json);
     }
