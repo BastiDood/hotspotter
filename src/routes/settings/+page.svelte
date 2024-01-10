@@ -2,7 +2,7 @@
     import { Avatar, ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
     import { setScanInterval, setUrl } from '$lib/plugins/Config';
     import Error from '$lib/alerts/Error.svelte';
-    import { GOOGLE_WEB_CLIENT_ID } from '$lib/env';
+    import { PUBLIC_GOOGLE_WEB_CLIENT_ID } from '$lib/env';
     import { assert } from '$lib/assert';
     import { invalidateAll } from '$app/navigation';
     import { signIn } from '$lib/plugins/Credential';
@@ -37,7 +37,7 @@
 </script>
 
 <!-- TODO: Use proper sign-in flow. -->
-{#await signIn(GOOGLE_WEB_CLIENT_ID)}
+{#await signIn(PUBLIC_GOOGLE_WEB_CLIENT_ID)}
     <ProgressBar />
 {:then { name, email, picture }}
     <a href="mailto:{email}" class="card flex items-center gap-2 p-4">
