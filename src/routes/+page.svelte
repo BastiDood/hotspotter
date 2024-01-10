@@ -2,12 +2,12 @@
     import * as Api from '$lib/http';
     import * as Cache from '$lib/plugins/Cache';
     import * as Config from '$lib/plugins/Config';
-    import * as Location from '$lib/plugins/Location';
     import * as TelephonyInfo from '$lib/plugins/TelephonyInfo';
     import * as WifiInfo from '$lib/plugins/WifiInfo';
     import { ArrowPath, ArrowUpTray, CloudArrowUp, Trash } from '@steeze-ui/heroicons';
     import { ProgressRadial, SlideToggle, getToastStore } from '@skeletonlabs/skeleton';
     import type { Data } from '$lib/models/api';
+    import { Geolocation } from '@capacitor/geolocation';
     import { Icon } from '@steeze-ui/svelte-icon';
     import type { Output } from 'valibot';
 
@@ -39,7 +39,7 @@
     async function getLocation() {
         gpsLoadState = State.LOADING;
         try {
-            const location = await Location.getLocation();
+            const location = await Geolocation.getCurrentPosition();
             if (location === null) throw new RangeError('Location query failed.');
             gpsLoadState = State.SUCCESS;
             return location;

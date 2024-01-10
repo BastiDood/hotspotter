@@ -1,9 +1,7 @@
 <script lang="ts">
-    import type Collection from 'ol/Collection';
-    import Feature from 'ol/Feature';
+    import { type Collection, Feature, type View } from 'ol';
     import { Icon } from '@steeze-ui/svelte-icon';
-    import Polygon from 'ol/geom/Polygon';
-    import type View from 'ol/View';
+    import { Polygon } from 'ol/geom';
     import { assert } from '$lib/assert';
     import { cellToBoundary } from 'h3-js';
     import { fetchHexagonAccessPoints } from '$lib/http';
