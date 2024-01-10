@@ -13,5 +13,10 @@
     {@const date = new Date(timestamp)}
     <DisplayGeolocation {date} {longitude} {latitude} {accuracy} {altitude} {altitudeAccuracy} {speed} {heading} />
 {:catch err}
-    <Error>{err}</Error>
+    {#if err instanceof GeolocationPositionError}
+        {@const { code, message } = err}
+        <Error>[{code}]: {message}</Error>
+    {:else}
+        <Error>{err}</Error>
+    {/if}
 {/await}

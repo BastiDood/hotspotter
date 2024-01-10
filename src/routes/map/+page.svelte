@@ -12,5 +12,10 @@
 {:then { coords }}
     <Map {coords} />
 {:catch err}
-    <Error>{err}</Error>
+    {#if err instanceof GeolocationPositionError}
+        {@const { code, message } = err}
+        <Error>[{code}]: {message}</Error>
+    {:else}
+        <Error>{err}</Error>
+    {/if}
 {/await}
