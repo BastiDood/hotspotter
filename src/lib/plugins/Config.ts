@@ -3,7 +3,7 @@ import { assert } from '$lib/assert';
 
 export async function getUrl() {
     const { value } = await Preferences.get({ key: 'url' });
-    if (value === null) return;
+    if (value === null) return null;
     return new URL(value);
 }
 
@@ -14,7 +14,7 @@ export async function setUrl(value: string) {
 
 export async function getScanInterval() {
     const { value } = await Preferences.get({ key: 'scan-interval' });
-    if (value === null) return;
+    if (value === null) return null;
     const interval = parseInt(value, 10);
     assert(interval >= 0);
     return interval;

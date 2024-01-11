@@ -20,7 +20,7 @@
         button.disabled = true;
         try {
             const base = await getUrl();
-            if (typeof base === 'undefined') return;
+            if (base === null) return;
 
             const [minX, minY, maxX, maxY, ...rest] = transformExtent(
                 view.calculateExtent(),

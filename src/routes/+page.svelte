@@ -10,6 +10,7 @@
     import { Geolocation } from '@capacitor/geolocation';
     import { Icon } from '@steeze-ui/svelte-icon';
     import type { Output } from 'valibot';
+    import { assert } from '$lib/assert';
 
     const enum State {
         NONE,
@@ -114,7 +115,7 @@
 
     async function upload() {
         const url = await Config.getUrl();
-        if (typeof url === 'undefined') {
+        if (url === null) {
             toast.trigger({
                 message: 'No API endpoint has been set yet.',
                 background: 'variant-filled-error',
@@ -131,6 +132,8 @@
             sim,
             strength,
         ] = await Promise.all([getLocation(), scan(), getSim(), getSignalStrength()]);
+        assert(sim !== null);
+        assert(strength !== null);
 
         const gps = {
             timestamp: new Date(timestamp),
@@ -234,7 +237,7 @@
         isPending = true;
         try {
             const url = await Config.getUrl();
-            if (typeof url === 'undefined') {
+            if (url === null) {
                 toast.trigger({
                     message: 'No API endpoint has been set yet.',
                     background: 'variant-filled-error',

@@ -1,25 +1,15 @@
 <script lang="ts">
-    import { addScanListener, startScan } from '$lib/plugins/WifiInfo';
+    import { clearWatch, startScan, startWatch } from '$lib/plugins/WifiInfo';
     import DisplayNetworks from './DisplayNetworks.svelte';
     import Error from '$lib/alerts/Error.svelte';
     import { Icon } from '@steeze-ui/svelte-icon';
-    import { browser } from '$app/environment';
     import { getToastStore } from '@skeletonlabs/skeleton';
-    import { onNavigate } from '$app/navigation';
+    import { onMount } from 'svelte';
     import { ArrowPath as src } from '@steeze-ui/heroicons';
 
     // eslint-disable-next-line init-declarations
     export let data;
-    $: ({ results } = data);
-    $: networks = results ?? [];
-
-    if (browser) {
-        const listener = addScanListener(aps => (networks = aps));
-        onNavigate(async () => {
-            const handle = await listener;
-            await handle.remove();
-        });
-    }
+    $: ({ networks } = data);
 
     const toast = getToastStore();
     async function refresh(button: HTMLButtonElement) {
@@ -45,6 +35,14 @@
             button.disabled = false;
         }
     }
+
+    onMount(() => {
+        const listener = startWatch(aps => (networks = aps));
+        return async () => {
+            const id = await listener;
+            await clearWatch(id);
+        };
+    });
 </script>
 
 <div class="space-y-4">

@@ -9,7 +9,7 @@
 
     // eslint-disable-next-line init-declarations
     export let data;
-    $: ({ scanInterval, url } = data);
+    $: ({ url, scanInterval } = data);
 
     const toast = getToastStore();
     async function submit(form: HTMLFormElement) {
