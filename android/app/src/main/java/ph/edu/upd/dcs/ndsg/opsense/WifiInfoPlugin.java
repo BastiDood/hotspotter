@@ -27,9 +27,7 @@ public class WifiInfoPlugin extends Plugin {
         @Override
         public void onScanResultsAvailable() {
             var json = scanResultsToResultJson(getApi());
-            for (var id : watchers) {
-                getBridge().getSavedCall(id).resolve(json);
-            }
+            for (var id : watchers) getBridge().getSavedCall(id).resolve(json);
         }
     };
 

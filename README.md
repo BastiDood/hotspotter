@@ -23,10 +23,11 @@ The mobile application is a single-page [SvelteKit] application powered by the [
 
 ## Environment Variables
 
-| **Name**                      | **Description**                                                       | **Required** |
-| ----------------------------- | --------------------------------------------------------------------- | :----------: |
-| `POSTGRES_URL`                | Connection URL to the [PostgreSQL] instance.                          |   &#x2714;   |
-| `PUBLIC_GOOGLE_WEB_CLIENT_ID` | The OAuth web client ID from the [Google Cloud console][credentials]. |   &#x2714;   |
+| **Name**                      | **Description**                                                         | **Required** |
+| ----------------------------- | ----------------------------------------------------------------------- | :----------: |
+| `MOBILE`                      | Determines whether to build the SvelteKit application as a static site. |   &#x2714;   |
+| `POSTGRES_URL`                | Connection URL to the [PostgreSQL] instance.                            |   &#x2714;   |
+| `PUBLIC_GOOGLE_WEB_CLIENT_ID` | The OAuth web client ID from the [Google Cloud console][credentials].   |   &#x2714;   |
 
 [PostgreSQL]: https://www.postgresql.org/
 [credentials]: https://console.cloud.google.com/apis/credentials
