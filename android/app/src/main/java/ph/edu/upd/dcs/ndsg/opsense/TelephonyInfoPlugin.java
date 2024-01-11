@@ -8,8 +8,6 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 
 @CapacitorPlugin(name = "TelephonyInfo")
 public class TelephonyInfoPlugin extends Plugin {
-    private TelephonyManager api;
-
     private static JSObject signalStrengthToJson(SignalStrength strength) {
         var now = System.currentTimeMillis();
         var elapsed = SystemClock.elapsedRealtime();
@@ -111,16 +109,14 @@ public class TelephonyInfoPlugin extends Plugin {
         return res;
     }
 
-    @Override
-    public void load() {
-        var act = getActivity();
-        var exe = act.getMainExecutor();
-        api = (TelephonyManager) act.getSystemService(Context.TELEPHONY_SERVICE);
+    private TelephonyManager getApi() {
+        return (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
     }
 
     @PluginMethod()
     public void getSim(PluginCall ctx) {
         // TODO(getDataNetworkType): Explore difference between `getActiveDataSubscriptionId` vs. `getDefaultDataSubscriptionId`.
+        var api = getApi();
         var json = new JSObject()
             // noinspection MissingPermission
             .put("network_type", api.getNetworkType())
@@ -138,6 +134,6 @@ public class TelephonyInfoPlugin extends Plugin {
     @PluginMethod()
     public void getSignalStrength(PluginCall ctx) {
         // TODO: Gracefully downgrade to using `SignalStrength` deprecated getters for CDMA and GSM.
-        ctx.resolve(signalStrengthToJson(api.getSignalStrength()));
+        ctx.resolve(signalStrengthToJson(getApi().getSignalStrength()));
     }
 }
