@@ -6,7 +6,10 @@ import android.telephony.*;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-@CapacitorPlugin(name = "TelephonyInfo")
+@CapacitorPlugin(
+    name = "TelephonyInfo",
+    permissions = { @Permission(strings = { Manifest.permission.READ_BASIC_PHONE_STATE }) }
+)
 public class TelephonyInfoPlugin extends Plugin {
     private static JSObject signalStrengthToJson(SignalStrength strength) {
         var now = System.currentTimeMillis();
@@ -119,7 +122,7 @@ public class TelephonyInfoPlugin extends Plugin {
         var api = getApi();
         var json = new JSObject()
             // noinspection MissingPermission
-            .put("network_type", api.getNetworkType())
+            .put("network_type", api.getDataNetworkType())
             .put("operator_id", api.getSimOperator())
             .put("operator_name", api.getSimOperatorName());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
