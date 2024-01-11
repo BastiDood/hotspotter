@@ -10,19 +10,26 @@ The mobile application is a single-page [SvelteKit] application powered by the [
 -   [Node.js]
 -   [pnpm]
 -   [Android Studio]
-    -   `build-tools;30.0.3`
     -   `platform-tools`
-    -   `platforms;android-33`
-    -   `system-images;android-33;google_apis_playstore;x86_64` (Optional)
-    -   `emulator` (Optional)
-    -   `extras;google;Android_Emulator_Hypervisor_Driver` (Optional)
--   [OpenJDK 21]
+    -   `platforms;android-34`
+    -   `build-tools;34.0.0`
+-   [OpenJDK 17]
 -   Android 9 (API 28)
 
 [Node.js]: https://nodejs.org/en/download/
 [pnpm]: https://pnpm.io/
 [Android Studio]: https://developer.android.com/studio
-[OpenJDK 21]: https://openjdk.org/projects/jdk/21/
+[OpenJDK 17]: https://openjdk.org/projects/jdk/17/
+
+## Environment Variables
+
+| **Name**                      | **Description**                                                       | **Required** |
+| ----------------------------- | --------------------------------------------------------------------- | :----------: |
+| `POSTGRES_URL`                | Connection URL to the [PostgreSQL] instance.                          |   &#x2714;   |
+| `PUBLIC_GOOGLE_WEB_CLIENT_ID` | The OAuth web client ID from the [Google Cloud console][credentials]. |   &#x2714;   |
+
+[PostgreSQL]: https://www.postgresql.org/
+[credentials]: https://console.cloud.google.com/apis/credentials
 
 ## Development
 
