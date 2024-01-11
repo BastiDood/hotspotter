@@ -13,7 +13,7 @@
 
 <Ratings spacing="" max={4} value={level}>
     <Icon {src} class="h-4" slot="empty" />
-    <Icon {src} class="h-4" slot="full" solid />
+    <Icon {src} class="h-4" slot="full" theme="solid" />
 </Ratings>
 <div class="table-container">
     <table class="table">

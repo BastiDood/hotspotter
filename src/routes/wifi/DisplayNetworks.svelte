@@ -31,9 +31,9 @@
                     <td>{wifi_timestamp.toLocaleString()}</td>
                     <td>{standard}</td>
                     <td>
-                        <Ratings spacing="" max={max_level} value={level}>
+                        <Ratings spacing="" value={level} max={max_level}>
                             <Icon {src} class="h-4" slot="empty" />
-                            <Icon {src} class="h-4" slot="full" solid />
+                            <Icon {src} class="h-4" slot="full" theme="solid" />
                         </Ratings>
                     </td>
                     <td>{bssid}</td>
