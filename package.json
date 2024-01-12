@@ -7,6 +7,8 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
+        "db:init": "initdb -E UTF8 -D data",
+        "db:start": "postgres -d data",
         "sync:cap": "cap sync",
         "sync:svelte": "svelte-kit sync",
         "run:android": "cap run android",
