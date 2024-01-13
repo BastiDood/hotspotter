@@ -27,6 +27,17 @@ The mobile application is a single-page [SvelteKit] application powered by the [
 
 The following sections explain how to get an instance of the project set up.
 
+### Installing Corepack
+
+We use [Corepack] as the package manager "manager" for Node.js, which should come pre-installed with the default distributions. Corepack is responsible for fetching and proxying the correct version of [pnpm] based on the `packageManager` entry of the [`package.json`](./package.json) file.
+
+[Corepack]: https://nodejs.org/api/corepack.html
+
+```bash
+# This command should be available upon installing Node.js.
+corepack enable
+```
+
 ### Environment Variables
 
 In a `.env` file, populate the following environment variables.
