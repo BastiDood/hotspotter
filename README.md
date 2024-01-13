@@ -116,8 +116,8 @@ pnpm build
 
 With the `build/` now available, we can now install the application into the Android device. There are two ways to run the application:
 
-* In the actual device via USB. Ensure that [USB debugging is enabled](https://developer.android.com/studio/debug/dev-options#Enable-debugging).
-* Via the Android emulator. Ensure that the selected system image already contains [Google Play Services](https://developer.android.com/studio/run/managing-avds#system-image) within the latest Android version.
+-   In the actual device via USB. Ensure that [USB debugging is enabled](https://developer.android.com/studio/debug/dev-options#Enable-debugging).
+-   Via the Android emulator. Ensure that the selected system image already contains [Google Play Services](https://developer.android.com/studio/run/managing-avds#system-image) within the latest Android version.
 
 #### Physical Device
 
