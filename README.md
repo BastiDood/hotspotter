@@ -97,6 +97,13 @@ pnpm db:start
 > [!NOTE]
 > At this point, the terminal should be hijacked by the database server logs. From now on, we should spawn a new terminal tab to enter more commands. We just leave the database server running in the background. This is effectively what the background service did for us.
 
+We now initialize the database tables and columns with `psql`.
+
+```bash
+# Run the `postgres/init.sql` script with `psql`.
+pnpm db:migrate
+```
+
 ### Building the Mobile Application
 
 Recall that the mobile application is a [Capacitor] application that wraps the statically generated web pages by [SvelteKit]. The produced `.html`, `.css`, and `.js` files are effectively what gets loaded as the user interface.
