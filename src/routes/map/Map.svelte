@@ -35,7 +35,7 @@
     gpsFeature.setStyle(
         new Style({
             fill: new Fill({ color: '#4f46e566' }),
-            stroke: new Stroke({ color: '#0ea5e988', width: 4 }),
+            stroke: new Stroke({ color: '#0ea5e988', width: 2 }),
         }),
     );
 
@@ -46,14 +46,14 @@
     const hexLayer = new VectorLayer({
         source: new VectorSource({ features: hexFeatures }),
         style(feature) {
-            const density = feature.get('density');
-            if (typeof density === 'number')
-                return [
-                    new Style({
-                        fill: new Fill({ color: [79, 70, 229, density] }),
-                        stroke: new Stroke({ color: [79, 70, 229], width: 2 }),
-                    }),
-                ];
+            const color = feature.get('color');
+            if (typeof color !== 'string') return;
+            return [
+                new Style({
+                    fill: new Fill({ color }),
+                    stroke: new Stroke({ color: [79, 70, 229, 0.5], width: 2 }),
+                }),
+            ];
         },
     });
     $: hexLayer.setVisible($hexVisibleStore);
