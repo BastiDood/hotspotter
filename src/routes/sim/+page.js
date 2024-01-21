@@ -1,5 +1,5 @@
+import { browser, building } from '$app/environment';
 import { getSignalStrength, getSim } from '$lib/plugins/TelephonyInfo';
-import { building } from '$app/environment';
 
 async function getData() {
     const [sim, strength] = await Promise.all([getSim(), getSignalStrength()]);
@@ -7,6 +7,6 @@ async function getData() {
 }
 
 export async function load() {
-    const result = building ? null : await getData();
+    const result = building || !browser ? null : await getData();
     return { result };
 }

@@ -9,7 +9,7 @@
 
     // eslint-disable-next-line init-declarations
     export let data;
-    $: ({ url, scanInterval } = data);
+    $: ({ result } = data);
 
     const toast = getToastStore();
     async function submit(form: HTMLFormElement) {
@@ -48,28 +48,31 @@
     <Error>{err}</Error>
 {/await}
 <form on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)} class="space-y-4">
-    <label class="space-y-2">
-        <span>Base URL for API</span>
-        <input
-            type="url"
-            name="url"
-            required
-            placeholder="https://example.com/api/"
-            value={url}
-            class="input px-2 py-1"
-        />
-    </label>
-    <label class="space-y-2">
-        <span>Scan Interval</span>
-        <input
-            type="number"
-            name="scan-interval"
-            required
-            min="0"
-            placeholder="Milliseconds"
-            value={scanInterval}
-            class="input px-2 py-1"
-        />
-    </label>
-    <button type="submit" class="variant-filled-primary btn">Save</button>
+    {#if result !== null}
+        {@const { url, scanInterval } = result}
+        <label class="space-y-2">
+            <span>Base URL for API</span>
+            <input
+                type="url"
+                name="url"
+                required
+                placeholder="https://example.com/api/"
+                value={url}
+                class="input px-2 py-1"
+            />
+        </label>
+        <label class="space-y-2">
+            <span>Scan Interval</span>
+            <input
+                type="number"
+                name="scan-interval"
+                required
+                min="0"
+                placeholder="Milliseconds"
+                value={scanInterval}
+                class="input px-2 py-1"
+            />
+        </label>
+        <button type="submit" class="variant-filled-primary btn">Save</button>
+    {/if}
 </form>

@@ -48,12 +48,7 @@ export async function fetchHexagonAccessPoints(
     return parse(HexagonAccessPointCount, json, { abortEarly: true });
 }
 
-export async function fetchCellScore(
-    base: URL,
-    longitude: number,
-    latitude: number,
-    signal?: AbortSignal,
-) {
+export async function fetchCellScore(base: URL, longitude: number, latitude: number, signal?: AbortSignal) {
     const url = new URL('api/score', base);
     url.searchParams.set('lon', longitude.toString());
     url.searchParams.set('lat', latitude.toString());

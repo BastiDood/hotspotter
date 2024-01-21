@@ -1,7 +1,7 @@
-import { building } from '$app/environment';
+import { browser, building } from '$app/environment';
 import { getScanResults } from '$lib/plugins/WifiInfo';
 
 export async function load() {
-    const networks = building ? [] : await getScanResults();
+    const networks = building || !browser ? [] : await getScanResults();
     return { networks };
 }
