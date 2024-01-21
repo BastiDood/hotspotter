@@ -74,7 +74,7 @@
             >Geolocation</SlideToggle
         >
         <SlideToggle name="hex" size="sm" active="bg-primary-400" class="pointer-events-auto" bind:checked={$hex}
-            >Incidents</SlideToggle
+            >Wi-Fi Access Points</SlideToggle
         >
     </div>
     <div class="col-start-1 row-start-3 flex items-center gap-4 justify-self-start">
