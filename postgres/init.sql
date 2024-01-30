@@ -64,8 +64,14 @@ CREATE SCHEMA hotspotter
         level SMALLINT NOT NULL CHECK(level BETWEEN 0 AND 4),
         rscp SMALLINT CHECK(dbm BETWEEN -120 AND -24)
     )
+    CREATE TABLE users(
+        user_id TEXT PRIMARY KEY NOT NULL,
+        email TEXT NOT NULL,
+        picture TEXT NOT NULL
+    )
     CREATE TABLE readings(
         reading_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+        user_id TEXT NOT NULL REFERENCES users(user_id),
         -- Geolocation
         gps_timestamp TIMESTAMPTZ NOT NULL,
         coords CIRCLE NOT NULL,
