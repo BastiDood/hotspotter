@@ -15,7 +15,7 @@ public class TelephonyInfoPlugin extends Plugin {
     private static JSObject signalStrengthToJson(SignalStrength strength) {
         var now = System.currentTimeMillis();
         var elapsed = SystemClock.elapsedRealtime();
-        var timestamp = strength.getTimestampMillis();
+        var timestamp = strength.getTimestampMillis(); // FIXME: Add guard condition for API Level 30.
         var res = new JSObject()
             .put("timestamp", now - elapsed + timestamp)
             .put("level", strength.getLevel());
