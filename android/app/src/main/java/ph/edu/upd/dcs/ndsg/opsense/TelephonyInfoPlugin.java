@@ -1,5 +1,6 @@
 package ph.edu.upd.dcs.ndsg.hotspotter;
 
+import android.Manifest;
 import android.content.Context;
 import android.os.*;
 import android.telephony.*;
