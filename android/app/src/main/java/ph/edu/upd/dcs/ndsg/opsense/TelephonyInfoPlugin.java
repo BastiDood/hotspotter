@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.*;
 import android.telephony.*;
 import com.getcapacitor.*;
-import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.*;
 
 @CapacitorPlugin(
     name = "TelephonyInfo",
