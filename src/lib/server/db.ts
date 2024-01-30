@@ -1,6 +1,7 @@
 import { type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
-import { type Output, bigint, number, object, parse, string, uuid } from 'valibot';
+import { bigint, number, object, parse, string, uuid } from 'valibot';
 import { POSTGRES_URL } from '$lib/server/env';
+import type { User } from '$lib/jwt';
 import { assert } from '$lib/assert';
 import pg from 'postgres';
 
@@ -12,8 +13,9 @@ const Uuid = object({ id: string([uuid()]) });
 const CountResult = object({ result: number() });
 const HexResult = object({ result: HexagonAccessPointCount });
 
-export function uploadReading({ gps, sim, strength, wifi }: Output<typeof Data>) {
+export function uploadReading({ sub, email, picture }: User, { gps, sim, strength, wifi }: Data) {
     return sql.begin(async sql => {
+        await sql`INSERT INTO hotspotter.users (user_id, email, picture) VALUES (${sub}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
         const [cdma, ...cdmaRest] =
             typeof strength.cdma === 'undefined'
                 ? []
@@ -58,14 +60,7 @@ export function uploadReading({ gps, sim, strength, wifi }: Output<typeof Data>)
 
         // TODO: Distinguish between `null` and `undefined` as "no data" versus "no hardware".
         const [first, ...rest] =
-            await sql`INSERT INTO hotspotter.readings (gps_timestamp, coords, altitude_level, altitude_accuracy, speed, heading, network_type, carrier_id, operator_id, cell_timestamp, cdma_id, gsm_id, lte_id, nr_id, tdscdma_id, wcdma_id) VALUES (${
-                gps.timestamp
-            }, CIRCLE(POINT(${gps.longitude}, ${gps.latitude}), ${gps.coords_accuracy}), ${gps.altitude}, ${
-                gps.altitude_accuracy
-            }, ${gps.speed}, ${gps.heading}, ${sim.network_type}, ${sim.carrier_id ?? null}, ${sim.operator_id}, ${
-                strength.timestamp
-            }, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`;
-
+            await sql`INSERT INTO hotspotter.readings (user_id, gps_timestamp, coords, altitude_level, altitude_accuracy, speed, heading, network_type, carrier_id, operator_id, cell_timestamp, cdma_id, gsm_id, lte_id, nr_id, tdscdma_id, wcdma_id) VALUES (${sub}, ${gps.timestamp}, CIRCLE(POINT(${gps.longitude}, ${gps.latitude}), ${gps.coords_accuracy}), ${gps.altitude}, ${gps.altitude_accuracy}, ${gps.speed}, ${gps.heading}, ${sim.network_type}, ${sim.carrier_id ?? null}, ${sim.operator_id}, ${strength.timestamp}, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`;
         assert(rest.length === 0);
         assert(typeof first !== 'undefined');
         const { id } = parse(Uuid, first, { abortEarly: true });
