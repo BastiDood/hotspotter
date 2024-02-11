@@ -11,6 +11,7 @@
     import { Icon } from '@steeze-ui/svelte-icon';
     import type { Output } from 'valibot';
     import { assert } from '$lib/assert';
+    import cookie from 'cookie';
 
     const enum State {
         NONE,
@@ -114,6 +115,23 @@
     }
 
     async function upload() {
+        const jwt = cookie.parse(document.cookie).id;
+        if (typeof jwt === 'undefined') {
+            toast.trigger({
+                message: 'User is not logged in.',
+                background: 'variant-filled-error',
+            });
+            return null;
+        }
+
+        if (typeof jwt === 'undefined') {
+            toast.trigger({
+                message: 'No API endpoint has been set yet.',
+                background: 'variant-filled-error',
+            });
+            return null;
+        }
+
         const url = await Config.getUrl();
         if (url === null) {
             toast.trigger({
@@ -148,7 +166,7 @@
 
         const body = { gps, wifi, sim, strength };
         try {
-            console.log(await Api.uploadReading(url, body));
+            console.log(await Api.uploadReading(url, jwt, body));
         } catch (err) {
             const uri = await Cache.write(body);
             toast.trigger({
@@ -222,18 +240,28 @@
         }
     }
 
-    async function submitFile(url: URL, path: string, data: Output<typeof Data>) {
+    async function submitFile(url: URL, path: string, jwt: string, data: Output<typeof Data>) {
         // The ordering of the operations is important here. We emphasize that
         // the cache is only removed after a successful data submission. If the
         // write operation fails (somehow), we are fine with the duplicated data.
         // This is better than the alternative where we delete the reading before
         // a successful transmission, in which case there is the possibility for
         // the data to be deleted yet the transmission fails.
-        console.log(await Api.uploadReading(url, data));
+        console.log(await Api.uploadReading(url, jwt, data));
         await Cache.remove(path);
     }
 
     async function sync() {
+        const jwt = cookie.parse(document.cookie).id;
+        if (typeof jwt === 'undefined') {
+            toast.trigger({
+                message: 'User is not logged in.',
+                background: 'variant-filled-error',
+                autohide: false,
+            });
+            return;
+        }
+
         isPending = true;
         try {
             const url = await Config.getUrl();
@@ -247,7 +275,7 @@
             }
 
             const files = await Cache.read();
-            const promises = files.map(({ path, payload }) => submitFile(url, path, payload));
+            const promises = files.map(({ path, payload }) => submitFile(url, path, jwt, payload));
             const results = await Promise.allSettled(promises);
 
             let successes = 0;

@@ -1,12 +1,16 @@
 import { type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
-import { type Output, parse } from 'valibot';
 import { assert } from './assert';
+import { parse } from 'valibot';
 
-export async function uploadReading(base: URL, data: Output<typeof Data>) {
+export async function uploadReading(base: URL, jwt: string, data: Data) {
     const url = new URL('api/reading', base);
     const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        headers: {
+            Authorization: `Bearer ${jwt}`,
+            'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
     });
     assert(response.status === 201);
