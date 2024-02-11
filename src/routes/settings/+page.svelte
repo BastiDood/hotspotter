@@ -1,12 +1,14 @@
 <script lang="ts">
+    import { ArrowRightEndOnRectangle, ArrowRightStartOnRectangle } from '@steeze-ui/heroicons';
     import { Avatar, ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
     import { setScanInterval, setUrl } from '$lib/plugins/Config';
-    import { ArrowRightStartOnRectangle } from '@steeze-ui/heroicons';
     import { CapacitorCookies } from '@capacitor/core';
     import Error from '$lib/alerts/Error.svelte';
     import { Icon } from '@steeze-ui/svelte-icon';
+    import type { MaybePromise } from '@sveltejs/kit';
     import { PUBLIC_GOOGLE_WEB_CLIENT_ID } from '$lib/env';
     import { assert } from '$lib/assert';
+    import { browser } from '$app/environment';
     import cookie from 'cookie';
     import { invalidateAll } from '$app/navigation';
     import { signIn } from '$lib/plugins/Credential';
@@ -18,23 +20,31 @@
 
     const toast = getToastStore();
 
-    async function signInWithGoogle() {
-        const profile = await signIn(PUBLIC_GOOGLE_WEB_CLIENT_ID);
-        const { exp } = await verifyGoogleJwt(profile.id);
-        await CapacitorCookies.setCookie({
-            path: '/',
-            key: 'id',
-            value: profile.id,
-            expires: exp.toUTCString(),
-        });
-        return profile;
+    async function loadProfile() {
+        const jwt = cookie.parse(document.cookie).id;
+        if (typeof jwt === 'undefined') return null;
+        const { name, email, picture } = await verifyGoogleJwt(jwt);
+        return { name, email, picture };
     }
 
-    async function getProfile() {
-        const jwt = cookie.parse(document.cookie).id;
-        const promise = typeof jwt === 'undefined' ? signInWithGoogle() : verifyGoogleJwt(jwt);
-        const { name, email, picture } = await promise;
-        return { name, email, picture };
+    type Profile = Awaited<ReturnType<typeof loadProfile>>;
+    let profile: MaybePromise<Profile> = browser ? loadProfile() : null;
+
+    async function signInWithGoogle(button: HTMLButtonElement) {
+        button.disabled = true;
+        try {
+            const result = await signIn(PUBLIC_GOOGLE_WEB_CLIENT_ID);
+            const { exp } = await verifyGoogleJwt(result.id);
+            await CapacitorCookies.setCookie({
+                path: '/',
+                key: 'id',
+                value: result.id,
+                expires: exp.toUTCString(),
+            });
+            profile = result;
+        } finally {
+            button.disabled = false;
+        }
     }
 
     async function logOut(button: HTMLButtonElement) {
@@ -45,6 +55,7 @@
                 message: 'Successfully logged out.',
                 background: 'variant-filled-success',
             });
+            profile = null;
         } finally {
             button.disabled = false;
         }
@@ -75,20 +86,32 @@
 </script>
 
 <!-- TODO: Use proper sign-in flow. -->
-{#await getProfile()}
+{#await profile}
     <ProgressBar />
-{:then { name, email, picture }}
-    <div class="card grid grid-cols-[auto_1fr_auto] items-center gap-2 p-4">
-        <Avatar width="w-8" src={picture} />
-        <a href="mailto:{email}" class="anchor">{name}</a>
+{:then result}
+    {#if result === null}
         <button
             type="button"
-            class="variant-filled-tertiary btn-icon btn-icon-sm p-1"
-            on:click={({ currentTarget }) => logOut(currentTarget)}
+            class="variant-filled-tertiary btn"
+            on:click={({ currentTarget }) => signInWithGoogle(currentTarget)}
         >
-            <Icon src={ArrowRightStartOnRectangle} theme="micro" />
+            <Icon src={ArrowRightEndOnRectangle} class="h-6" />
+            <span>Sign in with Google</span>
         </button>
-    </div>
+    {:else}
+        {@const { name, email, picture } = result}
+        <div class="card grid grid-cols-[auto_1fr_auto] items-center gap-2 p-4">
+            <Avatar width="w-8" src={picture} />
+            <a href="mailto:{email}" class="anchor">{name}</a>
+            <button
+                type="button"
+                class="variant-filled-tertiary btn-icon btn-icon-sm p-1"
+                on:click={({ currentTarget }) => logOut(currentTarget)}
+            >
+                <Icon src={ArrowRightStartOnRectangle} theme="micro" />
+            </button>
+        </div>
+    {/if}
 {:catch err}
     <Error>{err}</Error>
 {/await}
