@@ -105,42 +105,25 @@ export async function fetchWcdmaCoords() {
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
-/** Approximation of the equatorial radius in meters. */
-const EARTH_RADIUS = 6_378_137;
-
-function toRadians(degrees: number) {
-    return (degrees * Math.PI) / 180;
-}
-
-function haversine(minX: number, minY: number, maxX: number, maxY: number) {
-    const dLon = toRadians(maxX - minX);
-    const dLat = toRadians(maxY - minY);
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRadians(minY)) * Math.cos(toRadians(maxY)) * Math.sin(dLon / 2) ** 2;
-    return EARTH_RADIUS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-/** @see https://h3geo.org/docs/core-library/restable#average-area-in-m2 */
-function resolveResolutionFromComputedHexagonArea(area: number) {
-    if (area < 60) return 15;
-    if (area < 200) return 14;
-    if (area < 600) return 13;
-    if (area < 1_300) return 12;
-    if (area < 3_200) return 11;
-    if (area < 9_500) return 10;
-    if (area < 18_500) return 9;
-    if (area < 42_500) return 8;
-    if (area < 120_000) return 7;
-    if (area < 300_000) return 6;
-    if (area < 960_000) return 5;
-    if (area < 3_000_000) return 4;
-    if (area < 5_800_000) return 3;
-    if (area < 12_500_000) return 2;
-    if (area < 18_000_000) return 1;
-    return 0;
+function resolveResolution(minX: number, maxX: number) {
+    const width = maxX - minX;
+    console.log(width);
+    if (width < 0.008) return 14; // zoom 18
+    if (width < 0.016) return 13;
+    if (width < 0.035) return 12;
+    if (width < 0.07) return 11;
+    if (width < 0.14) return 10;
+    if (width < 0.56) return 9;
+    if (width < 2.25) return 8; // zoom 10
+    if (width < 9) return 7;
+    if (width < 36) return 6;
+    if (width < 144) return 5;
+    if (width < 361) return 4; // zoom 2
+    return 3;
 }
 
 export async function aggregateAccessPoints(minX: number, minY: number, maxX: number, maxY: number) {
-    const resolution = resolveResolutionFromComputedHexagonArea(haversine(minX, minY, maxX, maxY));
+    const resolution = resolveResolution(minX, maxX);
     const [first, ...rest] =
         await sql`SELECT jsonb_object_agg(hex, count) result FROM (SELECT hex, count(DISTINCT bssid) FROM (SELECT reading_id, h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM hotspotter.readings WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hexes JOIN hotspotter.wifi USING (reading_id) GROUP BY hex) _ WHERE _ IS NOT NULL`;
     assert(rest.length === 0);
