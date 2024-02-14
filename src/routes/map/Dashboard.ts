@@ -1,7 +1,6 @@
 import { Control } from 'ol/control';
 import type { Coordinate } from 'ol/coordinate';
 import Dashboard from './Dashboard.svelte';
-import type { Feature } from 'ol';
 
 export class DashboardControl extends Control {
     #component: Dashboard;
@@ -30,8 +29,7 @@ export class DashboardControl extends Control {
         return this.#component.hex;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onData(callback: (data: CustomEvent<Feature[]>) => any) {
-        return this.#component.$on('data', callback);
+    refreshAccessPoints(signal?: AbortSignal) {
+        return this.#component.refreshAccessPoints(signal);
     }
 }

@@ -58,13 +58,29 @@
     });
     $: hexLayer.setVisible($hexVisibleStore);
 
+    let controller = null as AbortController | null;
+    function refreshHexagons() {
+        controller?.abort();
+        controller = new AbortController();
+        // NOTE: We use `then` so that the outer function returns `void`.
+        dashboard
+            .refreshAccessPoints(controller.signal)
+            .then(features => {
+                hexFeatures.clear();
+                hexFeatures.extend(features);
+                controller = null;
+            })
+            .catch(err => {
+                // Only reset the controller if the error is unexpected.
+                if (err instanceof DOMException && err.name === 'AbortError') return;
+                controller = null;
+                throw err;
+            });
+    }
+
     // eslint-disable-next-line init-declarations
     let target: HTMLDivElement | undefined;
     onMount(() => {
-        const unsubscribe = dashboard.onData(({ detail }) => {
-            hexFeatures.clear();
-            hexFeatures.extend(detail);
-        });
         const map = new Map({
             target,
             view: dashboard.view,
@@ -76,8 +92,9 @@
             const { longitude, latitude, accuracy } = pos.coords;
             gps.setCenterAndRadius(fromLonLat([longitude, latitude]), accuracy);
         });
+        map.addEventListener('loadstart', refreshHexagons);
         return async () => {
-            unsubscribe();
+            map.removeEventListener('loadstart', refreshHexagons);
             map.dispose();
             const id = await watcher;
             await Geolocation.clearWatch({ id });
