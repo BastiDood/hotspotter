@@ -22,3 +22,20 @@ export function deferred<T, E = any>() {
     assert(reject !== null);
     return { promise, resolve, reject };
 }
+
+export function binarySearch(items: number[], target: number) {
+    let size = items.length;
+    let left = 0;
+    let right = size;
+    while (left < right) {
+        const mid = left + Math.floor(size / 2);
+        const value = items[mid];
+        assert(typeof value !== 'undefined');
+        if (target < value) right = mid;
+        else if (target > value) left = mid + 1;
+        else return mid;
+        size = right - left;
+    }
+    assert(left <= items.length);
+    return left;
+}

@@ -3,6 +3,7 @@ import { bigint, number, object, parse, string, uuid } from 'valibot';
 import { POSTGRES_URL } from '$lib/server/env';
 import type { User } from '$lib/jwt';
 import { assert } from '$lib/assert';
+import { binarySearch } from '$lib/util';
 import pg from 'postgres';
 
 // Global (private) connection pool
@@ -105,29 +106,19 @@ export async function fetchWcdmaCoords() {
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
+const RESOLUTIONS = [0, 0.011, 0.022, 0.044, 0.088, 0.176, 0.352, 0.703, 1.406, 2.813, 5.625, 11.25, 22.5, 45, 90];
 function resolveResolution(minX: number, maxX: number) {
-    const width = maxX - minX;
-    console.log(width);
-    if (width < 0.008) return 14; // zoom 18
-    if (width < 0.016) return 13;
-    if (width < 0.035) return 12;
-    if (width < 0.07) return 11;
-    if (width < 0.14) return 10;
-    if (width < 0.56) return 9;
-    if (width < 2.25) return 8; // zoom 10
-    if (width < 9) return 7;
-    if (width < 36) return 6;
-    if (width < 144) return 5;
-    if (width < 361) return 4; // zoom 2
-    return 3;
+    const delta = Math.abs(maxX - minX);
+    return RESOLUTIONS.length - binarySearch(RESOLUTIONS, delta);
 }
 
 export async function aggregateAccessPoints(minX: number, minY: number, maxX: number, maxY: number) {
     const resolution = resolveResolution(minX, maxX);
     const [first, ...rest] =
-        await sql`SELECT jsonb_object_agg(hex, count) result FROM (SELECT hex, count(DISTINCT bssid) FROM (SELECT reading_id, h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM hotspotter.readings WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hexes JOIN hotspotter.wifi USING (reading_id) GROUP BY hex) _ WHERE _ IS NOT NULL`;
+        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}') result FROM (SELECT hex, count(DISTINCT bssid) FROM (SELECT reading_id, h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM hotspotter.readings WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hexes JOIN hotspotter.wifi USING (reading_id) GROUP BY hex) _ WHERE _ IS NOT NULL`;
     assert(rest.length === 0);
-    return typeof first === 'undefined' ? null : parse(HexResult, first).result;
+    assert(typeof first !== 'undefined');
+    return parse(HexResult, first).result;
 }
 
 export async function computeCellScore(longitude: number, latitude: number) {

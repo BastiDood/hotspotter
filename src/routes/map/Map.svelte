@@ -92,9 +92,9 @@
             const { longitude, latitude, accuracy } = pos.coords;
             gps.setCenterAndRadius(fromLonLat([longitude, latitude]), accuracy);
         });
-        map.addEventListener('loadstart', refreshHexagons);
+        map.addEventListener('loadend', refreshHexagons);
         return async () => {
-            map.removeEventListener('loadstart', refreshHexagons);
+            map.removeEventListener('loadend', refreshHexagons);
             map.dispose();
             const id = await watcher;
             await Geolocation.clearWatch({ id });

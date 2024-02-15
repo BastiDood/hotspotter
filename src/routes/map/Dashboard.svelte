@@ -1,18 +1,15 @@
 <script context="module" lang="ts">
     const MAX_ACCESS_POINTS = 20;
-    // TODO: Convert these to color arrays.
-    const GRADIENT = [
-        { color: '#edf8b150', legend: '1' },
-        { color: '#7fcdbb50' },
-        { color: '#2c7fb850', legend: `${MAX_ACCESS_POINTS}+` },
-    ];
+    const GRADIENT = ['#edf8b150', '#7fcdbb50', '#2c7fb850'];
 </script>
 
 <script lang="ts">
     import { Feature, View } from 'ol';
     import type { Coordinate } from 'ol/coordinate';
+    import { Icon } from '@steeze-ui/svelte-icon';
     import { Polygon } from 'ol/geom';
     import { SlideToggle } from '@skeletonlabs/skeleton';
+    import { Wifi } from '@steeze-ui/heroicons';
     import { assert } from '$lib/assert';
     import { cellToBoundary } from 'h3-js';
     import { fetchHexagonAccessPoints } from '$lib/http';
@@ -26,8 +23,9 @@
     export const view = new View({
         center,
         zoom: 7,
-        maxZoom: 22,
+        maxZoom: 19,
         enableRotation: false,
+        constrainResolution: true,
     });
     $: view.setCenter(center);
 
@@ -55,7 +53,7 @@
         return Object.entries(hexes).map(([hex, count]) => {
             const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
             const density = Math.min(count, MAX_ACCESS_POINTS) / MAX_ACCESS_POINTS;
-            const color = GRADIENT[Math.floor(density * (GRADIENT.length - 1))]?.color;
+            const color = GRADIENT[Math.floor(density * (GRADIENT.length - 1))];
             assert(typeof color !== 'undefined');
             return new Feature({ geometry, color });
         });
@@ -72,17 +70,13 @@
             >Wi-Fi Access Points</SlideToggle
         >
     </div>
-    <div class="col-start-1 row-start-3 flex items-center gap-4 justify-self-start">
+    <div class="col-start-1 row-start-3 flex items-center justify-self-start overflow-hidden rounded">
         {#if $hex}
-            <div class="flex h-10 overflow-hidden rounded-lg text-sm">
-                {#each GRADIENT as { color, legend }, i (i)}
-                    <div style:background-color={color} class="flex w-10 items-center justify-center">
-                        {#if typeof legend !== 'undefined'}
-                            {legend}
-                        {/if}
-                    </div>
-                {/each}
+            <div class="flex aspect-square w-10 items-center justify-center bg-[#edf8b1]/40">1</div>
+            <div class="flex aspect-square w-10 items-center justify-center bg-[#7fcdbb]/40 p-2">
+                <Icon src={Wifi} theme="mini" />
             </div>
+            <div class="flex aspect-square w-10 items-center justify-center bg-[#2c7fb8]/40">20+</div>
         {/if}
     </div>
     <p class="col-start-3 row-start-3 w-full self-end text-right">
