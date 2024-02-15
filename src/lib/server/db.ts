@@ -14,9 +14,9 @@ const Uuid = object({ id: string([uuid()]) });
 const CountResult = object({ result: number() });
 const HexResult = object({ result: HexagonAccessPointCount });
 
-export function uploadReading({ sub, email, picture }: User, { gps, sim, strength, wifi }: Data) {
+export function uploadReading({ sub, email, name, picture }: User, { gps, sim, strength, wifi }: Data) {
     return sql.begin(async sql => {
-        await sql`INSERT INTO hotspotter.users (user_id, email, picture) VALUES (${sub}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
+        await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
         const [cdma, ...cdmaRest] =
             typeof strength.cdma === 'undefined'
                 ? []
