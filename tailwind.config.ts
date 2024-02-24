@@ -1,4 +1,5 @@
 import { type CustomThemeConfig, skeleton } from '@skeletonlabs/tw-plugin';
+import type { Config } from 'tailwindcss';
 import { join } from 'node:path';
 import typo from '@tailwindcss/typography';
 
@@ -102,7 +103,6 @@ const theme = {
     },
 } satisfies CustomThemeConfig;
 
-/** @type {import('tailwindcss').Config} */
 export default {
     darkMode: 'class',
     content: [
@@ -111,4 +111,4 @@ export default {
         join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}'),
     ],
     plugins: [typo, skeleton({ themes: { custom: [theme] } })],
-};
+} satisfies Config;
