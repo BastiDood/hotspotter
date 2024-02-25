@@ -14,7 +14,7 @@ import com.getcapacitor.annotation.*;
 public class TelephonyInfoPlugin extends Plugin {
     private static JSObject signalStrengthToJson(SignalStrength strength) {
         var now = System.currentTimeMillis();
-        var timestamp = Build.VERSION.SDK_INT < Build.VERSION.R
+        var timestamp = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
             ? now
             : now - SystemClock.elapsedRealtime() + strength.getTimestampMillis();
         var res = new JSObject()
