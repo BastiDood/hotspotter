@@ -14,54 +14,54 @@ const Uuid = object({ id: string([uuid()]) });
 const CountResult = object({ result: number() });
 const HexResult = object({ result: HexagonAccessPointCount });
 
-export function uploadReading({ sub, email, name, picture }: User, { gps, sim, strength, wifi }: Data) {
+export function uploadReading({ sub, email, name, picture }: User, { gps, sim, wifi }: Data) {
     return sql.begin(async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
         const [cdma, ...cdmaRest] =
-            typeof strength.cdma === 'undefined'
+            typeof sim.strength.cdma === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.cdma ${sql(strength.cdma)} RETURNING cdma_id id`;
+                : await sql`INSERT INTO hotspotter.cdma ${sql(sim.strength.cdma)} RETURNING cdma_id id`;
         assert(cdmaRest.length === 0);
         const cdmaId = typeof cdma === 'undefined' ? null : parse(BigId, cdma, { abortEarly: true }).id;
 
         const [gsm, ...gsmRest] =
-            typeof strength.gsm === 'undefined'
+            typeof sim.strength.gsm === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.gsm ${sql(strength.gsm)} RETURNING gsm_id id`;
+                : await sql`INSERT INTO hotspotter.gsm ${sql(sim.strength.gsm)} RETURNING gsm_id id`;
         assert(gsmRest.length === 0);
         const gsmId = typeof gsm === 'undefined' ? null : parse(BigId, gsm, { abortEarly: true }).id;
 
         const [lte, ...lteRest] =
-            typeof strength.lte === 'undefined'
+            typeof sim.strength.lte === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.lte ${sql(strength.lte)} RETURNING lte_id id`;
+                : await sql`INSERT INTO hotspotter.lte ${sql(sim.strength.lte)} RETURNING lte_id id`;
         assert(lteRest.length === 0);
         const lteId = typeof lte === 'undefined' ? null : parse(BigId, lte, { abortEarly: true }).id;
 
         const [nr, ...nrRest] =
-            typeof strength.nr === 'undefined'
+            typeof sim.strength.nr === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.nr ${sql(strength.nr)} RETURNING nr_id id`;
+                : await sql`INSERT INTO hotspotter.nr ${sql(sim.strength.nr)} RETURNING nr_id id`;
         assert(nrRest.length === 0);
         const nrId = typeof nr === 'undefined' ? null : parse(BigId, nr, { abortEarly: true }).id;
 
         const [tdscdma, ...tdscdmaRest] =
-            typeof strength.tdscdma === 'undefined'
+            typeof sim.strength.tdscdma === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.tdscdma ${sql(strength.tdscdma)} RETURNING tdscdma id`;
+                : await sql`INSERT INTO hotspotter.tdscdma ${sql(sim.strength.tdscdma)} RETURNING tdscdma id`;
         assert(tdscdmaRest.length === 0);
         const tdscdmaId = typeof tdscdma === 'undefined' ? null : parse(BigId, tdscdma, { abortEarly: true }).id;
 
         const [wcdma, ...wcdmaRest] =
-            typeof strength.wcdma === 'undefined'
+            typeof sim.strength.wcdma === 'undefined'
                 ? []
-                : await sql`INSERT INTO hotspotter.wcdma ${sql(strength.wcdma)} RETURNING wcdma id`;
+                : await sql`INSERT INTO hotspotter.wcdma ${sql(sim.strength.wcdma)} RETURNING wcdma id`;
         assert(wcdmaRest.length === 0);
         const wcdmaId = typeof wcdma === 'undefined' ? null : parse(BigId, wcdma, { abortEarly: true }).id;
 
         // TODO: Distinguish between `null` and `undefined` as "no data" versus "no hardware".
         const [first, ...rest] =
-            await sql`INSERT INTO hotspotter.readings (user_id, gps_timestamp, coords, altitude_level, altitude_accuracy, speed, heading, network_type, carrier_id, operator_id, cell_timestamp, cdma_id, gsm_id, lte_id, nr_id, tdscdma_id, wcdma_id) VALUES (${sub}, ${gps.timestamp}, CIRCLE(POINT(${gps.longitude}, ${gps.latitude}), ${gps.coords_accuracy}), ${gps.altitude}, ${gps.altitude_accuracy}, ${gps.speed}, ${gps.heading}, ${sim.network_type}, ${sim.carrier_id ?? null}, ${sim.operator_id}, ${strength.timestamp}, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`;
+            await sql`INSERT INTO hotspotter.readings (user_id, gps_timestamp, coords, altitude_level, altitude_accuracy, speed, heading, network_type, carrier_id, operator_id, cell_timestamp, cdma_id, gsm_id, lte_id, nr_id, tdscdma_id, wcdma_id) VALUES (${sub}, ${gps.timestamp}, CIRCLE(POINT(${gps.longitude}, ${gps.latitude}), ${gps.coords_accuracy}), ${gps.altitude}, ${gps.altitude_accuracy}, ${gps.speed}, ${gps.heading}, ${sim.network_type}, ${sim.carrier_id ?? null}, ${sim.operator_id}, ${sim.strength.timestamp}, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`;
         assert(rest.length === 0);
         assert(typeof first !== 'undefined');
         const { id } = parse(Uuid, first, { abortEarly: true });

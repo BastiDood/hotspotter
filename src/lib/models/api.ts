@@ -1,4 +1,4 @@
-import { CellSignalInfo, SignalStrength, Sim } from './cell';
+import { CellSignalInfo, Sim } from './cell';
 import { type Output, array, merge, number, object, record, safeInteger } from 'valibot';
 import { AccessPoint } from './wifi';
 import { Location } from './gps';
@@ -7,7 +7,6 @@ export const Data = object({
     gps: Location,
     wifi: array(AccessPoint),
     sim: Sim,
-    strength: SignalStrength,
 });
 
 export type Data = Output<typeof Data>;

@@ -14,10 +14,11 @@ import com.getcapacitor.annotation.*;
 public class TelephonyInfoPlugin extends Plugin {
     private static JSObject signalStrengthToJson(SignalStrength strength) {
         var now = System.currentTimeMillis();
-        var elapsed = SystemClock.elapsedRealtime();
-        var timestamp = strength.getTimestampMillis(); // FIXME: Add guard condition for API Level 30.
+        var timestamp = Build.VERSION.SDK_INT < Build.VERSION.R
+            ? now
+            : now - SystemClock.elapsedRealtime() + strength.getTimestampMillis();
         var res = new JSObject()
-            .put("timestamp", now - elapsed + timestamp)
+            .put("timestamp", timestamp)
             .put("level", strength.getLevel());
         for (var cell : strength.getCellSignalStrengths()) {
             var json = new JSObject()
@@ -117,10 +118,8 @@ public class TelephonyInfoPlugin extends Plugin {
         return (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
     }
 
-    @PluginMethod()
-    public void getSim(PluginCall ctx) {
+    public void getSim(TelephonyManager api) {
         // TODO(getDataNetworkType): Explore difference between `getActiveDataSubscriptionId` vs. `getDefaultDataSubscriptionId`.
-        var api = getApi();
         var json = new JSObject()
             // noinspection MissingPermission
             .put("network_type", api.getDataNetworkType())
@@ -132,12 +131,14 @@ public class TelephonyInfoPlugin extends Plugin {
             json.put("carrier_id", carrierId == TelephonyManager.UNKNOWN_CARRIER_ID ? JSObject.NULL : carrierId)
                 .put("carrier_name", carrierName == null ? JSObject.NULL : carrierName.toString());
         }
-        ctx.resolve(json);
+        return json;
     }
 
     @PluginMethod()
-    public void getSignalStrength(PluginCall ctx) {
-        // TODO: Gracefully downgrade to using `SignalStrength` deprecated getters for CDMA and GSM.
-        ctx.resolve(signalStrengthToJson(getApi().getSignalStrength()));
+    public void getCellQuality(PluginCall ctx) {
+        var api = getApi();
+        var strength = signalStrengthToJson(api.getSignalStrength());
+        var sim = getSim(api);
+        ctx.resolve(sim.put("strength", strength));
     }
 }

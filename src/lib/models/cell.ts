@@ -162,6 +162,7 @@ export const Sim = object({
     carrier_name: nullish(string()),
     operator_id: string(),
     operator_name: string(),
+    strength: SignalStrength,
 });
 
-export type Sim = Output<typeof SignalStrength>;
+export type Sim = Output<typeof Sim>;
