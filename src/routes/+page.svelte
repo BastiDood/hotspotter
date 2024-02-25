@@ -11,7 +11,7 @@
     let disabled = false;
 </script>
 
-<div class="prose max-w-none dark:prose-invert">
+<div class="prose max-w-none p-4 dark:prose-invert">
     <div class="flex justify-center">
         <UploadButton bind:disabled />
     </div>

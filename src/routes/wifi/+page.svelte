@@ -45,7 +45,7 @@
     });
 </script>
 
-<div class="space-y-4">
+<div class="space-y-4 p-4">
     <button type="button" class="variant-filled-primary btn" on:click={({ currentTarget }) => refresh(currentTarget)}>
         <Icon {src} class="h-4" />
         <span>Scan</span>

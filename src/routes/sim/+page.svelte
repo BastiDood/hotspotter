@@ -15,7 +15,7 @@
     $: ({ result } = data);
 </script>
 
-<div class="prose max-w-none space-y-4 text-center dark:prose-invert">
+<div class="prose max-w-none space-y-4 p-4 text-center dark:prose-invert">
     {#if result !== null}
         {@const { strength, network_type, carrier_id, carrier_name, operator_id, operator_name } = result}
         {@const { level, timestamp, cdma, gsm, lte, nr, tdscdma, wcdma } = strength}

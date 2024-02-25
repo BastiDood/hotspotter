@@ -115,9 +115,12 @@
 {:catch err}
     <Error>{err}</Error>
 {/await}
-<form on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)} class="space-y-4">
-    {#if result !== null}
-        {@const { url, scanInterval } = result}
+{#if result !== null}
+    {@const { url, scanInterval } = result}
+    <form
+        on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)}
+        class="space-y-4"
+    >
         <label class="space-y-2">
             <span>Base URL for API</span>
             <input
@@ -142,5 +145,5 @@
             />
         </label>
         <button type="submit" class="variant-filled-primary btn">Save</button>
-    {/if}
-</form>
+    </form>
+{/if}
