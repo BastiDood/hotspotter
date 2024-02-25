@@ -1,12 +1,8 @@
 import { browser, building } from '$app/environment';
-import { getSignalStrength, getSim } from '$lib/plugins/TelephonyInfo';
-
-async function getData() {
-    const [sim, strength] = await Promise.all([getSim(), getSignalStrength()]);
-    return { sim, strength };
-}
+import { Capacitor } from '@capacitor/core';
+import { getCellQuality } from '$lib/plugins/TelephonyInfo';
 
 export async function load() {
-    const result = building || !browser ? null : await getData();
+    const result = !building && browser && Capacitor.isNativePlatform() ? await getCellQuality() : null;
     return { result };
 }
