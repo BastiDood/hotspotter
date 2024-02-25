@@ -19,7 +19,7 @@
         if (err instanceof Error)
             toast.trigger({
                 message: err.message,
-                background: 'variant-filled-success',
+                background: 'variant-filled-error',
                 autohide: false,
             });
         throw err;
