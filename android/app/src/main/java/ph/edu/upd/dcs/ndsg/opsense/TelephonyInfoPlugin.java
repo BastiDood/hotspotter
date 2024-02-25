@@ -118,7 +118,7 @@ public class TelephonyInfoPlugin extends Plugin {
         return (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
     }
 
-    public void getSim(TelephonyManager api) {
+    public JSObject getSim(TelephonyManager api) {
         // TODO(getDataNetworkType): Explore difference between `getActiveDataSubscriptionId` vs. `getDefaultDataSubscriptionId`.
         var json = new JSObject()
             // noinspection MissingPermission
