@@ -8,6 +8,6 @@ async function getData() {
 }
 
 export async function load() {
-    const result = !building && browser && Capacitor.isNativePlatform() ? await getData() : null;
-    return { result };
+    const config = !building && browser && Capacitor.isNativePlatform() ? await getData() : null;
+    return { config };
 }

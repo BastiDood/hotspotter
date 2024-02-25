@@ -8,7 +8,6 @@
     import type { MaybePromise } from '@sveltejs/kit';
     import { PUBLIC_GOOGLE_WEB_CLIENT_ID } from '$lib/env';
     import { assert } from '$lib/assert';
-    import { browser } from '$app/environment';
     import cookie from 'cookie';
     import { invalidateAll } from '$app/navigation';
     import { signIn } from '$lib/plugins/Credential';
@@ -16,7 +15,7 @@
 
     // eslint-disable-next-line init-declarations
     export let data;
-    $: ({ result } = data);
+    $: ({ config } = data);
 
     const toast = getToastStore();
 
@@ -28,7 +27,7 @@
     }
 
     type Profile = Awaited<ReturnType<typeof loadProfile>>;
-    let profile: MaybePromise<Profile> = browser ? loadProfile() : null;
+    $: profile = config === null ? null : (loadProfile() as MaybePromise<Profile | null>);
 
     async function signInWithGoogle(button: HTMLButtonElement) {
         button.disabled = true;
@@ -89,61 +88,65 @@
 {#await profile}
     <ProgressBar />
 {:then result}
-    {#if result === null}
-        <button
-            type="button"
-            class="variant-filled-tertiary btn"
-            on:click={({ currentTarget }) => signInWithGoogle(currentTarget)}
-        >
-            <Icon src={ArrowRightEndOnRectangle} class="h-6" />
-            <span>Sign in with Google</span>
-        </button>
-    {:else}
-        {@const { name, email, picture } = result}
-        <div class="card grid grid-cols-[auto_1fr_auto] items-center gap-2 p-4">
-            <Avatar width="w-8" src={picture} />
-            <a href="mailto:{email}" class="anchor">{name}</a>
+    <div class="p-4">
+        {#if config === null}
+            <Error>No configuration detected.</Error>
+        {:else if result === null}
             <button
                 type="button"
-                class="variant-filled-tertiary btn-icon btn-icon-sm p-1"
-                on:click={({ currentTarget }) => logOut(currentTarget)}
+                class="variant-filled-tertiary btn"
+                on:click={({ currentTarget }) => signInWithGoogle(currentTarget)}
             >
-                <Icon src={ArrowRightStartOnRectangle} theme="micro" />
+                <Icon src={ArrowRightEndOnRectangle} class="h-6" />
+                <span>Sign in with Google</span>
             </button>
-        </div>
-    {/if}
+        {:else}
+            {@const { name, email, picture } = result}
+            {@const { url, scanInterval } = config}
+            <div class="card grid grid-cols-[auto_1fr_auto] items-center gap-2 p-4">
+                <Avatar width="w-8" src={picture} />
+                <a href="mailto:{email}" class="anchor">{name}</a>
+                <button
+                    type="button"
+                    class="variant-filled-tertiary btn-icon btn-icon-sm p-1"
+                    on:click={({ currentTarget }) => logOut(currentTarget)}
+                >
+                    <Icon src={ArrowRightStartOnRectangle} theme="micro" />
+                </button>
+            </div>
+            <form
+                on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)}
+                class="space-y-4"
+            >
+                <label class="space-y-2">
+                    <span>Base URL for API</span>
+                    <input
+                        type="url"
+                        name="url"
+                        required
+                        placeholder="https://example.com/api/"
+                        value={url}
+                        class="input px-2 py-1"
+                    />
+                </label>
+                <label class="space-y-2">
+                    <span>Scan Interval</span>
+                    <input
+                        type="number"
+                        name="scan-interval"
+                        required
+                        min="0"
+                        placeholder="Milliseconds"
+                        value={scanInterval}
+                        class="input px-2 py-1"
+                    />
+                </label>
+                <button type="submit" class="variant-filled-primary btn">Save</button>
+            </form>
+        {/if}
+    </div>
 {:catch err}
-    <Error>{err}</Error>
+    <div class="p-4">
+        <Error>{err}</Error>
+    </div>
 {/await}
-{#if result !== null}
-    {@const { url, scanInterval } = result}
-    <form
-        on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)}
-        class="space-y-4"
-    >
-        <label class="space-y-2">
-            <span>Base URL for API</span>
-            <input
-                type="url"
-                name="url"
-                required
-                placeholder="https://example.com/api/"
-                value={url}
-                class="input px-2 py-1"
-            />
-        </label>
-        <label class="space-y-2">
-            <span>Scan Interval</span>
-            <input
-                type="number"
-                name="scan-interval"
-                required
-                min="0"
-                placeholder="Milliseconds"
-                value={scanInterval}
-                class="input px-2 py-1"
-            />
-        </label>
-        <button type="submit" class="variant-filled-primary btn">Save</button>
-    </form>
-{/if}

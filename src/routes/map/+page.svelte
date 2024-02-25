@@ -10,7 +10,9 @@
 </script>
 
 {#if base === null}
-    <Error>There is no <a href="/settings/" class="anchor">base endpoint</a> set yet.</Error>
+    <div class="p-4">
+        <Error>There is no <a href="/settings/" class="anchor">base endpoint</a> set yet.</Error>
+    </div>
 {:else}
     {#await Geolocation.getCurrentPosition({ enableHighAccuracy: true })}
         <div class="flex h-full items-center justify-center">
@@ -19,12 +21,14 @@
     {:then { coords }}
         <Map {base} {coords} />
     {:catch err}
-        <!-- eslint-disable-next-line no-undef -->
-        {#if err instanceof GeolocationPositionError}
-            {@const { code, message } = err}
-            <Error>[{code}]: {message}</Error>
-        {:else}
-            <Error>{err}</Error>
-        {/if}
+        <div class="p-4">
+            <!-- eslint-disable-next-line no-undef -->
+            {#if err instanceof GeolocationPositionError}
+                {@const { code, message } = err}
+                <Error>[{code}]: {message}</Error>
+            {:else}
+                <Error>{err}</Error>
+            {/if}
+        </div>
     {/await}
 {/if}
