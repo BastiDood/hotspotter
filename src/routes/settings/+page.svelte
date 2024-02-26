@@ -88,10 +88,8 @@
 {#await profile}
     <ProgressBar />
 {:then result}
-    <div class="p-4">
-        {#if config === null}
-            <Error>No configuration detected.</Error>
-        {:else if result === null}
+    <div class="space-y-4 p-4">
+        {#if result === null}
             <button
                 type="button"
                 class="variant-filled-tertiary btn"
@@ -102,7 +100,6 @@
             </button>
         {:else}
             {@const { name, email, picture } = result}
-            {@const { url, scanInterval } = config}
             <div class="card grid grid-cols-[auto_1fr_auto] items-center gap-2 p-4">
                 <Avatar width="w-8" src={picture} />
                 <a href="mailto:{email}" class="anchor">{name}</a>
@@ -114,6 +111,11 @@
                     <Icon src={ArrowRightStartOnRectangle} theme="micro" />
                 </button>
             </div>
+        {/if}
+        {#if config === null}
+            <Error>No configuration detected.</Error>
+        {:else}
+            {@const { url, scanInterval } = config}
             <form
                 on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)}
                 class="space-y-4"
