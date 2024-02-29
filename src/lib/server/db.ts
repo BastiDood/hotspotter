@@ -106,10 +106,11 @@ export async function fetchWcdmaCoords() {
     return parse(DataPoints, rows, { abortEarly: true });
 }
 
-const RESOLUTIONS = [0, 0.011, 0.022, 0.044, 0.088, 0.176, 0.352, 0.703, 1.406, 2.813, 5.625, 11.25, 22.5, 45, 90];
-function resolveResolution(minX: number, maxX: number) {
+const RESOLUTIONS = [0, 0.022, 0.044, 0.088, 0.352, 0.703, 1.406, 2.813, 5.625, 11.25, 22.5, 45, 90];
+export function resolveResolution(minX: number, maxX: number) {
+    assert(minX < maxX, 'invalid longitude delta');
     const delta = Math.abs(maxX - minX);
-    return RESOLUTIONS.length - binarySearch(RESOLUTIONS, delta);
+    return RESOLUTIONS.length - binarySearch(RESOLUTIONS, delta) - 1;
 }
 
 export async function aggregateAccessPoints(minX: number, minY: number, maxX: number, maxY: number) {
