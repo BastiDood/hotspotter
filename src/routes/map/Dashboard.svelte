@@ -22,7 +22,7 @@
     /** Caller is responsible for disposing this {@linkcode View}. */
     export const view = new View({
         center,
-        zoom: 7,
+        zoom: 14,
         maxZoom: 19,
         enableRotation: false,
         constrainResolution: true,
