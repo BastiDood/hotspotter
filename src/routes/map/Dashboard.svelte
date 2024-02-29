@@ -70,7 +70,7 @@
             >Wi-Fi Access Points</SlideToggle
         >
     </div>
-    <div class="col-start-1 row-start-3 flex items-center justify-self-start overflow-hidden rounded">
+    <div class="col-start-1 row-start-3 flex items-center justify-self-start overflow-hidden rounded-xl">
         {#if $hex}
             <div class="flex aspect-square w-10 items-center justify-center bg-[#edf8b1]/40">1</div>
             <div class="flex aspect-square w-10 items-center justify-center bg-[#7fcdbb]/40 p-2">
