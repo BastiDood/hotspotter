@@ -93,8 +93,8 @@ devDependencies:
     specifier: ^5.2.2
     version: 5.2.2
   ol:
-    specifier: ^8.2.0
-    version: 8.2.0
+    specifier: ^9.0.0
+    version: 9.0.0
   path-browserify:
     specifier: ^1.0.1
     version: 1.0.1
@@ -3642,8 +3642,8 @@ packages:
       object-keys: 1.1.1
     dev: true
 
-  /ol@8.2.0:
-    resolution: {integrity: sha512-/m1ddd7Jsp4Kbg+l7+ozR5aKHAZNQOBAoNZ5pM9Jvh4Etkf0WGkXr9qXd7PnhmwiC1Hnc2Toz9XjCzBBvexfXw==}
+  /ol@9.0.0:
+    resolution: {integrity: sha512-+nYHZYbHrRUTDJ8ryxXPdDoAiaT6Zea02cocmGqsJXs4Oac1fYC9EbTIU2Y7803QcmG3u2MR88RxbksBvK+ZfQ==}
     dependencies:
       color-rgba: 3.0.0
       color-space: 2.0.1
