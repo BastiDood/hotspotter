@@ -55,7 +55,7 @@
             const density = Math.min(count, MAX_ACCESS_POINTS) / MAX_ACCESS_POINTS;
             const color = GRADIENT[Math.floor(density * (GRADIENT.length - 1))];
             assert(typeof color !== 'undefined');
-            return new Feature({ geometry, color });
+            return new Feature({ geometry, hex, count, color });
         });
     }
 </script>

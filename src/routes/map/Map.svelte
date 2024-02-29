@@ -1,12 +1,14 @@
 <script lang="ts">
     import 'ol/ol.css';
-    import { Collection, Feature, Map } from 'ol';
+    import { Collection, Feature, Map, type MapBrowserEvent } from 'ol';
     import { Fill, Stroke, Style } from 'ol/style';
     import { Geolocation, type Position } from '@capacitor/geolocation';
     import { OSM as OpenStreetMap, Vector as VectorSource } from 'ol/source';
     import { Vector as VectorLayer, WebGLTile as WebGLTileLayer } from 'ol/layer';
     import { Circle } from 'ol/geom';
     import { DashboardControl } from './Dashboard';
+    import { PopupOverlay } from './Popup';
+    import { assert } from '$lib/assert';
     import { fromLonLat } from 'ol/proj';
     import { modeCurrent } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
@@ -78,6 +80,24 @@
             });
     }
 
+    const popup = new PopupOverlay();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function onMapClick({ dragging, map, coordinate }: MapBrowserEvent<any>) {
+        if (!dragging) {
+            const pixel = map.getPixelFromCoordinate(coordinate);
+            const [feat, ..._] = map.getFeaturesAtPixel(pixel);
+            if (typeof feat !== 'undefined') {
+                const count = feat.get('count');
+                assert(typeof count === 'number');
+                popup.count = count;
+                popup.setPosition(coordinate);
+                return;
+            }
+        }
+        // eslint-disable-next-line no-undefined
+        popup.setPosition(undefined);
+    }
+
     // eslint-disable-next-line init-declarations
     let target: HTMLDivElement | undefined;
     onMount(() => {
@@ -85,16 +105,19 @@
             target,
             view: dashboard.view,
             controls: new Collection([dashboard]),
-            layers: [osmLayer, hexLayer, gpsLayer],
+            layers: [osmLayer, gpsLayer, hexLayer],
+            overlays: [popup],
         });
         const watcher = Geolocation.watchPosition({ enableHighAccuracy: true }, pos => {
             if (pos === null) return;
             const { longitude, latitude, accuracy } = pos.coords;
             gps.setCenterAndRadius(fromLonLat([longitude, latitude]), accuracy);
         });
-        map.addEventListener('loadend', refreshHexagons);
+        map.on('click', onMapClick);
+        map.on('loadend', refreshHexagons);
         return async () => {
-            map.removeEventListener('loadend', refreshHexagons);
+            map.un('loadend', refreshHexagons);
+            map.un('click', onMapClick);
             map.dispose();
             const id = await watcher;
             await Geolocation.clearWatch({ id });
