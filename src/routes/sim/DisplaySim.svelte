@@ -1,6 +1,7 @@
 <script lang="ts">
+    import type { NetworkType } from "$lib/models/cell";
     // eslint-disable-next-line init-declarations
-    export let networkType: number;
+    export let networkType: NetworkType | null;
     // eslint-disable-next-line init-declarations
     export let carrierId: number | null | undefined;
     // eslint-disable-next-line init-declarations
