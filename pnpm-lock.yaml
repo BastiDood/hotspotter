@@ -132,8 +132,8 @@ devDependencies:
     specifier: ^5.4.2
     version: 5.4.2
   valibot:
-    specifier: ^0.29.0
-    version: 0.29.0
+    specifier: ^0.30.0
+    version: 0.30.0
   vite:
     specifier: ^5.1.5
     version: 5.1.5
@@ -5438,8 +5438,8 @@ packages:
       inherits: 2.0.3
     dev: true
 
-  /valibot@0.29.0:
-    resolution: {integrity: sha512-JhZn08lwZPhAamOCfBwBkv/btQt4KeQhekULPH8crH053zUCLSOGEF2zKExu3bFf245tsj6J1dY0ysd/jUiMIQ==}
+  /valibot@0.30.0:
+    resolution: {integrity: sha512-5POBdbSkM+3nvJ6ZlyQHsggisfRtyT4tVTo1EIIShs6qCdXJnyWU5TJ68vr8iTg5zpOLjXLRiBqNx+9zwZz/rA==}
     dev: true
 
   /validate-npm-package-license@3.0.4:
