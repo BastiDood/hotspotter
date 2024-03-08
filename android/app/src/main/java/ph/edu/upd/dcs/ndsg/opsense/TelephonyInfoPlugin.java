@@ -120,9 +120,10 @@ public class TelephonyInfoPlugin extends Plugin {
 
     public JSObject getSim(TelephonyManager api) {
         // TODO(getDataNetworkType): Explore difference between `getActiveDataSubscriptionId` vs. `getDefaultDataSubscriptionId`.
+        var networkType = api.getDataNetworkType();
         var json = new JSObject()
             // noinspection MissingPermission
-            .put("network_type", api.getDataNetworkType())
+            .put("network_type", networkType == TelephonyManager.NETWORK_TYPE_UNKNOWN ? JSObject.NULL : networkType)
             .put("operator_id", api.getSimOperator())
             .put("operator_name", api.getSimOperatorName());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

@@ -18,8 +18,6 @@ import {
 } from 'valibot';
 
 export enum NetworkType {
-    /** Unknown */
-    UNKNOWN,
     /** General Packet Radio Service (2.5G) */
     GPRS,
     /** Enhanced Data GSM Evolution (2.5G) */
@@ -157,7 +155,7 @@ export const SignalStrength = merge([
 export type SignalStrength = Output<typeof SignalStrength>;
 
 export const Sim = object({
-    network_type: enum_(NetworkType),
+    network_type: nullable(enum_(NetworkType)),
     carrier_id: nullish(number()),
     carrier_name: nullish(string()),
     operator_id: string(),
