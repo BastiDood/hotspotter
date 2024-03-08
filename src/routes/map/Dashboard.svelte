@@ -60,7 +60,7 @@
     }
 </script>
 
-<div class="pointer-events-none grid h-full grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] gap-4 p-4">
+<div class="pointer-events-none grid h-full grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] gap-4 p-4 text-xs">
     <!-- FIXME: Reinstate Zoom Controls -->
     <div class="flex flex-col gap-4">
         <SlideToggle name="gps" size="sm" active="bg-primary-400" class="pointer-events-auto" bind:checked={$gps}
@@ -72,11 +72,11 @@
     </div>
     <div class="col-start-1 row-start-3 flex items-center justify-self-start overflow-hidden rounded-xl">
         {#if $hex}
-            <div class="flex aspect-square w-10 items-center justify-center bg-[#edf8b1]/40">1</div>
-            <div class="flex aspect-square w-10 items-center justify-center bg-[#7fcdbb]/40 p-2">
-                <Icon src={Wifi} theme="mini" />
+            <div class="flex aspect-square size-8 items-center justify-center bg-[#edf8b1]/40">1</div>
+            <div class="flex aspect-square size-8 items-center justify-center bg-[#7fcdbb]/40">
+                <Icon src={Wifi} theme="mini" class="size-4" />
             </div>
-            <div class="flex aspect-square w-10 items-center justify-center bg-[#2c7fb8]/40">20+</div>
+            <div class="flex aspect-square size-8 items-center justify-center bg-[#2c7fb8]/40">20+</div>
         {/if}
     </div>
     <p class="col-start-3 row-start-3 w-full self-end text-right">
