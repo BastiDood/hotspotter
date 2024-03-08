@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { NetworkType } from "$lib/models/cell";
+    import type { NetworkType } from '$lib/models/cell';
     // eslint-disable-next-line init-declarations
     export let networkType: NetworkType | null;
     // eslint-disable-next-line init-declarations

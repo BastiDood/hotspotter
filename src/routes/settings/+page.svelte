@@ -1,7 +1,6 @@
 <script lang="ts">
     import { ArrowRightEndOnRectangle, ArrowRightStartOnRectangle } from '@steeze-ui/heroicons';
     import { Avatar, ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
-    import { setScanInterval, setUrl } from '$lib/plugins/Config';
     import { CapacitorCookies } from '@capacitor/core';
     import Error from '$lib/alerts/Error.svelte';
     import { Icon } from '@steeze-ui/svelte-icon';
@@ -10,12 +9,13 @@
     import { assert } from '$lib/assert';
     import cookie from 'cookie';
     import { invalidateAll } from '$app/navigation';
+    import { setUrl } from '$lib/plugins/Config';
     import { signIn } from '$lib/plugins/Credential';
     import { verifyGoogleJwt } from '$lib/jwt';
 
     // eslint-disable-next-line init-declarations
     export let data;
-    $: ({ config } = data);
+    $: ({ url } = data);
 
     const toast = getToastStore();
 
@@ -27,7 +27,7 @@
     }
 
     type Profile = Awaited<ReturnType<typeof loadProfile>>;
-    $: profile = config === null ? null : (loadProfile() as MaybePromise<Profile | null>);
+    $: profile = url === null ? null : (loadProfile() as MaybePromise<Profile | null>);
 
     async function signInWithGoogle(button: HTMLButtonElement) {
         button.disabled = true;
@@ -62,19 +62,11 @@
 
     async function submit(form: HTMLFormElement) {
         const data = new FormData(form);
-
         const url = data.get('url');
-        if (url) {
+        if (url !== null) {
             assert(typeof url === 'string');
             await setUrl(url);
         }
-
-        const scanInterval = data.get('scan-interval');
-        if (scanInterval) {
-            assert(typeof scanInterval === 'string');
-            await setScanInterval(parseInt(scanInterval, 10));
-        }
-
         await invalidateAll();
         toast.trigger({
             message: 'Configuration saved!',
@@ -112,10 +104,9 @@
                 </button>
             </div>
         {/if}
-        {#if config === null}
+        {#if url === null}
             <Error>No configuration detected.</Error>
         {:else}
-            {@const { url, scanInterval } = config}
             <form
                 on:submit|self|preventDefault|stopPropagation={({ currentTarget }) => submit(currentTarget)}
                 class="space-y-4"
@@ -128,18 +119,6 @@
                         required
                         placeholder="https://example.com/api/"
                         value={url}
-                        class="input px-2 py-1"
-                    />
-                </label>
-                <label class="space-y-2">
-                    <span>Scan Interval</span>
-                    <input
-                        type="number"
-                        name="scan-interval"
-                        required
-                        min="0"
-                        placeholder="Milliseconds"
-                        value={scanInterval}
                         class="input px-2 py-1"
                     />
                 </label>
