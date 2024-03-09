@@ -35,10 +35,6 @@
     /** Whether to keep the hexagons visible. */
     export const hex = writable(true);
 
-    /** Base URL for {@linkcode fetch}. */
-    // eslint-disable-next-line init-declarations
-    export let base: URL;
-
     export async function refreshAccessPoints(signal?: AbortSignal) {
         const proj = view.getProjection();
         const [minX, minY, maxX, maxY, ...rest] = transformExtent(view.calculateExtent(), proj, 'EPSG:4326');
@@ -49,7 +45,7 @@
         assert(typeof maxX !== 'undefined');
         assert(typeof maxY !== 'undefined');
 
-        const hexes = await fetchHexagonAccessPoints(base, minX, minY, maxX, maxY, signal);
+        const hexes = await fetchHexagonAccessPoints(minX, minY, maxX, maxY, signal);
         return Object.entries(hexes).map(([hex, count]) => {
             const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
             const density = Math.min(count, MAX_ACCESS_POINTS) / MAX_ACCESS_POINTS;

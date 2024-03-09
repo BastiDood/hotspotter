@@ -5,11 +5,11 @@ import Dashboard from './Dashboard.svelte';
 export class DashboardControl extends Control {
     #component: Dashboard;
 
-    constructor(base: URL, center: Coordinate) {
+    constructor(center: Coordinate) {
         const target = document.createElement('div');
         target.style.display = 'contents';
         super({ element: target });
-        this.#component = new Dashboard({ target, props: { base, center } });
+        this.#component = new Dashboard({ target, props: { center } });
     }
 
     protected disposeInternal() {

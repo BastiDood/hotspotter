@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Cog6Tooth, Home, Map } from '@steeze-ui/heroicons';
+    import { Home, Map, UserCircle } from '@steeze-ui/heroicons';
     import { TabAnchor, TabGroup } from '@skeletonlabs/skeleton';
     import { Icon } from '@steeze-ui/svelte-icon';
     import { page } from '$app/stores';
@@ -23,8 +23,8 @@
         <Icon src={Map} slot="lead" strokeWidth="1" class="m-auto h-6" />
         <span>Map</span>
     </TabAnchor>
-    <TabAnchor href="/settings" selected={pathname === '/settings/'}>
-        <Icon src={Cog6Tooth} slot="lead" strokeWidth="1" class="m-auto h-6" />
-        <span>Settings</span>
+    <TabAnchor href="/profile" selected={pathname === '/profile/'}>
+        <Icon src={UserCircle} slot="lead" strokeWidth="1" class="m-auto h-6" />
+        <span>Profile</span>
     </TabAnchor>
 </TabGroup>

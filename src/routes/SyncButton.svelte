@@ -1,6 +1,5 @@
 <script lang="ts">
     import * as Cache from '$lib/plugins/Cache';
-    import * as Config from '$lib/plugins/Config';
     import * as Http from '$lib/http';
     import { ArrowPath } from '@steeze-ui/heroicons';
     import type { Data } from '$lib/models/api';
@@ -12,14 +11,14 @@
     // eslint-disable-next-line init-declarations
     export let disabled: boolean;
 
-    async function submitFile(url: URL, path: string, jwt: string, data: Data) {
+    async function submitFile(path: string, jwt: string, data: Data) {
         // The ordering of the operations is important here. We emphasize that
         // the cache is only removed after a successful data submission. If the
         // write operation fails (somehow), we are fine with the duplicated data.
         // This is better than the alternative where we delete the reading before
         // a successful transmission, in which case there is the possibility for
         // the data to be deleted yet the transmission fails.
-        console.log(await Http.uploadReading(url, jwt, data));
+        console.log(await Http.uploadReading(jwt, data));
         await Cache.remove(path);
     }
 
@@ -37,18 +36,8 @@
 
         disabled = true;
         try {
-            const url = await Config.getUrl();
-            if (url === null) {
-                toast.trigger({
-                    message: 'No API endpoint has been set yet.',
-                    background: 'variant-filled-error',
-                    autohide: false,
-                });
-                return;
-            }
-
             const files = await Cache.read();
-            const promises = files.map(({ path, payload }) => submitFile(url, path, jwt, payload));
+            const promises = files.map(({ path, payload }) => submitFile(path, jwt, payload));
             const results = await Promise.allSettled(promises);
 
             let successes = 0;

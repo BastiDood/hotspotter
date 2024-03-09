@@ -1,6 +1,5 @@
 <script lang="ts">
     import * as Cache from '$lib/plugins/Cache';
-    import * as Config from '$lib/plugins/Config';
     import * as Http from '$lib/http';
     import * as TelephonyInfo from '$lib/plugins/TelephonyInfo';
     import * as WifiInfo from '$lib/plugins/WifiInfo';
@@ -64,18 +63,9 @@
 
         disabled = true;
         try {
-            const url = await Config.getUrl();
-            if (url === null) {
-                toast.trigger({
-                    message: 'No API endpoint has been set yet.',
-                    background: 'variant-filled-error',
-                });
-                return;
-            }
-
             const body = await performFulScan();
             try {
-                console.log(await Http.uploadReading(url, jwt, body));
+                console.log(await Http.uploadReading(jwt, body));
             } catch (err) {
                 const uri = await Cache.write(body);
                 toast.trigger({

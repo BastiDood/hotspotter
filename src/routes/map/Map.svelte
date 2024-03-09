@@ -27,8 +27,7 @@
     const center = fromLonLat([longitude, latitude]);
 
     // eslint-disable-next-line init-declarations
-    export let base: URL;
-    const dashboard = new DashboardControl(base, center);
+    const dashboard = new DashboardControl(center);
     const gpsVisibleStore = dashboard.gps;
     const hexVisibleStore = dashboard.hex;
 
