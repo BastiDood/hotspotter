@@ -1,7 +1,7 @@
 <script lang="ts">
+    import type { PageData } from './$types';
     import Path from 'path-browserify';
     import { Ratings } from '@skeletonlabs/skeleton';
-    import type { PageData } from './$types';
     // eslint-disable-next-line init-declarations
     export let files: PageData['files'];
 </script>
