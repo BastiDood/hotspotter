@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
     import ClearButton from './ClearButton.svelte';
     import SyncButton from './SyncButton.svelte';
     import UploadButton from './UploadButton.svelte';

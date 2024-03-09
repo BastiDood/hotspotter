@@ -9,7 +9,8 @@ import {
 } from '$lib/server/db';
 import { MarkerMode } from '$lib/http';
 
-function route(net: string) {
+/** @param {string} net */
+function route(net) {
     switch (net) {
         case MarkerMode.Cdma:
             return fetchCdmaCoords;

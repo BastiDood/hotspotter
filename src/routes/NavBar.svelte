@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
     import { Home, Map, UserCircle } from '@steeze-ui/heroicons';
     import { TabAnchor, TabGroup } from '@skeletonlabs/skeleton';
     import { Icon } from '@steeze-ui/svelte-icon';

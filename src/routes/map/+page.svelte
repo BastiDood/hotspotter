@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
     import Error from '$lib/alerts/Error.svelte';
     import { Geolocation } from '@capacitor/geolocation';
     import Map from './Map.svelte';

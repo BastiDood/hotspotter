@@ -1,7 +1,11 @@
 import { error, json } from '@sveltejs/kit';
 import { aggregateAccessPoints } from '$lib/server/db';
 
-function extractNumberFromQuery(params: URLSearchParams, query: string) {
+/**
+ * @param {URLSearchParams} params
+ * @param {string} query
+ */
+function extractNumberFromQuery(params, query) {
     const value = params.get(query);
     if (value === null) return null;
     const result = Number(value);
