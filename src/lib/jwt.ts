@@ -14,15 +14,14 @@ const Claims = object({
     picture: string([url()]),
 });
 
+const RemoteJwkSet = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
+
 export async function verifyGoogleJwt(jwt: string) {
-    // TODO: Cache the remote JWK set.
-    const verifyHeaderAndToken = await createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
-    const { payload } = await jwtVerify(jwt, verifyHeaderAndToken, {
+    const { payload } = await jwtVerify(jwt, RemoteJwkSet, {
         audience: PUBLIC_GOOGLE_WEB_CLIENT_ID,
         issuer: ['https://accounts.google.com', 'accounts.google.com'],
         requiredClaims: ['azp', 'sub'],
     });
-
     const { hd, azp, sub, exp, name, email, email_verified, picture } = parse(Claims, payload);
     assert(hd === 'up.edu.ph', 'non-UP email provided');
     assert(azp === PUBLIC_GOOGLE_APP_CLIENT_ID, 'authorized party mismatch');
