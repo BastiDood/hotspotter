@@ -32,7 +32,7 @@
     }
 </script>
 
-<button {disabled} class="variant-filled-secondary btn" on:click={clear}>
+<button {disabled} class="variant-filled-error btn" on:click={clear}>
     <Icon src={ArrowPath} theme="outline" class="h-4" />
     <span>Sync</span>
 </button>
