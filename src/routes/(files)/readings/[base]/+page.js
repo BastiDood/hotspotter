@@ -1,3 +1,5 @@
+export const prerender = false;
+
 export async function load({ parent, params: { base } }) {
     const data = await parent();
     const reading = data[base] ?? null;
