@@ -7,8 +7,7 @@ import { parse } from 'valibot';
 export async function readFile(path: string) {
     const { data } = await Filesystem.readFile({ path, directory: Directory.Cache, encoding: Encoding.UTF8 });
     assert(typeof data === 'string', 'non-string data from cached readings');
-    const payload = parse(Data, JSON.parse(data));
-    return { path, payload };
+    return parse(Data, JSON.parse(data));
 }
 
 export async function read() {
@@ -18,7 +17,7 @@ export async function read() {
             case 'directory':
                 return;
             case 'file':
-                return readFile(name);
+                return readFile(name).then(payload => ({ path: name, payload }));
             default:
                 throw new Error('unexpected directory entry type');
         }

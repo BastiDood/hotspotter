@@ -60,7 +60,6 @@
             });
             return;
         }
-
         disabled = true;
         try {
             const body = await performFulScan();
@@ -80,7 +79,6 @@
                     });
                 throw err;
             }
-
             toast.trigger({
                 message: 'Successfully uploaded the data.',
                 background: 'variant-filled-success',
