@@ -17,13 +17,13 @@ export async function read() {
             case 'directory':
                 return;
             case 'file':
-                return readFile(name).then(payload => ({ path: name, payload }));
+                return readFile(name).then(payload => [name, payload] as const);
             default:
                 throw new Error('unexpected directory entry type');
         }
     });
-    const readings = await Promise.all(promises);
-    return readings.sort((a, b) => parseInt(b.path, 10) - parseInt(a.path, 10));
+    const entries = await Promise.all(promises);
+    return Object.fromEntries(entries);
 }
 
 export async function write(data: TData) {

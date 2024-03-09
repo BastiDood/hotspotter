@@ -37,7 +37,7 @@
         disabled = true;
         try {
             const files = await Cache.read();
-            const promises = files.map(({ path, payload }) => submitFile(path, jwt, payload));
+            const promises = Object.entries(files).map(([path, payload]) => submitFile(path, jwt, payload));
             const results = await Promise.allSettled(promises);
 
             let successes = 0;

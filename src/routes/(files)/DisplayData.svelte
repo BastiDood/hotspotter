@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { PageData } from './$types';
+    import type { Data } from '$lib/models/api';
     import Path from 'path-browserify';
     import { Ratings } from '@skeletonlabs/skeleton';
     // eslint-disable-next-line init-declarations
-    export let files: PageData['files'];
+    export let files: [string, Data][];
 </script>
 
 <div class="table-container">
@@ -20,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            {#each files as { path, payload: { gps: { timestamp: gpsTimestamp, longitude, latitude }, wifi, sim: { strength: { timestamp: simTimestamp, level } } } }}
+            {#each files as [path, { gps: { timestamp: gpsTimestamp, longitude, latitude }, wifi, sim: { strength: { timestamp: simTimestamp, level } } }]}
                 {@const { base, name } = Path.parse(path)}
                 <tr>
                     <td><a href="/readings/{base}">{name}</a></td>

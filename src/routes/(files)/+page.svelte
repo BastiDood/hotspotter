@@ -8,7 +8,7 @@
 
     // eslint-disable-next-line init-declarations
     export let data;
-    $: ({ files } = data);
+    $: files = Object.entries(data);
 
     let disabled = false;
 </script>
