@@ -105,7 +105,7 @@
         "prefer-template": "error",
         "radix": "error",
         "require-await": "error",
-        "sort-imports": "error",
+        "sort-imports": ["error", { "allowSeparatedGroups": true }],
         "spaced-comment": "warn",
         "yoda": ["warn", "never", { "exceptRange": true }]
     }

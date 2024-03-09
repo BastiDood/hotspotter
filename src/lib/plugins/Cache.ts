@@ -4,9 +4,9 @@ import { assert } from '$lib/assert';
 import { filterMap } from '$lib/util';
 import { parse } from 'valibot';
 
-async function readFile(path: string) {
+export async function readFile(path: string) {
     const { data } = await Filesystem.readFile({ path, directory: Directory.Cache, encoding: Encoding.UTF8 });
-    assert(typeof data === 'string');
+    assert(typeof data === 'string', 'non-string data from cached readings');
     const payload = parse(Data, JSON.parse(data));
     return { path, payload };
 }

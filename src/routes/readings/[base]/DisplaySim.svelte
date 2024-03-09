@@ -1,15 +1,15 @@
 <script lang="ts">
     import type { NetworkType } from '$lib/models/cell';
     // eslint-disable-next-line init-declarations
-    export let networkType: NetworkType | null;
+    export let network_type: NetworkType | null;
     // eslint-disable-next-line init-declarations
-    export let carrierId: number | null | undefined;
+    export let carrier_id: number | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let carrierName: string | null | undefined;
+    export let carrier_name: string | null | undefined;
     // eslint-disable-next-line init-declarations
-    export let operatorId: string;
+    export let operator_id: string;
     // eslint-disable-next-line init-declarations
-    export let operatorName: string;
+    export let operator_name: string;
 </script>
 
 <div class="table-container">
@@ -25,11 +25,11 @@
         </thead>
         <tbody>
             <tr>
-                <td>{networkType}</td>
-                <td>{carrierId}</td>
-                <td>{carrierName}</td>
-                <td>{operatorId}</td>
-                <td>{operatorName}</td>
+                <td>{network_type}</td>
+                <td>{carrier_id}</td>
+                <td>{carrier_name}</td>
+                <td>{operator_id}</td>
+                <td>{operator_name}</td>
             </tr>
         </tbody>
     </table>

@@ -1,16 +1,16 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations
-    export let date: Date;
+    export let timestamp: Date;
     // eslint-disable-next-line init-declarations
     export let latitude: number;
     // eslint-disable-next-line init-declarations
     export let longitude: number;
     // eslint-disable-next-line init-declarations
-    export let accuracy: number;
+    export let coords_accuracy: number;
     // eslint-disable-next-line init-declarations
     export let altitude: number | null;
     // eslint-disable-next-line init-declarations
-    export let altitudeAccuracy: number | null | undefined;
+    export let altitude_accuracy: number | null | undefined;
     // eslint-disable-next-line init-declarations
     export let speed: number | null;
     // eslint-disable-next-line init-declarations
@@ -33,12 +33,12 @@
         </thead>
         <tbody>
             <tr>
-                <td>{date.toLocaleString()}</td>
+                <td>{timestamp.toLocaleString()}</td>
                 <td>{latitude}</td>
                 <td>{longitude}</td>
-                <td>{accuracy}</td>
+                <td>{coords_accuracy}</td>
                 <td>{altitude}</td>
-                <td>{altitudeAccuracy}</td>
+                <td>{altitude_accuracy}</td>
                 <td>{speed}</td>
                 <td>{heading}</td>
             </tr>

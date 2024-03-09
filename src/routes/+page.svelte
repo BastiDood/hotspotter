@@ -39,9 +39,9 @@
                 </thead>
                 <tbody>
                     {#each files as { path, payload: { gps: { timestamp: gpsTimestamp, longitude, latitude }, wifi, sim: { strength: { timestamp: simTimestamp, level } } } }}
-                        {@const { name, base } = Path.parse(path)}
+                        {@const { base, name } = Path.parse(path)}
                         <tr>
-                            <td><a href="/readings/{name}">{base}</a></td>
+                            <td><a href="/readings/{base}">{name}</a></td>
                             <td>{longitude}</td>
                             <td>{latitude}</td>
                             <td>{gpsTimestamp.toLocaleString()}</td>
