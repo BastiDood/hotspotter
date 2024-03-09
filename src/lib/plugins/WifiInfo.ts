@@ -32,8 +32,10 @@ export async function getScanResults() {
 }
 
 const AccessPoints = array(AccessPoint);
+type AccessPoints = Output<typeof AccessPoints>;
+
 const AccessPointsResults = object({ results: array(AccessPoint) });
-export async function startWatch(callback: (networks: AccessPoint[]) => void) {
+export async function startWatch(callback: (networks: AccessPoints) => void) {
     if (WifiInfo === null) return null;
     const id = await WifiInfo.startWatch(null, networks => {
         const { results } = parse(AccessPointsResults, networks);
@@ -48,7 +50,7 @@ export async function clearWatch(id: Awaited<ReturnType<typeof startWatch>>) {
 }
 
 export async function performOneshotScan() {
-    const { promise, resolve } = deferred<Output<typeof AccessPoints>>();
+    const { promise, resolve } = deferred<AccessPoints>();
     const id = await startWatch(resolve);
     try {
         assert(await startScan(), 'WiFi scanning failed');
