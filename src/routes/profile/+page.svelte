@@ -2,7 +2,7 @@
     import { ArrowRightEndOnRectangle, ArrowRightStartOnRectangle } from '@steeze-ui/heroicons';
     import { Avatar, ProgressBar, getToastStore } from '@skeletonlabs/skeleton';
     import { CapacitorCookies } from '@capacitor/core';
-    import Error from '$lib/alerts/Error.svelte';
+    import ErrorAlert from '$lib/alerts/Error.svelte';
     import { Icon } from '@steeze-ui/svelte-icon';
     import type { MaybePromise } from '@sveltejs/kit';
     import { PUBLIC_GOOGLE_WEB_CLIENT_ID } from '$lib/env';
@@ -10,8 +10,6 @@
     import { onMount } from 'svelte';
     import { signIn } from '$lib/plugins/Credential';
     import { verifyGoogleJwt } from '$lib/jwt';
-
-    const toast = getToastStore();
 
     async function loadProfile() {
         const jwt = cookie.parse(document.cookie).id;
@@ -22,8 +20,9 @@
 
     type Profile = Awaited<ReturnType<typeof loadProfile>>;
     let profile = null as MaybePromise<Profile | null>;
-
     onMount(() => (profile = loadProfile()));
+
+    const toast = getToastStore();
 
     async function signInWithGoogle(button: HTMLButtonElement) {
         button.disabled = true;
@@ -37,6 +36,14 @@
                 expires: exp.toUTCString(),
             });
             profile = result;
+        } catch (err) {
+            if (err instanceof Error)
+                toast.trigger({
+                    message: `${err.name}: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+            throw err;
         } finally {
             button.disabled = false;
         }
@@ -88,6 +95,6 @@
     </div>
 {:catch err}
     <div class="p-4">
-        <Error>{err}</Error>
+        <ErrorAlert>{err}</ErrorAlert>
     </div>
 {/await}
