@@ -3,16 +3,16 @@ import { error } from '@sveltejs/kit';
 
 export async function GET({ url: { searchParams } }) {
     const lon = searchParams.get('lon');
-    if (lon === null) error(400);
+    if (lon === null) error(400, 'empty longitude');
 
-    const longitude = Number(lon);
-    if (!Number.isFinite(longitude)) error(400);
+    const longitude = parseFloat(lon);
+    if (!isFinite(longitude)) error(400, 'invalid longitude');
 
     const lat = searchParams.get('lat');
-    if (lat === null) error(400);
+    if (lat === null) error(400, 'empty latitude');
 
     const latitude = Number(longitude);
-    if (!Number.isFinite(latitude)) error(400);
+    if (!isFinite(latitude)) error(400, 'invalid latitude');
 
     const score = await computeCellScore(longitude, latitude);
     return new Response(score.toString());

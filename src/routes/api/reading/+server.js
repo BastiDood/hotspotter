@@ -1,5 +1,4 @@
 import { Data } from '$lib/models/api';
-import { assert } from '$lib/assert';
 import { error } from '@sveltejs/kit';
 import { parse } from 'valibot';
 import { uploadReading } from '$lib/server/db';
@@ -10,9 +9,10 @@ export async function POST({ request }) {
     if (auth === null) error(401);
 
     const [bearer, jwt, ...rest] = auth.split(' ');
-    assert(bearer === 'Bearer');
-    assert(typeof jwt !== 'undefined');
-    assert(rest.length === 0);
+
+    if (bearer !== 'Bearer') error(400, `unexpected bearer [${bearer}]`);
+    if (typeof jwt === 'undefined') error(400, 'empty JWT');
+    if (rest.length > 0) error(400, `unexpected extra arguments ${rest}`);
 
     const user = await verifyGoogleJwt(jwt);
     const json = await request.json();

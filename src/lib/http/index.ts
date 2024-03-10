@@ -1,5 +1,6 @@
 import { type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
 import { PUBLIC_HOTSPOTTER_URL } from '$lib/env';
+import { UnexpectedStatusCodeError } from './error';
 import { assert } from '$lib/assert';
 import { parse } from 'valibot';
 
@@ -14,8 +15,16 @@ export async function uploadReading(jwt: string, data: Data) {
         },
         body: JSON.stringify(data),
     });
-    assert(response.status === 201);
-    return response.text();
+    switch (response.status) {
+        case 201:
+            return await response.text();
+        case 400:
+            throw new Error('malformed Authorization header');
+        case 401:
+            throw new Error('empty Authorization header');
+        default:
+            throw new UnexpectedStatusCodeError(response.status);
+    }
 }
 
 export const enum MarkerMode {
@@ -29,7 +38,7 @@ export const enum MarkerMode {
 
 export async function fetchMarkers(mode: MarkerMode) {
     const response = await fetch(new URL(`api/level/${mode}`, PUBLIC_HOTSPOTTER_URL));
-    assert(response.status === 200);
+    if (response.status !== 200) throw new UnexpectedStatusCodeError(response.status);
     const json = await response.json();
     return parse(DataPoints, json, { abortEarly: true });
 }
@@ -46,8 +55,17 @@ export async function fetchHexagonAccessPoints(
     url.searchParams.set('min-y', minY.toString());
     url.searchParams.set('max-x', maxX.toString());
     url.searchParams.set('max-y', maxY.toString());
+
     const response = await fetch(url, { signal });
-    assert(response.status === 200);
+    switch (response.status) {
+        case 200:
+            break;
+        case 400:
+            throw new Error('malformed bounding box');
+        default:
+            throw new UnexpectedStatusCodeError(response.status);
+    }
+
     const json = await response.json();
     return parse(HexagonAccessPointCount, json, { abortEarly: true });
 }
@@ -58,10 +76,17 @@ export async function fetchCellScore(longitude: number, latitude: number, signal
     url.searchParams.set('lat', latitude.toString());
 
     const response = await fetch(url, { signal });
-    assert(response.status === 200);
+    switch (response.status) {
+        case 200:
+            break;
+        case 400:
+            throw new Error('malformed coordinates');
+        default:
+            throw new UnexpectedStatusCodeError(response.status);
+    }
 
     const json = await response.text();
-    const score = Number(json);
-    assert(Number.isFinite(score));
+    const score = parseFloat(json);
+    assert(isFinite(score), 'invalid score returned by server');
     return score;
 }

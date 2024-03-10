@@ -14,41 +14,49 @@
     export let disabled: boolean;
 
     const toast = getToastStore();
-    function sendToastOnError(err: unknown): never {
-        if (err instanceof Error)
-            toast.trigger({
-                message: err.message,
-                background: 'variant-filled-error',
-                autohide: false,
-            });
-        throw err;
+    async function fetchReadings() {
+        try {
+            const [gps, wifi, sim] = await Promise.all([
+                Geolocation.getCurrentPosition(),
+                WifiInfo.performOneshotScan(),
+                TelephonyInfo.getCellQuality(),
+            ]);
+            return { gps, wifi, sim };
+        } catch (err) {
+            if (err instanceof Error)
+                toast.trigger({
+                    message: err.message,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+            throw err;
+        }
     }
 
-    async function performFulScan() {
-        const [
-            {
+    async function performFullScan() {
+        const {
+            gps: {
                 timestamp,
                 coords: { latitude, longitude, accuracy, altitude, altitudeAccuracy, speed, heading },
             },
             wifi,
             sim,
-        ] = await Promise.all([
-            Geolocation.getCurrentPosition().catch(sendToastOnError),
-            WifiInfo.performOneshotScan().catch(sendToastOnError),
-            TelephonyInfo.getCellQuality().catch(sendToastOnError),
-        ]);
+        } = await fetchReadings();
         assert(sim !== null, 'telephony plugin not initialized');
-        const gps = {
-            timestamp: new Date(timestamp),
-            latitude,
-            longitude,
-            coords_accuracy: accuracy,
-            altitude,
-            altitude_accuracy: altitudeAccuracy ?? null,
-            speed,
-            heading,
+        return {
+            gps: {
+                timestamp: new Date(timestamp),
+                latitude,
+                longitude,
+                coords_accuracy: accuracy,
+                altitude,
+                altitude_accuracy: altitudeAccuracy ?? null,
+                speed,
+                heading,
+            },
+            wifi,
+            sim,
         };
-        return { gps, wifi, sim };
     }
 
     async function upload() {
@@ -62,7 +70,7 @@
         }
         disabled = true;
         try {
-            const body = await performFulScan();
+            const body = await performFullScan();
             try {
                 console.log(await Http.uploadReading(jwt, body));
             } catch (err) {
