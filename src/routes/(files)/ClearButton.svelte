@@ -34,5 +34,5 @@
 
 <button {disabled} class="variant-filled-error btn" on:click={clear}>
     <Icon src={ArrowPath} theme="outline" class="h-4" />
-    <span>Sync</span>
+    <span>Clear</span>
 </button>

@@ -37,8 +37,18 @@
             <DisplayNetworks networks={wifi} />
             <DisplaySim {...sim} />
             {#if typeof cdma !== 'undefined'}
-                {@const { level, dbm, asu, cdma_dbm, cdma_ecio, cdma_level, evdo_dbm, evdo_ecio, evdo_level, evdo_snr } =
-                    cdma}
+                {@const {
+                    level,
+                    dbm,
+                    asu,
+                    cdma_dbm,
+                    cdma_ecio,
+                    cdma_level,
+                    evdo_dbm,
+                    evdo_ecio,
+                    evdo_level,
+                    evdo_snr,
+                } = cdma}
                 <Common {level} {dbm} {asu} />
                 <DisplayCdma dbm={cdma_dbm} ecio={cdma_ecio} level={cdma_level} />
                 <DisplayEvdo dbm={evdo_dbm} ecio={evdo_ecio} level={evdo_level} snr={evdo_snr} />

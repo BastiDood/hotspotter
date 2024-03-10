@@ -9,6 +9,8 @@
     import { assert } from '$lib/assert';
     import cookie from 'cookie';
     import { getToastStore } from '@skeletonlabs/skeleton';
+    import { incrementScanCount } from '$lib/plugins/Debounce';
+    import { invalidateAll } from '$app/navigation';
 
     // eslint-disable-next-line init-declarations
     export let disabled: boolean;
@@ -71,6 +73,7 @@
         disabled = true;
         try {
             const body = await performFullScan();
+            await incrementScanCount();
             try {
                 console.log(await Http.uploadReading(jwt, body));
             } catch (err) {
@@ -86,6 +89,8 @@
                         autohide: false,
                     });
                 throw err;
+            } finally {
+                await invalidateAll();
             }
             toast.trigger({
                 message: 'Successfully uploaded the data.',
