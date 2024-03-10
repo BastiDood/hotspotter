@@ -23,7 +23,7 @@
             {#each files as [path, { gps: { timestamp: gpsTimestamp, longitude, latitude }, wifi, sim: { strength: { timestamp: simTimestamp, level } } }]}
                 {@const { base, name } = Path.parse(path)}
                 <tr>
-                    <td><a href="/readings/{base}">{name}</a></td>
+                    <td><a href="/readings/{base}/">{name}</a></td>
                     <td>{longitude}</td>
                     <td>{latitude}</td>
                     <td>{gpsTimestamp.toLocaleString()}</td>

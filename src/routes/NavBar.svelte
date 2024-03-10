@@ -19,11 +19,11 @@
         <Icon src={Home} slot="lead" strokeWidth="1" class="m-auto h-6" />
         <span>Home</span>
     </TabAnchor>
-    <TabAnchor href="/map" selected={pathname === '/map/'}>
+    <TabAnchor href="/map/" selected={pathname === '/map/'}>
         <Icon src={Map} slot="lead" strokeWidth="1" class="m-auto h-6" />
         <span>Map</span>
     </TabAnchor>
-    <TabAnchor href="/profile" selected={pathname === '/profile/'}>
+    <TabAnchor href="/profile/" selected={pathname === '/profile/'}>
         <Icon src={UserCircle} slot="lead" strokeWidth="1" class="m-auto h-6" />
         <span>Profile</span>
     </TabAnchor>
