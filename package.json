@@ -29,6 +29,7 @@
         "@capacitor/core": "6.0.0-rc.0",
         "@capacitor/filesystem": "6.0.0-beta.1",
         "@capacitor/geolocation": "6.0.0-beta.1",
+        "@capacitor/preferences": "6.0.0-rc.0",
         "@linthtml/linthtml": "^0.9.5",
         "@linthtml/linthtml-config-recommended": "^0.1.0",
         "@skeletonlabs/skeleton": "^2.9.0",
