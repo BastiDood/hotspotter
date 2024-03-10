@@ -1,7 +1,7 @@
-import { PUBLIC_GOOGLE_APP_CLIENT_ID, PUBLIC_GOOGLE_WEB_CLIENT_ID } from './env';
+import { PUBLIC_GOOGLE_APP_CLIENT_ID, PUBLIC_GOOGLE_WEB_CLIENT_ID } from '$lib/env';
 import { boolean, email, number, object, parse, safeInteger, string, transform, url } from 'valibot';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { assert } from './assert';
+import { assert } from '$lib/assert';
 
 const Claims = object({
     hd: string(),
