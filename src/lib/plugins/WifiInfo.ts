@@ -53,9 +53,8 @@ export async function performOneshotScan() {
     const { promise, resolve } = deferred<AccessPoints>();
     const id = await startWatch(resolve);
     try {
-        assert(await startScan(), 'WiFi scanning failed');
-        const results = await promise;
-        return results;
+        assert(await startScan(), 'Wi-Fi scanning failed');
+        return await promise;
     } finally {
         await clearWatch(id);
     }
