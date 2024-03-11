@@ -53,7 +53,10 @@ export async function performOneshotScan() {
     const { promise, resolve } = deferred<AccessPoints>();
     const id = await startWatch(resolve);
     try {
-        assert(await startScan(), 'Wi-Fi scanning throttled');
+        assert(
+            await startScan(),
+            'Wi-Fi scanning failed. This may be due to permission errors, throttling, or disabled Wi-Fi radios.',
+        );
         return await promise;
     } finally {
         await clearWatch(id);
