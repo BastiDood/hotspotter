@@ -12,7 +12,7 @@
     export let timestamp: Date;
 
     async function reset() {
-        await resetScanCount();
+        await resetScanCount(new Date());
         await invalidateAll();
     }
 </script>
