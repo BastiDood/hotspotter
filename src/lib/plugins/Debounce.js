@@ -1,8 +1,8 @@
 import { Preferences } from '@capacitor/preferences';
 import { assert } from '$lib/assert';
 
-export async function resetScanCount() {
-    const timestamp = new Date();
+/** @param {Date} timestamp */
+export async function resetScanCount(timestamp) {
     await Preferences.set({ key: 'scan', value: `${timestamp.valueOf()},0` });
     return { timestamp, count: 0 };
 }
@@ -18,9 +18,18 @@ function parseScan(raw) {
     return { timestamp, count };
 }
 
+/** @param {string|null} raw */
+async function resetIfExpired(raw) {
+    const now = new Date();
+    if (raw === null) return await resetScanCount(now);
+    const result = parseScan(raw);
+    const deadline = result.timestamp.valueOf() + 120_000;
+    return now.valueOf() < deadline ? result : await resetScanCount(now);
+}
+
 export async function getLastScan() {
     const { value } = await Preferences.get({ key: 'scan' });
-    return value === null ? await resetScanCount() : parseScan(value);
+    return await resetIfExpired(value);
 }
 
 export async function incrementScanCount() {
