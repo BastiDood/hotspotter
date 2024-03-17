@@ -1,4 +1,4 @@
-import { type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
+import { type CellType, type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
 import { PUBLIC_HOTSPOTTER_URL } from '$lib/env';
 import { UnexpectedStatusCodeError } from './error';
 import { assert } from '$lib/assert';
@@ -43,14 +43,15 @@ export async function fetchMarkers(mode: MarkerMode) {
     return parse(DataPoints, json, { abortEarly: true });
 }
 
-export async function fetchHexagonAccessPoints(
+export async function fetchHexagons(
+    cellType: CellType,
     minX: number,
     minY: number,
     maxX: number,
     maxY: number,
     signal?: AbortSignal,
 ) {
-    const url = new URL('api/wifi/points', PUBLIC_HOTSPOTTER_URL);
+    const url = new URL(`api/${cellType}/points`, PUBLIC_HOTSPOTTER_URL);
     url.searchParams.set('min-x', minX.toString());
     url.searchParams.set('min-y', minY.toString());
     url.searchParams.set('max-x', maxX.toString());

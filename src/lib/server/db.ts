@@ -1,4 +1,4 @@
-import { type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
+import { type CellType, type Data, HexagonAccessPointCount } from '$lib/models/api';
 import { bigint, number, object, parse, string, uuid } from 'valibot';
 import { POSTGRES_URL } from '$lib/server/env';
 import type { User } from '$lib/jwt';
@@ -70,42 +70,6 @@ export function uploadReading({ sub, email, name, picture }: User, { gps, sim, w
     });
 }
 
-export async function fetchCdmaCoords() {
-    const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT cdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE cdma_id IS NOT NULL) _ JOIN hotspotter.cdma USING (cdma_id)`;
-    return parse(DataPoints, rows, { abortEarly: true });
-}
-
-export async function fetchGsmCoords() {
-    const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT gsm_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE gsm_id IS NOT NULL) _ JOIN hotspotter.gsm USING (gsm_id)`;
-    return parse(DataPoints, rows, { abortEarly: true });
-}
-
-export async function fetchLteCoords() {
-    const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT lte_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE lte_id IS NOT NULL) _ JOIN hotspotter.lte USING (lte_id)`;
-    return parse(DataPoints, rows, { abortEarly: true });
-}
-
-export async function fetchNrCoords() {
-    const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT nr_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE nr_id IS NOT NULL) _ JOIN hotspotter.nr USING (nr_id)`;
-    return parse(DataPoints, rows, { abortEarly: true });
-}
-
-export async function fetchTdscdmaCoords() {
-    const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT tdscdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE tdscdma_id IS NOT NULL) _ JOIN hotspotter.tdscdma USING (tdscdma_id)`;
-    return parse(DataPoints, rows, { abortEarly: true });
-}
-
-export async function fetchWcdmaCoords() {
-    const rows =
-        await sql`SELECT level, p[0] lon, p[1] lat, rad FROM (SELECT wcdma_id, POINT(coords) p, RADIUS(coords) rad FROM hotspotter.readings WHERE wcdma_id IS NOT NULL) _ JOIN hotspotter.wcdma USING (wcdma_id)`;
-    return parse(DataPoints, rows, { abortEarly: true });
-}
-
 const RESOLUTIONS = [0, 0.022, 0.044, 0.088, 0.352, 0.703, 1.406, 2.813, 5.625, 11.25, 22.5, 45, 90];
 export function resolveResolution(minX: number, maxX: number) {
     assert(minX < maxX, 'invalid longitude delta');
@@ -117,6 +81,17 @@ export async function aggregateAccessPoints(minX: number, minY: number, maxX: nu
     const resolution = resolveResolution(minX, maxX);
     const [first, ...rest] =
         await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}') result FROM (SELECT hex, count(DISTINCT (man, ssid)) FROM (SELECT DISTINCT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, trunc(bssid) man, ssid FROM hotspotter.wifi JOIN hotspotter.readings USING (reading_id) WHERE ssid <> '' AND coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) uniq GROUP BY hex) _`;
+    assert(rest.length === 0);
+    assert(typeof first !== 'undefined');
+    return parse(HexResult, first).result;
+}
+
+export async function aggregateCellularLevels(cell: CellType, minX: number, minY: number, maxX: number, maxY: number) {
+    const table = sql(`hotspotter.${cell}`);
+    const id = sql(`${cell}_id`);
+    const resolution = resolveResolution(minX, maxX);
+    const [first, ...rest] =
+        await sql`SELECT coalesce(jsonb_object_agg(hex, avg), '{}') result FROM (SELECT hex, avg(level)::DOUBLE PRECISION FROM (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, level FROM hotspotter.readings JOIN ${table} USING (${id}) WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hist GROUP BY hex) _`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;

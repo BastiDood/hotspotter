@@ -29,7 +29,7 @@ export class DashboardControl extends Control {
         return this.#component.hex;
     }
 
-    get source() {
-        return this.#component.source;
+    get cell() {
+        return this.#component.cell;
     }
 }

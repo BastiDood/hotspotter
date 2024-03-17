@@ -1,7 +1,8 @@
 <script lang="ts">
-    import NetworkSelect, { Network } from './NetworkSelect.svelte';
+    import { CellType } from '$lib/models/api';
     import type { Coordinate } from 'ol/coordinate';
     import { Icon } from '@steeze-ui/svelte-icon';
+    import NetworkSelect from './NetworkSelect.svelte';
     import { SlideToggle } from '@skeletonlabs/skeleton';
     import { View } from 'ol';
     import { Wifi } from '@steeze-ui/heroicons';
@@ -26,6 +27,8 @@
     /** Whether to keep the hexagons visible. */
     export const hex = writable(true);
 
+    /** The source of the hexagons. */
+    export const cell = writable(CellType.WiFi);
 </script>
 
 <div class="pointer-events-none grid h-full grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] gap-4 p-4 text-xs">
@@ -35,7 +38,7 @@
             >Geolocation</SlideToggle
         >
         <SlideToggle name="hex" size="sm" active="bg-primary-400" class="pointer-events-auto" bind:checked={$hex}
-            >Wi-Fi Access Points</SlideToggle
+            >Hexagons</SlideToggle
         >
     </div>
     <div class="col-start-1 row-start-3 flex items-center justify-self-start overflow-hidden rounded-xl">
@@ -46,6 +49,9 @@
             </div>
             <div class="flex aspect-square size-8 items-center justify-center bg-[#2c7fb8]/40">20+</div>
         {/if}
+    </div>
+    <div class="row-start 1 col-start-3">
+        <NetworkSelect name="data" bind:value={$cell} />
     </div>
     <p class="col-start-3 row-start-3 w-full self-end text-right">
         &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" class="anchor pointer-events-auto"

@@ -11,17 +11,18 @@
 <script lang="ts">
     import 'ol/ol.css';
     import { Circle, Polygon } from 'ol/geom';
-    import { Collection, Feature, Map, View, type MapBrowserEvent } from 'ol';
+    import { Collection, Feature, Map, type MapBrowserEvent } from 'ol';
     import { Fill, Stroke, Style } from 'ol/style';
     import { OSM as OpenStreetMap, Vector as VectorSource } from 'ol/source';
     import { Vector as VectorLayer, WebGLTile as WebGLTileLayer } from 'ol/layer';
+    import { CellType } from '$lib/models/api';
     import { DashboardControl } from './Dashboard';
     import { Geolocation } from '@capacitor/geolocation';
     import { PopupOverlay } from './Popup';
     import { abortable } from './Abortable';
     import { assert } from '$lib/assert';
     import { cellToBoundary } from 'h3-js';
-    import { fetchHexagonAccessPoints } from '$lib/http';
+    import { fetchHexagons } from '$lib/http';
     import { fromLonLat } from 'ol/proj';
     import { modeCurrent } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
@@ -44,6 +45,7 @@
     const dashboard = new DashboardControl(center);
     const gpsVisibleStore = dashboard.gps;
     const hexVisibleStore = dashboard.hex;
+    const cellStore = dashboard.cell;
 
     const gps = new Circle(center, accuracy);
     const gpsFeature = new Feature(gps);
@@ -73,9 +75,9 @@
     });
     $: hexLayer.setVisible($hexVisibleStore);
 
-    const refreshHexagons = abortable(async signal => {
+    const refreshHexagons = abortable(async (signal, cell: CellType) => {
         const { minX, maxX, minY, maxY, proj } = validateExtent(dashboard.view);
-        const hexes = await fetchHexagonAccessPoints(minX, minY, maxX, maxY, signal);
+        const hexes = await fetchHexagons(cell, minX, minY, maxX, maxY, signal);
         const features = Object.entries(hexes).map(([hex, count]) => {
             const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
             const density = Math.min(count, MAX_ACCESS_POINTS) / MAX_ACCESS_POINTS;
@@ -86,6 +88,7 @@
         hexFeatures.clear();
         hexFeatures.extend(features);
     });
+    $: refreshHexagons($cellStore);
 
     const popup = new PopupOverlay();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -105,6 +108,10 @@
         popup.setPosition(undefined);
     }
 
+    function onLoadEnd() {
+        refreshHexagons($cellStore);
+    }
+
     // eslint-disable-next-line init-declarations
     let target: HTMLDivElement | undefined;
     onMount(() => {
@@ -121,9 +128,9 @@
             gps.setCenterAndRadius(fromLonLat([longitude, latitude]), accuracy);
         });
         map.on('click', onMapClick);
-        map.on('loadend', refreshHexagons);
+        map.on('loadend', onLoadEnd);
         return async () => {
-            map.un('loadend', refreshHexagons);
+            map.un('loadend', onLoadEnd);
             map.un('click', onMapClick);
             map.dispose();
             const id = await watcher;

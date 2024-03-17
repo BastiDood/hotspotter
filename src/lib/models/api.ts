@@ -1,7 +1,17 @@
 import { CellSignalInfo, Sim } from './cell';
-import { type Output, array, merge, number, object, record, safeInteger } from 'valibot';
+import { type Output, array, merge, number, object, record } from 'valibot';
 import { AccessPoint } from './wifi';
 import { Location } from './gps';
+
+export const enum CellType {
+    WiFi = 'wifi',
+    Gsm = 'gsm',
+    Cdma = 'cdma',
+    Lte = 'lte',
+    Nr = 'nr',
+    Tdscdma = 'tdscdma',
+    Wcdma = 'wcdma',
+}
 
 export const Data = object({
     gps: Location,
@@ -20,5 +30,5 @@ const Circle = object({
 export const DataPoints = array(merge([CellSignalInfo, Circle]));
 export type DataPoints = Output<typeof DataPoints>;
 
-export const HexagonAccessPointCount = record(number([safeInteger()]));
+export const HexagonAccessPointCount = record(number());
 export type HexagonAccessPointCount = Output<typeof HexagonAccessPointCount>;
