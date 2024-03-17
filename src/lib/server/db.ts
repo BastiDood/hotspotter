@@ -116,7 +116,7 @@ export function resolveResolution(minX: number, maxX: number) {
 export async function aggregateAccessPoints(minX: number, minY: number, maxX: number, maxY: number) {
     const resolution = resolveResolution(minX, maxX);
     const [first, ...rest] =
-        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}') result FROM (SELECT hex, count(DISTINCT bssid) FROM (SELECT reading_id, h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM hotspotter.readings WHERE coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hexes JOIN hotspotter.wifi USING (reading_id) GROUP BY hex) _ WHERE _ IS NOT NULL`;
+        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}') result FROM (SELECT hex, count(DISTINCT (man, ssid)) FROM (SELECT DISTINCT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, trunc(bssid) man, ssid FROM hotspotter.wifi JOIN hotspotter.readings USING (reading_id) WHERE ssid <> '' AND coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) uniq GROUP BY hex) _`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
