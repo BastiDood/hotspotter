@@ -31,18 +31,19 @@
 
     const toast = getToastStore();
     async function getCurrentPosition() {
-        try {
-            const { coords } = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-            return coords;
-        } catch (err) {
-            console.error(err);
-            // eslint-disable-next-line no-undef
-            const base = messageFromError(err);
-            toast.trigger({
-                message: `${base} Using default location...`,
-                background: 'variant-filled-error',
-            });
-        }
+        if ('getCurrentPosition' in Geolocation)
+            try {
+                const { coords } = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+                return coords;
+            } catch (err) {
+                console.error(err);
+                // eslint-disable-next-line no-undef
+                const base = messageFromError(err);
+                toast.trigger({
+                    message: `${base} Using default location...`,
+                    background: 'variant-filled-error',
+                });
+            }
         // Default location is UPD AECH
         return { latitude: 14.6486823, longitude: 121.0687212, accuracy: 0 };
     }
