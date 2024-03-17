@@ -1,19 +1,10 @@
-<script context="module" lang="ts">
-    const MAX_ACCESS_POINTS = 20;
-    const GRADIENT = ['#edf8b150', '#7fcdbb50', '#2c7fb850'];
-</script>
-
 <script lang="ts">
-    import { Feature, View } from 'ol';
+    import NetworkSelect, { Network } from './NetworkSelect.svelte';
     import type { Coordinate } from 'ol/coordinate';
     import { Icon } from '@steeze-ui/svelte-icon';
-    import { Polygon } from 'ol/geom';
     import { SlideToggle } from '@skeletonlabs/skeleton';
+    import { View } from 'ol';
     import { Wifi } from '@steeze-ui/heroicons';
-    import { assert } from '$lib/assert';
-    import { cellToBoundary } from 'h3-js';
-    import { fetchHexagonAccessPoints } from '$lib/http';
-    import { transformExtent } from 'ol/proj';
     import { writable } from 'svelte/store';
 
     // eslint-disable-next-line init-declarations
@@ -35,25 +26,6 @@
     /** Whether to keep the hexagons visible. */
     export const hex = writable(true);
 
-    export async function refreshAccessPoints(signal?: AbortSignal) {
-        const proj = view.getProjection();
-        const [minX, minY, maxX, maxY, ...rest] = transformExtent(view.calculateExtent(), proj, 'EPSG:4326');
-
-        assert(rest.length === 0);
-        assert(typeof minX !== 'undefined');
-        assert(typeof minY !== 'undefined');
-        assert(typeof maxX !== 'undefined');
-        assert(typeof maxY !== 'undefined');
-
-        const hexes = await fetchHexagonAccessPoints(minX, minY, maxX, maxY, signal);
-        return Object.entries(hexes).map(([hex, count]) => {
-            const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
-            const density = Math.min(count, MAX_ACCESS_POINTS) / MAX_ACCESS_POINTS;
-            const color = GRADIENT[Math.floor(density * (GRADIENT.length - 1))];
-            assert(typeof color !== 'undefined');
-            return new Feature({ geometry, hex, count, color });
-        });
-    }
 </script>
 
 <div class="pointer-events-none grid h-full grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] gap-4 p-4 text-xs">

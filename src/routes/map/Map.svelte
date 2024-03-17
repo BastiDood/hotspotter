@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+    const MAX_ACCESS_POINTS = 20;
+    const GRADIENT = ['#edf8b150', '#7fcdbb50', '#2c7fb850'];
     export interface Coords {
         latitude: number;
         longitude: number;
@@ -8,16 +10,19 @@
 
 <script lang="ts">
     import 'ol/ol.css';
+    import { Circle, Polygon } from 'ol/geom';
     import { Collection, Feature, Map, type MapBrowserEvent } from 'ol';
     import { Fill, Stroke, Style } from 'ol/style';
     import { OSM as OpenStreetMap, Vector as VectorSource } from 'ol/source';
     import { Vector as VectorLayer, WebGLTile as WebGLTileLayer } from 'ol/layer';
-    import { Circle } from 'ol/geom';
+    import { fromLonLat, transformExtent } from 'ol/proj';
     import { DashboardControl } from './Dashboard';
     import { Geolocation } from '@capacitor/geolocation';
     import { PopupOverlay } from './Popup';
+    import { abortable } from './Abortable';
     import { assert } from '$lib/assert';
-    import { fromLonLat } from 'ol/proj';
+    import { cellToBoundary } from 'h3-js';
+    import { fetchHexagonAccessPoints } from '$lib/http';
     import { modeCurrent } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
 
@@ -67,25 +72,28 @@
     });
     $: hexLayer.setVisible($hexVisibleStore);
 
-    let controller = null as AbortController | null;
-    function refreshHexagons() {
-        controller?.abort();
-        controller = new AbortController();
-        // NOTE: We use `then` so that the outer function returns `void`.
-        dashboard
-            .refreshAccessPoints(controller.signal)
-            .then(features => {
-                hexFeatures.clear();
-                hexFeatures.extend(features);
-                controller = null;
-            })
-            .catch(err => {
-                // Only reset the controller if the error is unexpected.
-                if (err instanceof DOMException && err.name === 'AbortError') return;
-                controller = null;
-                throw err;
-            });
-    }
+    const refreshHexagons = abortable(async signal => {
+        const proj = dashboard.view.getProjection();
+        const [minX, minY, maxX, maxY, ...rest] = transformExtent(dashboard.view.calculateExtent(), proj, 'EPSG:4326');
+
+        assert(rest.length === 0);
+        assert(typeof minX !== 'undefined');
+        assert(typeof minY !== 'undefined');
+        assert(typeof maxX !== 'undefined');
+        assert(typeof maxY !== 'undefined');
+
+        const hexes = await fetchHexagonAccessPoints(minX, minY, maxX, maxY, signal);
+        const features = Object.entries(hexes).map(([hex, count]) => {
+            const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
+            const density = Math.min(count, MAX_ACCESS_POINTS) / MAX_ACCESS_POINTS;
+            const color = GRADIENT[Math.floor(density * (GRADIENT.length - 1))];
+            assert(typeof color !== 'undefined');
+            return new Feature({ geometry, hex, count, color });
+        });
+
+        hexFeatures.clear();
+        hexFeatures.extend(features);
+    });
 
     const popup = new PopupOverlay();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

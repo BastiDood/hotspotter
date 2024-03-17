@@ -29,7 +29,7 @@ export class DashboardControl extends Control {
         return this.#component.hex;
     }
 
-    refreshAccessPoints(signal?: AbortSignal) {
-        return this.#component.refreshAccessPoints(signal);
+    get source() {
+        return this.#component.source;
     }
 }
