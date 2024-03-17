@@ -1,3 +1,11 @@
+<script lang="ts" context="module">
+    export interface Coords {
+        latitude: number;
+        longitude: number;
+        accuracy: number;
+    }
+</script>
+
 <script lang="ts">
     import 'ol/ol.css';
     import { Collection, Feature, Map, type MapBrowserEvent } from 'ol';
@@ -21,7 +29,7 @@
 
     /** Non-reactive prop only used for initializing view center. */
     // eslint-disable-next-line init-declarations
-    export let coords: Position['coords'];
+    export let coords: Coords;
 
     const { longitude, latitude, accuracy } = coords;
     const center = fromLonLat([longitude, latitude]);
