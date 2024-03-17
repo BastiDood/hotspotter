@@ -5,7 +5,7 @@ import { getAllContexts } from 'svelte';
 export class PopupOverlay extends Overlay {
     #component: Component;
 
-    constructor(count?: number) {
+    constructor(count?: string) {
         const target = document.createElement('div');
         target.classList.add('contents');
         super({ element: target });
@@ -21,7 +21,7 @@ export class PopupOverlay extends Overlay {
         super.disposeInternal();
     }
 
-    set count(count: number) {
+    set count(count: string) {
         this.#component.$set({ count });
     }
 }

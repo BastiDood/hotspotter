@@ -1,11 +1,11 @@
 <script lang="ts">
+    import { ChartBar, Wifi } from '@steeze-ui/heroicons';
     import { CellType } from '$lib/models/api';
     import type { Coordinate } from 'ol/coordinate';
     import { Icon } from '@steeze-ui/svelte-icon';
     import NetworkSelect from './NetworkSelect.svelte';
     import { SlideToggle } from '@skeletonlabs/skeleton';
     import { View } from 'ol';
-    import { Wifi } from '@steeze-ui/heroicons';
     import { writable } from 'svelte/store';
 
     // eslint-disable-next-line init-declarations
@@ -43,11 +43,22 @@
     </div>
     <div class="col-start-1 row-start-3 flex items-center justify-self-start overflow-hidden rounded-xl">
         {#if $hex}
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#edf8b1]/40">1</div>
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#7fcdbb]/40">
-                <Icon src={Wifi} theme="mini" class="size-4" />
-            </div>
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#2c7fb8]/40">20+</div>
+            {#if $cell === CellType.WiFi}
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#ffffd4]/40">1</div>
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#fe9929]/40">
+                    <Icon src={Wifi} theme="mini" class="size-4" />
+                </div>
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#993404]/40">20+</div>
+            {:else}
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#ffffd4]/40">0</div>
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#fed98e]/40">
+                    <Icon src={ChartBar} theme="mini" class="size-4" />
+                </div>
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#fe9929]/40">
+                    <Icon src={ChartBar} theme="mini" class="size-4" />
+                </div>
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#cc4c02]/40">4</div>
+            {/if}
         {/if}
     </div>
     <div class="row-start 1 col-start-3">

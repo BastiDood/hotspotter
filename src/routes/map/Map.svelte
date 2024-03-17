@@ -1,6 +1,10 @@
 <script lang="ts" context="module">
     const MAX_ACCESS_POINTS = 20;
-    const GRADIENT = ['#edf8b150', '#7fcdbb50', '#2c7fb850'];
+    const WIFI_GRADIENT = ['#ffffd450', '#fe992950', '#99340450'];
+
+    const MAX_SIGNAL_STRENGTH = 4;
+    const CELL_GRADIENT = ['#ffffd450', '#fed98e50', '#fe992950', '#cc4c0250', '#cc4c0250'];
+
     export interface Coords {
         latitude: number;
         longitude: number;
@@ -78,10 +82,12 @@
     const refreshHexagons = abortable(async (signal, cell: CellType) => {
         const { minX, maxX, minY, maxY, proj } = validateExtent(dashboard.view);
         const hexes = await fetchHexagons(cell, minX, minY, maxX, maxY, signal);
+        const [gradient, max] =
+            cell === CellType.WiFi ? [WIFI_GRADIENT, MAX_ACCESS_POINTS] : [CELL_GRADIENT, MAX_SIGNAL_STRENGTH];
         const features = Object.entries(hexes).map(([hex, count]) => {
             const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
-            const density = Math.min(count, MAX_ACCESS_POINTS) / MAX_ACCESS_POINTS;
-            const color = GRADIENT[Math.floor(density * (GRADIENT.length - 1))];
+            const density = Math.min(count, max) / max;
+            const color = gradient[Math.floor(density * (gradient.length - 1))];
             assert(typeof color !== 'undefined');
             return new Feature({ geometry, hex, count, color });
         });
@@ -99,7 +105,7 @@
             if (typeof feat !== 'undefined') {
                 const count = feat.get('count');
                 assert(typeof count === 'number');
-                popup.count = count;
+                popup.count = $cellStore === CellType.WiFi ? count.toString() : count.toFixed(2);
                 popup.setPosition(coordinate);
                 return;
             }
