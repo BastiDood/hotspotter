@@ -11,11 +11,10 @@
 <script lang="ts">
     import 'ol/ol.css';
     import { Circle, Polygon } from 'ol/geom';
-    import { Collection, Feature, Map, type MapBrowserEvent } from 'ol';
+    import { Collection, Feature, Map, View, type MapBrowserEvent } from 'ol';
     import { Fill, Stroke, Style } from 'ol/style';
     import { OSM as OpenStreetMap, Vector as VectorSource } from 'ol/source';
     import { Vector as VectorLayer, WebGLTile as WebGLTileLayer } from 'ol/layer';
-    import { fromLonLat, transformExtent } from 'ol/proj';
     import { DashboardControl } from './Dashboard';
     import { Geolocation } from '@capacitor/geolocation';
     import { PopupOverlay } from './Popup';
@@ -23,8 +22,10 @@
     import { assert } from '$lib/assert';
     import { cellToBoundary } from 'h3-js';
     import { fetchHexagonAccessPoints } from '$lib/http';
+    import { fromLonLat } from 'ol/proj';
     import { modeCurrent } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
+    import { validateExtent } from '$lib/util';
 
     const osmLayer = new WebGLTileLayer({ preload: Infinity });
     $: tileUrl = $modeCurrent
@@ -73,15 +74,7 @@
     $: hexLayer.setVisible($hexVisibleStore);
 
     const refreshHexagons = abortable(async signal => {
-        const proj = dashboard.view.getProjection();
-        const [minX, minY, maxX, maxY, ...rest] = transformExtent(dashboard.view.calculateExtent(), proj, 'EPSG:4326');
-
-        assert(rest.length === 0);
-        assert(typeof minX !== 'undefined');
-        assert(typeof minY !== 'undefined');
-        assert(typeof maxX !== 'undefined');
-        assert(typeof maxY !== 'undefined');
-
+        const { minX, maxX, minY, maxY, proj } = validateExtent(dashboard.view);
         const hexes = await fetchHexagonAccessPoints(minX, minY, maxX, maxY, signal);
         const features = Object.entries(hexes).map(([hex, count]) => {
             const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
@@ -90,7 +83,6 @@
             assert(typeof color !== 'undefined');
             return new Feature({ geometry, hex, count, color });
         });
-
         hexFeatures.clear();
         hexFeatures.extend(features);
     });

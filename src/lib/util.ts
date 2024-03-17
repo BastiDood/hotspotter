@@ -1,4 +1,6 @@
+import type { View } from 'ol';
 import { assert } from '$lib/assert';
+import { transformExtent } from 'ol/proj';
 
 type MaybeProduceFn<T, U> = (value: T) => NonNullable<U> | undefined;
 export function* filterMap<T, U>(iter: Iterable<T>, filter: MaybeProduceFn<T, U>) {
@@ -38,4 +40,15 @@ export function binarySearch(items: number[], target: number) {
     }
     assert(left <= items.length);
     return left;
+}
+
+export function validateExtent(view: View) {
+    const proj = view.getProjection();
+    const [minX, minY, maxX, maxY, ...rest] = transformExtent(view.calculateExtent(), proj, 'EPSG:4326');
+    assert(rest.length === 0);
+    assert(typeof minX !== 'undefined');
+    assert(typeof minY !== 'undefined');
+    assert(typeof maxX !== 'undefined');
+    assert(typeof maxY !== 'undefined');
+    return { minX, minY, maxX, maxY, proj };
 }
