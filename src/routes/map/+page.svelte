@@ -24,10 +24,8 @@
     /** @param {unknown} err */
     function messageFromError(err) {
         // eslint-disable-next-line no-undef
-        if (err instanceof GeolocationPositionError)
-            return messageFromGpsErrorCode(err.code);
-        if (err instanceof Error)
-            return `[${err.name}]: ${err.message}.`;
+        if (err instanceof GeolocationPositionError) return messageFromGpsErrorCode(err.code);
+        if (err instanceof Error) return `[${err.name}]: ${err.message}.`;
         throw err;
     }
 

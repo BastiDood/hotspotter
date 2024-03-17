@@ -10,11 +10,11 @@
     import 'ol/ol.css';
     import { Collection, Feature, Map, type MapBrowserEvent } from 'ol';
     import { Fill, Stroke, Style } from 'ol/style';
-    import { Geolocation, type Position } from '@capacitor/geolocation';
     import { OSM as OpenStreetMap, Vector as VectorSource } from 'ol/source';
     import { Vector as VectorLayer, WebGLTile as WebGLTileLayer } from 'ol/layer';
     import { Circle } from 'ol/geom';
     import { DashboardControl } from './Dashboard';
+    import { Geolocation } from '@capacitor/geolocation';
     import { PopupOverlay } from './Popup';
     import { assert } from '$lib/assert';
     import { fromLonLat } from 'ol/proj';
