@@ -97,7 +97,7 @@ export async function aggregateCellularLevels(cell: CellType, minX: number, minY
     return parse(HexResult, first).result;
 }
 
-export async function computeCellScore(longitude: number, latitude: number) {
+export async function computeWifiCellScore(longitude: number, latitude: number) {
     const [first, ...rest] =
         await sql`SELECT sum(score) result FROM (SELECT pi() / 2 - atan(count(index)::DOUBLE PRECISION) score FROM (SELECT * FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), 9)) index) neighbors LEFT JOIN hotspotter.readings ON index = h3_lat_lng_to_cell(coords::POINT, 9) GROUP BY index) _`;
     assert(rest.length === 0);

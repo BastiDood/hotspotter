@@ -1,4 +1,4 @@
-import { computeCellScore } from '$lib/server/db';
+import { computeWifiCellScore } from '$lib/server/db';
 import { error } from '@sveltejs/kit';
 
 export async function GET({ url: { searchParams } }) {
@@ -11,9 +11,9 @@ export async function GET({ url: { searchParams } }) {
     const lat = searchParams.get('lat');
     if (lat === null) error(400, 'empty latitude');
 
-    const latitude = Number(longitude);
+    const latitude = Number(lat);
     if (!isFinite(latitude)) error(400, 'invalid latitude');
 
-    const score = await computeCellScore(longitude, latitude);
+    const score = await computeWifiCellScore(longitude, latitude);
     return new Response(score.toString());
 }
