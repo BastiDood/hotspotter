@@ -1,6 +1,6 @@
 <script lang="ts">
     import Countdown from './Countdown.svelte';
-    import UploadButton from './UploadButton.svelte';
+    import ScanButton from './ScanButton.svelte';
     import { invalidateAll } from '$app/navigation';
     import { resetScanCount } from '$lib/plugins/Debounce';
 
@@ -18,7 +18,7 @@
 </script>
 
 {#if count < 3}
-    <UploadButton bind:disabled />
+    <ScanButton bind:disabled />
 {:else}
     {@const end = timestamp.valueOf() + 120_000 - performance.timeOrigin}
     <Countdown {end} on:done={reset} />

@@ -2,7 +2,6 @@
     import * as Cache from '$lib/plugins/Cache';
     import * as Http from '$lib/http';
     import { ArrowPath } from '@steeze-ui/heroicons';
-    import type { Data } from '$lib/models/api';
     import { Icon } from '@steeze-ui/svelte-icon';
     import cookie from 'cookie';
     import { getToastStore } from '@skeletonlabs/skeleton';
@@ -10,17 +9,6 @@
 
     // eslint-disable-next-line init-declarations
     export let disabled: boolean;
-
-    async function submitFile(path: string, jwt: string, data: Data) {
-        // The ordering of the operations is important here. We emphasize that
-        // the cache is only removed after a successful data submission. If the
-        // write operation fails (somehow), we are fine with the duplicated data.
-        // This is better than the alternative where we delete the reading before
-        // a successful transmission, in which case there is the possibility for
-        // the data to be deleted yet the transmission fails.
-        console.log(await Http.uploadReading(jwt, data));
-        await Cache.remove(path);
-    }
 
     const toast = getToastStore();
     async function sync() {
@@ -37,7 +25,17 @@
         disabled = true;
         try {
             const files = await Cache.read();
-            const promises = Object.entries(files).map(([path, payload]) => submitFile(path, jwt, payload));
+            const promises = Object.entries(files).map(async ([path, payload]) => {
+                // The ordering of the operations is important here. We emphasize that
+                // the cache is only removed after a successful data submission. If the
+                // write operation fails (somehow), we are fine with the duplicated data.
+                // This is better than the alternative where we delete the reading before
+                // a successful transmission, in which case there is the possibility for
+                // the data to be deleted yet the transmission fails.
+                console.log(await Http.uploadReading(jwt, payload));
+                await Cache.remove(path);
+            });
+
             const results = await Promise.allSettled(promises);
 
             let successes = 0;
@@ -72,18 +70,17 @@
                     background: 'variant-filled-success',
                 });
         } catch (err) {
-            if (err instanceof Error)
-                toast.trigger({
-                    message: `${err.name}: ${err.message}`,
-                    background: 'variant-filled-error',
-                    autohide: false,
-                });
+            const message = err instanceof Error ? `[${err.name}]: ${err.message}` : String(err);
+            toast.trigger({
+                message,
+                background: 'variant-filled-error',
+                autohide: false,
+            });
             throw err;
         } finally {
+            await invalidateAll();
             disabled = false;
         }
-
-        await invalidateAll();
     }
 </script>
 
