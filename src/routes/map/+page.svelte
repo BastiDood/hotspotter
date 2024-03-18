@@ -31,7 +31,7 @@
 
     const toast = getToastStore();
     async function getCurrentPosition() {
-        if ('getCurrentPosition' in Geolocation)
+        if (typeof Geolocation.getCurrentPosition !== 'undefined')
             try {
                 const { coords } = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
                 return coords;
