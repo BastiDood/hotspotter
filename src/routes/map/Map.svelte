@@ -1,9 +1,9 @@
 <script lang="ts" context="module">
-    const MAX_ACCESS_POINTS = 20;
-    const WIFI_GRADIENT = ['#ffffd450', '#fe992950', '#99340450'];
+    const MAX_ACCESS_POINTS = 30;
+    const WIFI_GRADIENT = ['#ffeda050', '#feb24c50', '#f03b2050'];
 
     const MAX_SIGNAL_STRENGTH = 4;
-    const CELL_GRADIENT = ['#ffffd450', '#fed98e50', '#fe992950', '#cc4c0250', '#cc4c0250'];
+    const CELL_GRADIENT = ['#ffffb250', '#fecc5c50', '#fd8d3c50', '#e31a1c50', '#e31a1c50'];
 
     export interface Coords {
         latitude: number;
