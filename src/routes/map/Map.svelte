@@ -125,8 +125,8 @@
             target,
             view: dashboard.view,
             controls: new Collection([dashboard]),
-            layers: [osmLayer, gpsLayer, hexLayer],
-            overlays: [popup],
+            layers: new Collection([osmLayer, gpsLayer, hexLayer]),
+            overlays: new Collection([popup]),
         });
         const watcher = Geolocation.watchPosition({ enableHighAccuracy: true }, pos => {
             if (pos === null) return;
