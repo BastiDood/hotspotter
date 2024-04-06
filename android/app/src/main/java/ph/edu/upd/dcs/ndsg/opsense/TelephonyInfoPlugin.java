@@ -18,7 +18,6 @@ public class TelephonyInfoPlugin extends Plugin {
             ctx.unavailable("telephony manager is unavailable");
             return;
         }
-        var manager = new TelephonyInfo(api);
-        ctx.resolve(manager.getCellQuality());
+        ctx.resolve(new TelephonyInfo(api).getCellQuality());
     }
 }
