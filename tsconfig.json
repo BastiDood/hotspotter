@@ -5,6 +5,7 @@
         "skipLibCheck": true,
         "target": "ESNext",
         "verbatimModuleSyntax": true,
+        "sourceMap": true,
         "allowJs": true,
         "checkJs": true,
         "moduleDetection": "force",
