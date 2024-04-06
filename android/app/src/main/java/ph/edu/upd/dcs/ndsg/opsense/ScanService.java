@@ -78,7 +78,6 @@ public class ScanService extends Service {
                         var content = "Last cached on " + instant.toString();
                         var notification = ScanService.this.createNotification(content);
                         NotificationManagerCompat.from(ScanService.this).notify(1, notification);
-                        ScanResultsLiveData.getInstance().postValue(json);
                     });
             }
         };
