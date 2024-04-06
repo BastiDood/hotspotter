@@ -1,5 +1,5 @@
 import { CellSignalInfo, Sim } from './cell';
-import { type Output, array, merge, number, object, record } from 'valibot';
+import { type Output, array, coerce, date, merge, number, object, record } from 'valibot';
 import { AccessPoint } from './wifi';
 import { Location } from './gps';
 
@@ -14,6 +14,8 @@ export const enum CellType {
 }
 
 export const Data = object({
+    // @ts-expect-error We are coercing the input as a date.
+    now: coerce(date(), input => new Date(input)),
     gps: Location,
     wifi: array(AccessPoint),
     sim: Sim,

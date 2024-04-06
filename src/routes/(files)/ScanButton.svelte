@@ -30,6 +30,7 @@
         ]);
         assert(sim !== null, 'Telephony plugin not initialized.');
         return {
+            now: new Date(),
             gps: {
                 timestamp: new Date(timestamp),
                 latitude,
