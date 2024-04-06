@@ -14,14 +14,28 @@ import androidx.core.app.*;
 import com.getcapacitor.JSObject;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Consumer;
 
 public class ScanService extends Service {
+    public static final String BIND = "ph.edu.upd.dcs.ndsg.hotspotter.BIND";
     public static final String SCAN = "ph.edu.upd.dcs.ndsg.hotspotter.SCAN";
     public static final String STOP = "ph.edu.upd.dcs.ndsg.hotspotter.STOP";
     private static final int START_FLAG_MASK = Service.START_FLAG_RETRY | Service.START_FLAG_REDELIVERY;
 
     private static @Nullable WifiManager.ScanResultsCallback callback;
+
+    private final HashMap<String, Consumer<JSObject>> watchers = new HashMap<>();
+    private final LocalBinder binder = new LocalBinder();
+    public class LocalBinder extends Binder {
+        public void startWatch(@NonNull String id, @NonNull Consumer<JSObject> callback) {
+            watchers.put(id, callback);
+        }
+        public void clearWatch(@NonNull String id) {
+            watchers.remove(id);
+        }
+    }
 
     @NonNull
     private Notification createNotification(@NonNull String content) {
@@ -82,6 +96,7 @@ public class ScanService extends Service {
                         var notification = ScanService.this.createNotification(content);
                         NotificationManagerCompat.from(ScanService.this).notify(1, notification);
                         Log.i("ScanService", "foreground notification updated");
+                        for (var consumer : watchers.values()) consumer.accept(json);
                     });
             }
         };
@@ -111,14 +126,15 @@ public class ScanService extends Service {
 
     @Override
     @Nullable
-    public IBinder onBind(Intent _intent) {
-        return null;
+    public LocalBinder onBind(Intent intent) {
+        return intent.getAction() == BIND ? binder : null;
     }
 
     @Override
     public void onDestroy() {
         unregisterCallback();
         callback = null;
+        watchers.clear();
         stopSelf();
         super.onDestroy();
     }
