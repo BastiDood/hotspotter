@@ -28,7 +28,7 @@ public class ScanService extends Service {
         return new NotificationCompat.Builder(this, "scan")
             .setSmallIcon(R.drawable.ic_launcher_background)
             .setContentTitle("Hotspotter")
-            .setContentInfo(content)
+            .setContentText(content)
             .setOngoing(true)
             .build();
     }
@@ -51,11 +51,13 @@ public class ScanService extends Service {
                             .put("gps", location)
                             .put("wifi", net.getScanResults())
                             .put("sim", tel.getCellQuality());
+                        Log.i("ScanService", "reading triggered by callback");
 
                         // Save the reading to the cache
                         var name = Long.toString(now) + ".json";
                         var file = ScanService.this.getCacheDir().toPath().resolve(name).toFile();
 
+                        Log.i("ScanService", "creating new file " + name);
                         try {
                             if (!file.createNewFile()) {
                                 Log.e("ScanService", name);
@@ -66,6 +68,7 @@ public class ScanService extends Service {
                             return;
                         }
 
+                        Log.i("ScanService", "writing to " + name);
                         try (var stream = new FileOutputStream(file)) {
                             stream.write(json.toString().getBytes(StandardCharsets.UTF_8));
                             stream.flush();
@@ -75,9 +78,10 @@ public class ScanService extends Service {
                         }
 
                         // Notify the user interface of the new reading
-                        var content = "Last cached on " + instant.toString();
+                        var content = "Last cached on " + instant.toString() + ".";
                         var notification = ScanService.this.createNotification(content);
                         NotificationManagerCompat.from(ScanService.this).notify(1, notification);
+                        Log.i("ScanService", "foreground notification updated");
                     });
             }
         };
@@ -89,19 +93,19 @@ public class ScanService extends Service {
             ContextCompat
                 .getSystemService(this, WifiManager.class)
                 .registerScanResultsCallback(ForkJoinPool.commonPool(), callback);
-            Log.i("ScanService::start", "callback initialized");
+            Log.i("ScanService", "callback initialized");
         } else
-            Log.i("ScanService::start", "callback already exists");
+            Log.i("ScanService", "callback already exists");
     }
 
     private void unregisterCallback() {
         if (callback == null)
-            Log.w("ScanService::unregisterCallback", "callback is already gone");
+            Log.w("ScanService", "callback is already gone");
         else {
             ContextCompat
                 .getSystemService(this, WifiManager.class)
                 .unregisterScanResultsCallback(callback);
-            Log.i("ScanService::unregisterCallback", "callback unregistered");
+            Log.i("ScanService", "callback unregistered");
         }
     }
 
@@ -133,18 +137,19 @@ public class ScanService extends Service {
                             1,
                             createNotification("Scanner is idle."),
                             ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+                        Log.i("ScanService", "service started");
                         break outer;
                     case STOP:
                         unregisterCallback();
-                        Log.i("ScanService::stop", "service stopped at ID " + Integer.toString(id));
+                        Log.i("ScanService", "service stopped at ID " + Integer.toString(id));
                         break;
                     default:
-                        Log.e("ScanService::onStartCommand", "unknown action type -> " + action);
+                        Log.e("ScanService", "unknown action type -> " + action);
                         break;
                 }
             } else {
                 var message = "unexpected start flags -> " + Integer.toBinaryString(flags);
-                Log.wtf("ScanService::onStartCommand", message);
+                Log.wtf("ScanService", message);
             }
             stopSelfResult(id);
         }

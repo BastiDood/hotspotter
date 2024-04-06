@@ -16,12 +16,6 @@ import com.getcapacitor.annotation.*;
     permissions = { @Permission(strings = { Manifest.permission.POST_NOTIFICATIONS }) }
 )
 public class LoopPlugin extends Plugin {
-    @PluginMethod()
-    public void requestScan(PluginCall ctx) {
-        var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
-        ctx.resolve(new WifiInfo(api).startScan());
-    }
-
     @PluginMethod(returnType = PluginMethod.RETURN_CALLBACK)
     public void startWatch(PluginCall ctx) {
         ctx.setKeepAlive(true);
@@ -45,7 +39,10 @@ public class LoopPlugin extends Plugin {
     public void startService(PluginCall ctx) {
         // Create the notification channel for Android 8.0+
         var activity = getActivity();
-        var channel = new NotificationChannelCompat.Builder("scan", NotificationManagerCompat.IMPORTANCE_DEFAULT).build();
+        var channel = new NotificationChannelCompat.Builder("scan", NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setName("Hotspotter Upload Service")
+            .setDescription("Listens for new Wi-Fi scans.")
+            .build();
         NotificationManagerCompat.from(activity).createNotificationChannel(channel);
         // Finally start the foreground service
         var intent = new Intent(ScanService.SCAN, null, activity, ScanService.class);
