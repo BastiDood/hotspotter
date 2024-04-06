@@ -24,7 +24,8 @@ public class WifiInfoPlugin extends Plugin {
         @Override
         public void onScanResultsAvailable() {
             var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
-            var json = new WifiInfo(api).getScanResults();
+            var array = new WifiInfo(api).getScanResults();
+            var json = new JSObject().put("results", array);
             for (var id : watchers) getBridge().getSavedCall(id).resolve(json);
         }
     };
@@ -38,7 +39,8 @@ public class WifiInfoPlugin extends Plugin {
     @PluginMethod()
     public void getScanResults(PluginCall ctx) {
         var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
-        ctx.resolve(new WifiInfo(api).getScanResults());
+        var array = new WifiInfo(api).getScanResults();
+        ctx.resolve(new JSObject().put("results", array));
     }
 
     @PluginMethod(returnType = PluginMethod.RETURN_CALLBACK)

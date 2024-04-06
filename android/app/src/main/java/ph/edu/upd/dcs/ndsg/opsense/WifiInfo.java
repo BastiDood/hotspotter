@@ -40,14 +40,14 @@ public class WifiInfo {
     }
 
     @NonNull
-    public JSObject getScanResults() {
+    public JSONArray getScanResults() {
         var results = api.getScanResults();
         results.sort((a, b) -> b.level - a.level);
         var list = results
             .stream()
             .map(this::scanResultToJson)
             .collect(Collectors.toList());
-        return new JSObject().put("results", new JSONArray(list));
+        return new JSONArray(list);
     }
 
     @NonNull
