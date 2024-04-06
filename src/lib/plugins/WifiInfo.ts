@@ -21,14 +21,14 @@ const StartScanResult = object({ ok: boolean() });
 export async function startScan() {
     if (WifiInfo === null) return false;
     const output = await WifiInfo.startScan();
-    return parse(StartScanResult, output).ok;
+    return parse(StartScanResult, output, { abortEarly: true }).ok;
 }
 
 const AccessPointsResult = object({ results: array(AccessPoint) });
 export async function getScanResults() {
     if (WifiInfo === null) return [];
     const output = await WifiInfo.getScanResults();
-    return parse(AccessPointsResult, output).results;
+    return parse(AccessPointsResult, output, { abortEarly: true }).results;
 }
 
 const AccessPoints = array(AccessPoint);
@@ -38,7 +38,7 @@ const AccessPointsResults = object({ results: array(AccessPoint) });
 export async function startWatch(callback: (networks: AccessPoints) => void) {
     if (WifiInfo === null) return null;
     const id = await WifiInfo.startWatch(null, networks => {
-        const { results } = parse(AccessPointsResults, networks);
+        const { results } = parse(AccessPointsResults, networks, { abortEarly: true });
         callback(results);
     });
     return parse(Id, id);

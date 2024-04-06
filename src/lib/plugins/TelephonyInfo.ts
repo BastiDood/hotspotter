@@ -12,5 +12,5 @@ const TelephonyInfo = building ? null : registerPlugin<TelephonyInfoPlugin>('Tel
 export async function getCellQuality() {
     if (TelephonyInfo === null) return null;
     const sim = await TelephonyInfo.getCellQuality();
-    return parse(Sim, sim);
+    return parse(Sim, sim, { abortEarly: true });
 }
