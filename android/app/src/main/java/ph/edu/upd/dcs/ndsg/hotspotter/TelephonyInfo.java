@@ -42,7 +42,7 @@ public class TelephonyInfo {
             } else if (cell instanceof CellSignalStrengthGsm s) {
                 var timingAdvance = s.getTimingAdvance();
                 var bitErrorRate = s.getBitErrorRate();
-                json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvance);
+                json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvance)
                     .put("bit_error_rate", bitErrorRate == CellInfo.UNAVAILABLE ? JSObject.NULL : bitErrorRate);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     var rssi = s.getRssi();

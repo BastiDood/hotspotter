@@ -44,11 +44,10 @@ public class ScanService extends Service {
     private @Nullable ICallback callback;
 
     private class BroadcastCallback extends BroadcastReceiver implements ICallback {
-        @Override
         BroadcastCallback() {
             super();
-            static final var filter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-            ContextCompat.registerReceiver(receiver, this, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+            var filter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+            ContextCompat.registerReceiver(ScanService.this, this, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
         }
         @Override
         @RequiresPermission(allOf = {
@@ -62,7 +61,7 @@ public class ScanService extends Service {
                 var service = (ScanService) ctx;
                 service.onNewScanResults();
             } else
-                Log.w("ScanService", "no new results from broadcast receiver")
+                Log.w("ScanService", "no new results from broadcast receiver");
         }
         @Override
         public void close() {
@@ -72,13 +71,12 @@ public class ScanService extends Service {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private class ScanResultsCallback extends WifiManager.ScanResultsCallback implements ICallback {
-        @Override
         @RequiresPermission(Manifest.permission.ACCESS_WIFI_STATE)
         ScanResultsCallback() {
             super();
             ContextCompat
                 .getSystemService(ScanService.this, WifiManager.class)
-                .registerScanResultsCallback(this);
+                .registerScanResultsCallback(ForkJoinPool.commonPool(), this);
         }
         @Override
         @RequiresPermission(allOf = {
@@ -163,7 +161,7 @@ public class ScanService extends Service {
             Log.i("ScanService", "callback already exists");
             return;
         }
-        callback = Build.VERSION_SDK_INT < Build.VERSION_CODES.R
+        callback = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
             ? new BroadcastCallback()
             : new ScanResultsCallback();
         Log.i("ScanService", "callback initialized");
@@ -218,10 +216,6 @@ public class ScanService extends Service {
 
     @Override
     @Nullable
-    @RequiresPermission(allOf = {
-        Manifest.permission.FOREGROUND_SERVICE,
-        Manifest.permission.FOREGROUND_SERVICE_LOCATION,
-    })
     public LocalBinder onBind(Intent intent) {
         if (intent.getAction() != BIND) return null;
         registerCallback();
