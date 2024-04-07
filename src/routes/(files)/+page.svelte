@@ -1,10 +1,8 @@
 <script lang="ts">
     import ClearButton from './ClearButton.svelte';
     import DisplayData from './DisplayData.svelte';
-    import Error from '$lib/alerts/Error.svelte';
     import Success from '$lib/alerts/Success.svelte';
     import SyncButton from './SyncButton.svelte';
-    import Timeout from './Timeout.svelte';
 
     import { clearWatch, startWatch } from '$lib/plugins/Loop';
     import { getToastStore } from '@skeletonlabs/skeleton';
@@ -13,7 +11,7 @@
 
     // eslint-disable-next-line init-declarations
     export let data;
-    $: ({ cache, scan } = data);
+    $: ({ cache } = data);
     $: files = Object.entries(cache).map(([now, value]) => ({ now: new Date(parseInt(now, 10)), ...value }));
 
     let disabled = false;
@@ -34,20 +32,21 @@
     }
 
     onMount(() => {
-        const id = startWatch(data => (files = [...files, data]));
+        const id = startWatch(data => (files = [...files, data])).catch(err => {
+            if (err instanceof Error)
+                toast.trigger({
+                    message: err.message,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+            console.error(err);
+            throw err;
+        });
         return async () => await clearWatch(await id);
     });
 </script>
 
 <div class="prose max-w-none space-y-4 p-4 dark:prose-invert">
-    {#if scan === null}
-        <Error>Scanning is not supported on this platform.</Error>
-    {:else}
-        {@const { count, timestamp } = scan}
-        <Timeout bind:disabled {count} {timestamp} />
-        <p>{count} scans since {timestamp.toLocaleString()}.</p>
-    {/if}
-    <hr />
     <button class="variant-filled-primary btn w-full" on:click={request}>Request Scan</button>
     <hr />
     <h3 class="h3">Cached Readings</h3>

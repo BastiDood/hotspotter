@@ -14,84 +14,15 @@ import java.util.HashSet;
     permissions = {
         @Permission(
             alias = "wifi",
-            strings = {
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-            }
+            strings = { Manifest.permission.CHANGE_WIFI_STATE }
         )
     }
 )
 public class WifiInfoPlugin extends Plugin {
-    HashSet<String> watchers = new HashSet<>();
-    WifiManager.ScanResultsCallback callback = new WifiManager.ScanResultsCallback() {
-        @Override
-        @RequiresPermission(allOf = {
-            Manifest.permission.ACCESS_WIFI_STATE,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        })
-        public void onScanResultsAvailable() {
-            var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
-            var array = new WifiInfo(api).getScanResults();
-            var json = new JSObject().put("results", array);
-            for (var id : watchers) getBridge().getSavedCall(id).resolve(json);
-        }
-    };
-
     @PluginMethod
     @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
     public void startScan(PluginCall ctx) {
         var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
         ctx.resolve(new WifiInfo(api).startScan());
-    }
-
-    @PluginMethod
-    @RequiresPermission(allOf = {
-        Manifest.permission.ACCESS_WIFI_STATE,
-        Manifest.permission.ACCESS_FINE_LOCATION
-    })
-    public void getScanResults(PluginCall ctx) {
-        var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
-        var array = new WifiInfo(api).getScanResults();
-        ctx.resolve(new JSObject().put("results", array));
-    }
-
-    @PluginMethod(returnType = PluginMethod.RETURN_CALLBACK)
-    public void startWatch(PluginCall ctx) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            ctx.unavailable();
-            return;
-        }
-
-        var shouldInit = watchers.isEmpty();
-        ctx.setKeepAlive(true);
-        watchers.add(ctx.getCallbackId());
-
-        if (shouldInit) {
-            var act = getActivity();
-            var api = ContextCompat.getSystemService(act, WifiManager.class);
-            var exe = ContextCompat.getMainExecutor(act);
-            api.registerScanResultsCallback(exe, callback);
-        }
-    }
-
-    @PluginMethod(returnType = PluginMethod.RETURN_NONE)
-    public void clearWatch(PluginCall ctx) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            ctx.unavailable();
-            return;
-        }
-
-        var id = ctx.getString("id");
-        watchers.remove(id);
-        getBridge().releaseCall(id);
-
-        if (watchers.isEmpty()) {
-            var act = getActivity();
-            var api = ContextCompat.getSystemService(act, WifiManager.class);
-            api.unregisterScanResultsCallback(callback);
-        }
-
-        ctx.resolve();
     }
 }

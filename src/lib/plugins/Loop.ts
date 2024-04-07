@@ -12,13 +12,7 @@ const Loop = building ? null : registerPlugin<LoopPlugin>('LoopPlugin');
 
 export async function startWatch(callback: (data: Data) => void) {
     if (Loop === null) return null;
-    const id = await Loop.startWatch(null, data => {
-        if (data === null) {
-            console.warn('received null data from loop service');
-            return;
-        }
-        callback(parse(Data, data, { abortEarly: true }));
-    });
+    const id = await Loop.startWatch(null, data => callback(parse(Data, data, { abortEarly: true })));
     return parse(string(), id);
 }
 
