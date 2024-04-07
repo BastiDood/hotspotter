@@ -22,14 +22,39 @@ public class LoopPlugin extends Plugin {
     private @Nullable ScanService.LocalBinder service;
     private ServiceConnection conn = new ServiceConnection() {
         @Override
+        public void onNullBinding(ComponentName name) {
+            Log.wtf("ServiceConnection", "unrecognized intent action for -> " + name);
+        }
+        @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             service = (ScanService.LocalBinder) binder;
+            Log.i("ServiceConnection", "service connected for -> " + name);
         }
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            service = null;
+            Log.wtf("ServiceConnection", "service disconnected for -> " + name);
         }
     };
+
+    private Boolean bind() throws SecurityException {
+        if (bound) return null;
+        bound = true;
+        var activity = getActivity();
+        var channel = new NotificationChannelCompat.Builder("scan", NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setName("Hotspotter Upload Service")
+            .setDescription("Listens for new Wi-Fi scans.")
+            .build();
+        NotificationManagerCompat.from(activity).createNotificationChannel(channel);
+        var intent = new Intent(ScanService.BIND, null, activity, ScanService.class);
+        return activity.bindService(intent, conn, Context.BIND_AUTO_CREATE);
+    }
+
+    private void unbind() {
+        if (bound) {
+            getActivity().unbindService(conn);
+            bound = false;
+        }
+    }
 
     @Override
     public void load() {
@@ -42,23 +67,6 @@ public class LoopPlugin extends Plugin {
         } catch (SecurityException err) {
             Log.e("LoopPlugin", "unauthorized binding to service", err);
         }
-        unbind();
-    }
-
-    private Boolean bind() throws SecurityException {
-        if (bound) return null;
-        bound = true;
-        var activity = getActivity();
-        var intent = new Intent(ScanService.BIND, null, activity, ScanService.class);
-        return activity.bindService(intent, conn, Context.BIND_AUTO_CREATE);
-    }
-
-    private void unbind() {
-        if (bound) {
-            getActivity().unbindService(conn);
-            service = null;
-            bound = false;
-        }
     }
 
     @Override
@@ -69,10 +77,6 @@ public class LoopPlugin extends Plugin {
 
     @PluginMethod(returnType = PluginMethod.RETURN_CALLBACK)
     public void startWatch(PluginCall ctx) {
-        if (service == null) {
-            ctx.unavailable("service binder is not connected");
-            return;
-        }
         ctx.setKeepAlive(true);
         var id = ctx.getCallbackId();
         service.startWatch(id, data -> getBridge().getSavedCall(id).resolve(data));
@@ -85,36 +89,8 @@ public class LoopPlugin extends Plugin {
             ctx.reject("no watch id specified");
             return;
         }
-        if (service == null) {
-            ctx.unavailable("service binder is not connected");
-            return;
-        }
         service.clearWatch(id);
         getBridge().releaseCall(id);
-        ctx.resolve();
-    }
-
-    @PluginMethod(returnType = PluginMethod.RETURN_NONE)
-    public void startService(PluginCall ctx) {
-        // Create the notification channel for Android 8.0+
-        var activity = getActivity();
-        var channel = new NotificationChannelCompat.Builder("scan", NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            .setName("Hotspotter Upload Service")
-            .setDescription("Listens for new Wi-Fi scans.")
-            .build();
-        NotificationManagerCompat.from(activity).createNotificationChannel(channel);
-        // Finally start the foreground service
-        var intent = new Intent(ScanService.SCAN, null, activity, ScanService.class);
-        ContextCompat.startForegroundService(activity, intent);
-        ctx.resolve();
-    }
-
-    @PluginMethod(returnType = PluginMethod.RETURN_NONE)
-    public void stopService(PluginCall ctx) {
-        unbind();
-        var activity = getActivity();
-        var intent = new Intent(ScanService.STOP, null, activity, ScanService.class);
-        activity.stopService(intent);
         ctx.resolve();
     }
 }

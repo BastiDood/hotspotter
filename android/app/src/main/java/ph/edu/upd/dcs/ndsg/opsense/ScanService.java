@@ -121,54 +121,38 @@ public class ScanService extends Service {
                 .getSystemService(this, WifiManager.class)
                 .unregisterScanResultsCallback(callback);
             Log.i("ScanService", "callback unregistered");
+            callback = null;
         }
     }
 
     @Override
     @Nullable
     public LocalBinder onBind(Intent intent) {
-        return intent.getAction() == BIND ? binder : null;
+        if (intent.getAction() != BIND) return null;
+        registerCallback();
+        ServiceCompat.startForeground(
+            this,
+            1,
+            createNotification("Scanner is idle."),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        return binder;
     }
 
     @Override
-    public void onDestroy() {
+    public boolean onUnbind(Intent intent) {
         unregisterCallback();
-        callback = null;
-        watchers.clear();
-        stopSelf();
-        super.onDestroy();
+        return intent.getAction() == BIND;
     }
 
     @Override
-    public int onStartCommand(@Nullable Intent intent, int flags, int id) {
-        var mask = flags & START_FLAG_MASK;
-        outer: {
-            if (mask == 0) {
-                var action = intent.getAction();
-                switch (action) {
-                    case SCAN:
-                        registerCallback();
-                        ServiceCompat.startForeground(
-                            this,
-                            1,
-                            createNotification("Scanner is idle."),
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
-                        Log.i("ScanService", "service started");
-                        break outer;
-                    case STOP:
-                        unregisterCallback();
-                        Log.i("ScanService", "service stopped at ID " + Integer.toString(id));
-                        break;
-                    default:
-                        Log.e("ScanService", "unknown action type -> " + action);
-                        break;
-                }
-            } else {
-                var message = "unexpected start flags -> " + Integer.toBinaryString(flags);
-                Log.wtf("ScanService", message);
-            }
-            stopSelfResult(id);
+    public void onRebind(Intent intent) {
+        if (intent.getAction() == BIND) {
+            registerCallback();
+            ServiceCompat.startForeground(
+                this,
+                1,
+                createNotification("Scanner has been restarted."),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
         }
-        return Service.START_NOT_STICKY;
     }
 }
