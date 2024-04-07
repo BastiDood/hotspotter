@@ -73,9 +73,7 @@ public class LoopPlugin extends Plugin {
         }
     }
 
-    @Override
-    public void load() {
-        super.load();
+    private void checkedBoot() {
         if (getPermissionStates().values().stream().anyMatch(state -> state != PermissionState.GRANTED)) {
             Log.w("LoopPlugin", "insufficient permissions to start service");
             return;
@@ -88,6 +86,12 @@ public class LoopPlugin extends Plugin {
         } catch (SecurityException err) {
             Log.e("LoopPlugin", "unauthorized binding to service", err);
         }
+    }
+
+    @Override
+    public void load() {
+        super.load();
+        checkedBoot();
     }
 
     @Override
@@ -121,5 +125,11 @@ public class LoopPlugin extends Plugin {
             return;
         }
         ctx.unavailable("loop service is turned off");
+    }
+
+    @PluginMethod
+    public void bootService(PluginCall ctx) {
+        checkedBoot();
+        ctx.resolve(new JSObject().put("bound", bound));
     }
 }

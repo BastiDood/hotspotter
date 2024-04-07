@@ -1,5 +1,5 @@
 import { type PermissionState, type Plugin, registerPlugin } from '@capacitor/core';
-import { parse, string } from 'valibot';
+import { boolean, object, parse, string } from 'valibot';
 import { Data } from '$lib/models/api';
 import { building } from '$app/environment';
 
@@ -10,6 +10,7 @@ export interface LoopPlugin extends Plugin {
     requestPermissions<K extends string[]>(args: {
         permissions: K;
     }): Promise<Partial<Record<K[number], PermissionState>> | undefined>;
+    bootService(): Promise<unknown>;
 }
 
 const Loop = building ? null : registerPlugin<LoopPlugin>('LoopPlugin');
@@ -17,7 +18,7 @@ const Loop = building ? null : registerPlugin<LoopPlugin>('LoopPlugin');
 export async function startWatch(callback: (data: Data) => void) {
     if (Loop === null) return null;
     const id = await Loop.startWatch(null, data => callback(parse(Data, data, { abortEarly: true })));
-    return parse(string(), id);
+    return parse(string(), id, { abortEarly: true });
 }
 
 export async function clearWatch(id: string) {
@@ -33,4 +34,11 @@ export async function checkPermissions() {
 export async function requestPermissions<K extends string[]>(...permissions: K) {
     const result = await Loop?.requestPermissions({ permissions });
     return result ?? ({} as NonNullable<typeof result>);
+}
+
+const BootResult = object({ bound: boolean() });
+export async function bootService() {
+    if (Loop === null) return false;
+    const result = await Loop.bootService();
+    return parse(BootResult, result, { abortEarly: true }).bound;
 }

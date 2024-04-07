@@ -10,7 +10,7 @@
     import { Icon } from '@steeze-ui/svelte-icon';
     import { ShieldCheck } from '@steeze-ui/heroicons';
 
-    import { clearWatch, requestPermissions, startWatch } from '$lib/plugins/Loop';
+    import { bootService, clearWatch, requestPermissions, startWatch } from '$lib/plugins/Loop';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
     import { startScan } from '$lib/plugins/WifiInfo';
@@ -24,8 +24,29 @@
     let disabled = false;
 
     const toast = getToastStore();
-    async function request() {
-        disabled = true;
+
+    async function boot(button: HTMLButtonElement) {
+        button.disabled = true;
+        try {
+            const payload = (await bootService())
+                ? { message: 'Loop service started.', background: 'variant-filled-success' }
+                : { message: 'Loop service boot failed.', background: 'variant-filled-error' };
+            toast.trigger(payload);
+        } catch (err) {
+            if (err instanceof Error)
+                toast.trigger({
+                    message: err.message,
+                    background: 'variant-filled-error',
+                });
+            console.error(err);
+            throw err;
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    async function request(button: HTMLButtonElement) {
+        button.disabled = true;
         try {
             if (await startScan()) return;
             toast.trigger({
@@ -42,7 +63,27 @@
             console.error(err);
             throw err;
         } finally {
-            disabled = false;
+            button.disabled = false;
+        }
+    }
+
+    async function prompt(button: HTMLButtonElement, perm: string) {
+        button.disabled = true;
+        try {
+            const result = await requestPermissions(perm);
+            const state = result[perm];
+            if (typeof state === 'undefined') return;
+            permissions[perm] = state;
+        } catch (err) {
+            if (err instanceof Error)
+                toast.trigger({
+                    message: err.message,
+                    background: 'variant-filled-error',
+                });
+            console.error(err);
+            throw err;
+        } finally {
+            button.disabled = false;
         }
     }
 
@@ -57,18 +98,6 @@
                 });
             console.error(err);
             throw err;
-        }
-    }
-
-    async function prompt(button: HTMLButtonElement, perm: string) {
-        button.disabled = true;
-        try {
-            const result = await requestPermissions(perm);
-            const state = result[perm];
-            if (typeof state === 'undefined') return;
-            permissions[perm] = state;
-        } finally {
-            button.disabled = false;
         }
     }
 
@@ -114,7 +143,8 @@
         </ErrorAlert>
     {/each}
     <hr />
-    <button class="variant-filled-primary btn w-full" on:click={request}>Request Scan</button>
+    <button class="variant-filled-primary btn w-full" on:click={({ currentTarget }) => boot(currentTarget)}>Boot Service</button>
+    <button class="variant-filled-primary btn w-full" on:click={({ currentTarget }) => request(currentTarget)}>Request Scan</button>
     <hr />
     <h3 class="h3">Cached Readings</h3>
     {#if files.length === 0}
