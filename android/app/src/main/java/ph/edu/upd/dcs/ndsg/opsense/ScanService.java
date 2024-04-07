@@ -13,6 +13,7 @@ import androidx.annotation.*;
 import androidx.core.app.*;
 import com.getcapacitor.JSObject;
 import java.io.*;
+import java.lang.Runnable;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.concurrent.ForkJoinPool;
@@ -26,8 +27,8 @@ public class ScanService extends Service {
 
     private static @Nullable WifiManager.ScanResultsCallback callback;
 
-    private final HashMap<String, Consumer<JSObject>> watchers = new HashMap<>();
     private final LocalBinder binder = new LocalBinder();
+    private final HashMap<String, Consumer<JSObject>> watchers = new HashMap<>();
     public class LocalBinder extends Binder {
         public void startWatch(@NonNull String id, @NonNull Consumer<JSObject> callback) {
             watchers.put(id, callback);
@@ -36,6 +37,9 @@ public class ScanService extends Service {
             watchers.remove(id);
         }
     }
+
+    private static Handler handler = Handler.createAsync(Looper.getMainLooper());
+    private Runnable runnable;
 
     @NonNull
     private Notification createNotification(@NonNull String content) {
@@ -123,6 +127,26 @@ public class ScanService extends Service {
             Log.i("ScanService", "callback unregistered");
             callback = null;
         }
+    }
+
+    @Override
+    public void onCreate() {
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (ContextCompat.getSystemService(ScanService.this, WifiManager.class).startScan())
+                    Log.i("ScanService", "successfully requested a new scan");
+                else
+                    Log.e("ScanService", "scan attempted failed throttled");
+                handler.postDelayed(this, 30_000);
+            }
+        };
+        runnable.run();
+    }
+
+    @Override
+    public void onDestroy() {
+        handler.removeCallbacks(runnable);
     }
 
     @Override
