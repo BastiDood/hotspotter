@@ -1,10 +1,10 @@
 package ph.edu.upd.dcs.ndsg.hotspotter;
 
-import android.location.LocationManager;
-import android.os.Build;
-import androidx.annotation.NonNull;
+import android.location.*;
+import android.os.*;
+import androidx.annotation.*;
 import com.getcapacitor.JSObject;
-import java.util.Optional;
+import java.util.*;
 
 public class LocationInfo {
     private @NonNull LocationManager api;
@@ -13,16 +13,14 @@ public class LocationInfo {
         this.api = api;
     }
 
-    @NonNull
-    public Optional<JSObject> getLastKnownLocation() {
+    @Nullable
+    public JSObject getLastKnownLocation() {
+        var now = SystemClock.elapsedRealtimeNanos();
         return api.getAllProviders()
             .stream()
             .map(api::getLastKnownLocation)
-            .max((a, b) -> {
-                var first = a.getElapsedRealtimeNanos();
-                var other = b.getElapsedRealtimeNanos();
-                return Long.compare(other, first);
-            })
+            .filter(Objects::nonNull)
+            .max(Comparator.comparingLong(Location::getElapsedRealtimeNanos))
             .map(location -> {
                 var json = new JSObject()
                     .put("timestamp", location.getTime())
@@ -35,6 +33,7 @@ public class LocationInfo {
                 return Build.VERSION.SDK_INT < Build.VERSION_CODES.O
                     ? json
                     : json.put("altitude_accuracy", location.hasVerticalAccuracy() ? location.getVerticalAccuracyMeters() : JSObject.NULL);
-            });
+            })
+            .orElse(null);
     }
 }

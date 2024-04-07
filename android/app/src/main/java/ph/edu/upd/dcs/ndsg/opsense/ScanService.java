@@ -56,52 +56,55 @@ public class ScanService extends Service {
         return new WifiManager.ScanResultsCallback() {
             @Override
             public void onScanResultsAvailable() {
-                new LocationInfo(ContextCompat.getSystemService(ScanService.this, LocationManager.class))
-                    .getLastKnownLocation()
-                    .ifPresent(location -> {
-                        // Retrieve data from the scan
-                        var instant = SystemClock.currentNetworkTimeClock().instant();
-                        var now = instant.toEpochMilli();
-                        var net = new WifiInfo(ContextCompat.getSystemService(ScanService.this, WifiManager.class));
-                        var tel = new TelephonyInfo(ContextCompat.getSystemService(ScanService.this, TelephonyManager.class));
-                        var json = new JSObject()
-                            .put("now", now)
-                            .put("gps", location)
-                            .put("wifi", net.getScanResults())
-                            .put("sim", tel.getCellQuality());
-                        Log.i("ScanService", "reading triggered by callback");
+                var loc = new LocationInfo(ContextCompat.getSystemService(ScanService.this, LocationManager.class));
+                var net = new WifiInfo(ContextCompat.getSystemService(ScanService.this, WifiManager.class));
+                var tel = new TelephonyInfo(ContextCompat.getSystemService(ScanService.this, TelephonyManager.class));
 
-                        // Save the reading to the cache
-                        var name = Long.toString(now) + ".json";
-                        var file = ScanService.this.getCacheDir().toPath().resolve(name).toFile();
+                var location = loc.getLastKnownLocation();
+                if (location == null) {
+                    Log.w("ScanService", "location is unavailable");
+                    return;
+                }
 
-                        Log.i("ScanService", "creating new file " + name);
-                        try {
-                            if (!file.createNewFile()) {
-                                Log.e("ScanService", name);
-                                return;
-                            }
-                        } catch (IOException err) {
-                            Log.e("ScanService", "cannot create cached file", err);
-                            return;
-                        }
+                var instant = SystemClock.currentNetworkTimeClock().instant();
+                var now = instant.toEpochMilli();
+                var json = new JSObject()
+                    .put("now", now)
+                    .put("gps", location)
+                    .put("wifi", net.getScanResults())
+                    .put("sim", tel.getCellQuality());
+                Log.i("ScanService", "reading triggered by callback");
 
-                        Log.i("ScanService", "writing to " + name);
-                        try (var stream = new FileOutputStream(file)) {
-                            stream.write(json.toString().getBytes(StandardCharsets.UTF_8));
-                            stream.flush();
-                        } catch (IOException err) {
-                            Log.e("ScanService", "cannot write to cached file", err);
-                            return;
-                        }
+                // Save the reading to the cache
+                var name = Long.toString(now) + ".json";
+                var file = ScanService.this.getCacheDir().toPath().resolve(name).toFile();
 
-                        // Notify the user interface of the new reading
-                        var content = "Last cached on " + instant.toString() + ".";
-                        var notification = ScanService.this.createNotification(content);
-                        NotificationManagerCompat.from(ScanService.this).notify(1, notification);
-                        Log.i("ScanService", "foreground notification updated");
-                        for (var consumer : watchers.values()) consumer.accept(json);
-                    });
+                Log.i("ScanService", "creating new file " + name);
+                try {
+                    if (!file.createNewFile()) {
+                        Log.e("ScanService", name);
+                        return;
+                    }
+                } catch (IOException err) {
+                    Log.e("ScanService", "cannot create cached file", err);
+                    return;
+                }
+
+                Log.i("ScanService", "writing to " + name);
+                try (var stream = new FileOutputStream(file)) {
+                    stream.write(json.toString().getBytes(StandardCharsets.UTF_8));
+                    stream.flush();
+                } catch (IOException err) {
+                    Log.e("ScanService", "cannot write to cached file", err);
+                    return;
+                }
+
+                // Notify the user interface of the new reading
+                var content = "Last cached on " + instant.toString() + ".";
+                var notification = ScanService.this.createNotification(content);
+                NotificationManagerCompat.from(ScanService.this).notify(1, notification);
+                Log.i("ScanService", "foreground notification updated");
+                for (var consumer : watchers.values()) consumer.accept(json);
             }
         };
     }
@@ -137,7 +140,7 @@ public class ScanService extends Service {
                 if (ContextCompat.getSystemService(ScanService.this, WifiManager.class).startScan())
                     Log.i("ScanService", "successfully requested a new scan");
                 else
-                    Log.e("ScanService", "scan attempted failed throttled");
+                    Log.e("ScanService", "scan attempt failed due to throttling");
                 handler.postDelayed(this, 30_000);
             }
         };
