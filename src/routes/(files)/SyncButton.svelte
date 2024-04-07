@@ -12,7 +12,7 @@
 
     const toast = getToastStore();
     async function sync() {
-        const jwt = cookie.parse(document.cookie).id;
+        const jwt = cookie.parse(document.cookie)['id'];
         if (typeof jwt === 'undefined') {
             toast.trigger({
                 message: 'User is not logged in.',

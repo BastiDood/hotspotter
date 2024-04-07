@@ -12,7 +12,7 @@
     import { verifyGoogleJwt } from '$lib/jwt';
 
     async function loadProfile() {
-        const jwt = cookie.parse(document.cookie).id;
+        const jwt = cookie.parse(document.cookie)['id'];
         if (typeof jwt === 'undefined') return null;
         const { name, email, picture } = await verifyGoogleJwt(jwt);
         return { name, email, picture };

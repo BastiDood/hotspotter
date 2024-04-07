@@ -17,11 +17,11 @@ import java.lang.SecurityException;
     name = "LoopPlugin",
     permissions = {
         @Permission(
-            alias = "notification",
+            alias = "Notification",
             strings = { Manifest.permission.POST_NOTIFICATIONS }
         ),
         @Permission(
-            alias = "wifi",
+            alias = "WiFi",
             strings = {
                 Manifest.permission.ACCESS_WIFI_STATE,
                 Manifest.permission.CHANGE_WIFI_STATE,
@@ -29,7 +29,7 @@ import java.lang.SecurityException;
             }
         ),
         @Permission(
-            alias = "cell",
+            alias = "Cellular",
             strings = { Manifest.permission.READ_PHONE_STATE }
         ),
     }
