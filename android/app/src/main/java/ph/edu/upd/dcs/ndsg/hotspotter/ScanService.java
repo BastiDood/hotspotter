@@ -61,7 +61,7 @@ public class ScanService extends Service {
                 Manifest.permission.ACCESS_WIFI_STATE,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.POST_NOTIFICATIONS,
-                Manifest.permission.READ_BASIC_PHONE_STATE,
+                Manifest.permission.READ_PHONE_STATE,
             })
             public void onScanResultsAvailable() {
                 var loc = new LocationInfo(ContextCompat.getSystemService(ScanService.this, LocationManager.class));

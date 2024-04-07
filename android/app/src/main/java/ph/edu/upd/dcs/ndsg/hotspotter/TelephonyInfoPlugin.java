@@ -13,10 +13,7 @@ import com.getcapacitor.annotation.*;
     permissions = {
         @Permission(
             alias = "cell",
-            strings = {
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.READ_BASIC_PHONE_STATE,
-            }
+            strings = { Manifest.permission.READ_PHONE_STATE }
         )
     }
 )
