@@ -43,7 +43,6 @@
         "consistent-this": ["error", "self"],
         "curly": ["error", "multi"],
         "default-case": "error",
-        "dot-notation": "error",
         "eqeqeq": "error",
         "func-style": ["error", "declaration"],
         "init-declarations": "error",
