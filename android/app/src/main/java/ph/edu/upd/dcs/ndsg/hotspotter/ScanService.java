@@ -2,7 +2,7 @@ package ph.edu.upd.dcs.ndsg.hotspotter;
 
 import android.Manifest;
 import android.app.*;
-import android.content.Intent;
+import android.content.*;
 import android.content.pm.ServiceInfo;
 import android.location.LocationManager;
 import android.net.wifi.WifiManager;
@@ -27,22 +27,6 @@ public class ScanService extends Service {
     public static final String STOP = "ph.edu.upd.dcs.ndsg.hotspotter.STOP";
     private static final int START_FLAG_MASK = Service.START_FLAG_RETRY | Service.START_FLAG_REDELIVERY;
 
-    private static @Nullable WifiManager.ScanResultsCallback callback;
-
-    private final LocalBinder binder = new LocalBinder();
-    private final HashMap<String, Consumer<JSObject>> watchers = new HashMap<>();
-    public class LocalBinder extends Binder {
-        public void startWatch(@NonNull String id, @NonNull Consumer<JSObject> callback) {
-            watchers.put(id, callback);
-        }
-        public void clearWatch(@NonNull String id) {
-            watchers.remove(id);
-        }
-    }
-
-    private static Handler handler = Handler.createAsync(Looper.getMainLooper());
-    private Runnable runnable;
-
     @NonNull
     private Notification createNotification(@NonNull String content) {
         return new NotificationCompat.Builder(this, "scan")
@@ -53,97 +37,155 @@ public class ScanService extends Service {
             .build();
     }
 
-    @NonNull
-    private WifiManager.ScanResultsCallback createCallback() {
-        return new WifiManager.ScanResultsCallback() {
-            @Override
-            @RequiresPermission(allOf = {
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.POST_NOTIFICATIONS,
-                Manifest.permission.READ_PHONE_STATE,
-            })
-            public void onScanResultsAvailable() {
-                var loc = new LocationInfo(ContextCompat.getSystemService(ScanService.this, LocationManager.class));
-                var net = new WifiInfo(ContextCompat.getSystemService(ScanService.this, WifiManager.class));
-                var tel = new TelephonyInfo(ContextCompat.getSystemService(ScanService.this, TelephonyManager.class));
+    private interface ICallback {
+        void close();
+    }
 
-                var location = loc.getLastKnownLocation();
-                if (location == null) {
-                    Log.w("ScanService", "location is unavailable");
-                    return;
-                }
+    private @Nullable ICallback callback;
 
-                var instant = ZonedDateTime.now().toInstant();
-                var now = instant.toEpochMilli();
-                var json = new JSObject()
-                    .put("now", now)
-                    .put("gps", location)
-                    .put("wifi", net.getScanResults())
-                    .put("sim", tel.getCellQuality());
-                Log.i("ScanService", "reading triggered by callback");
+    private class BroadcastCallback extends BroadcastReceiver implements ICallback {
+        @Override
+        BroadcastCallback() {
+            super();
+            static final var filter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+            ContextCompat.registerReceiver(receiver, this, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        }
+        @Override
+        @RequiresPermission(allOf = {
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.READ_PHONE_STATE,
+        })
+        public void onReceive(Context ctx, Intent intent) {
+            if (intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)) {
+                var service = (ScanService) ctx;
+                service.onNewScanResults();
+            } else
+                Log.w("ScanService", "no new results from broadcast receiver")
+        }
+        @Override
+        public void close() {
+            ScanService.this.unregisterReceiver(this);
+        }
+    }
 
-                // Save the reading to the cache
-                var name = Long.toString(now) + ".json";
-                var file = ScanService.this.getCacheDir().toPath().resolve(name).toFile();
+    @RequiresApi(Build.VERSION_CODES.R)
+    private class ScanResultsCallback extends WifiManager.ScanResultsCallback implements ICallback {
+        @Override
+        @RequiresPermission(Manifest.permission.ACCESS_WIFI_STATE)
+        ScanResultsCallback() {
+            super();
+            ContextCompat
+                .getSystemService(ScanService.this, WifiManager.class)
+                .registerScanResultsCallback(this);
+        }
+        @Override
+        @RequiresPermission(allOf = {
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.READ_PHONE_STATE,
+        })
+        public void onScanResultsAvailable() {
+            ScanService.this.onNewScanResults();
+        }
+        @Override
+        @RequiresPermission(Manifest.permission.ACCESS_WIFI_STATE)
+        public void close() {
+            ContextCompat
+                .getSystemService(ScanService.this, WifiManager.class)
+                .unregisterScanResultsCallback(this);
+        }
+    }
 
-                Log.i("ScanService", "creating new file " + name);
-                try {
-                    if (!file.createNewFile()) {
-                        Log.e("ScanService", name);
-                        return;
-                    }
-                } catch (IOException err) {
-                    Log.e("ScanService", "cannot create cached file", err);
-                    return;
-                }
+    @RequiresPermission(allOf = {
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.POST_NOTIFICATIONS,
+        Manifest.permission.READ_PHONE_STATE,
+    })
+    private void onNewScanResults() {
+        var loc = new LocationInfo(ContextCompat.getSystemService(this, LocationManager.class));
+        var net = new WifiInfo(ContextCompat.getSystemService(this, WifiManager.class));
+        var tel = new TelephonyInfo(ContextCompat.getSystemService(this, TelephonyManager.class));
 
-                Log.i("ScanService", "writing to " + name);
-                try (var stream = new FileOutputStream(file)) {
-                    stream.write(json.toString().getBytes(StandardCharsets.UTF_8));
-                    stream.flush();
-                } catch (IOException err) {
-                    Log.e("ScanService", "cannot write to cached file", err);
-                    return;
-                }
+        var location = loc.getLastKnownLocation();
+        if (location == null) {
+            Log.w("ScanService", "location is unavailable");
+            return;
+        }
 
-                // Notify the user interface of the new reading
-                var content = "Last cached on " + instant.toString() + ".";
-                var notification = ScanService.this.createNotification(content);
-                NotificationManagerCompat.from(ScanService.this).notify(1, notification);
-                Log.i("ScanService", "foreground notification updated");
-                for (var consumer : watchers.values()) consumer.accept(json);
+        var instant = ZonedDateTime.now().toInstant();
+        var now = instant.toEpochMilli();
+        var json = new JSObject()
+            .put("now", now)
+            .put("gps", location)
+            .put("wifi", net.getScanResults())
+            .put("sim", tel.getCellQuality());
+        Log.i("ScanService", "reading triggered by callback");
+
+        // Save the reading to the cache
+        var name = Long.toString(now) + ".json";
+        var file = this.getCacheDir().toPath().resolve(name).toFile();
+
+        Log.i("ScanService", "creating new file " + name);
+        try {
+            if (!file.createNewFile()) {
+                Log.e("ScanService", name);
+                return;
             }
-        };
+        } catch (IOException err) {
+            Log.e("ScanService", "cannot create cached file", err);
+            return;
+        }
+
+        Log.i("ScanService", "writing to " + name);
+        try (var stream = new FileOutputStream(file)) {
+            stream.write(json.toString().getBytes(StandardCharsets.UTF_8));
+            stream.flush();
+        } catch (IOException err) {
+            Log.e("ScanService", "cannot write to cached file", err);
+            return;
+        }
+
+        // Notify the user interface of the new reading
+        var content = "Last cached on " + instant.toString() + ".";
+        var notification = this.createNotification(content);
+        NotificationManagerCompat.from(this).notify(1, notification);
+        Log.i("ScanService", "foreground notification updated");
+        for (var consumer : watchers.values()) consumer.accept(json);
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_WIFI_STATE)
     private void registerCallback() {
-        if (callback == null) {
-            callback = createCallback();
-            ContextCompat
-                .getSystemService(this, WifiManager.class)
-                .registerScanResultsCallback(ForkJoinPool.commonPool(), callback);
-            Log.i("ScanService", "callback initialized");
-        } else
+        if (callback != null) {
             Log.i("ScanService", "callback already exists");
+            return;
+        }
+        callback = Build.VERSION_SDK_INT < Build.VERSION_CODES.R
+            ? new BroadcastCallback()
+            : new ScanResultsCallback();
+        Log.i("ScanService", "callback initialized");
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_WIFI_STATE)
     private void unregisterCallback() {
-        if (callback == null)
+        if (callback == null) {
             Log.w("ScanService", "callback is already gone");
-        else {
-            ContextCompat
-                .getSystemService(this, WifiManager.class)
-                .unregisterScanResultsCallback(callback);
-            Log.i("ScanService", "callback unregistered");
-            callback = null;
+            return;
         }
+        callback.close();
+        callback = null;
+        Log.i("ScanService", "callback unregistered");
     }
+
+    private Handler handler;
+    private Runnable runnable;
 
     @Override
     public void onCreate() {
+        handler = Handler.createAsync(Looper.getMainLooper());
         runnable = new Runnable() {
             @Override
             @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
@@ -163,14 +205,23 @@ public class ScanService extends Service {
         handler.removeCallbacks(runnable);
     }
 
+    private final LocalBinder binder = new LocalBinder();
+    private final HashMap<String, Consumer<JSObject>> watchers = new HashMap<>();
+    public class LocalBinder extends Binder {
+        public void startWatch(@NonNull String id, @NonNull Consumer<JSObject> callback) {
+            watchers.put(id, callback);
+        }
+        public void clearWatch(@NonNull String id) {
+            watchers.remove(id);
+        }
+    }
+
     @Override
     @Nullable
-    @RequiresPermission(
-        allOf = {
-            Manifest.permission.FOREGROUND_SERVICE,
-            Manifest.permission.FOREGROUND_SERVICE_LOCATION
-        }
-    )
+    @RequiresPermission(allOf = {
+        Manifest.permission.FOREGROUND_SERVICE,
+        Manifest.permission.FOREGROUND_SERVICE_LOCATION,
+    })
     public LocalBinder onBind(Intent intent) {
         if (intent.getAction() != BIND) return null;
         registerCallback();
