@@ -1,5 +1,6 @@
 package ph.edu.upd.dcs.ndsg.hotspotter;
 
+import android.Manifest;
 import android.app.*;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
@@ -18,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
+import java.time.*;
 
 public class ScanService extends Service {
     public static final String BIND = "ph.edu.upd.dcs.ndsg.hotspotter.BIND";
@@ -55,6 +57,12 @@ public class ScanService extends Service {
     private WifiManager.ScanResultsCallback createCallback() {
         return new WifiManager.ScanResultsCallback() {
             @Override
+            @RequiresPermission(allOf = {
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.POST_NOTIFICATIONS,
+                Manifest.permission.READ_BASIC_PHONE_STATE,
+            })
             public void onScanResultsAvailable() {
                 var loc = new LocationInfo(ContextCompat.getSystemService(ScanService.this, LocationManager.class));
                 var net = new WifiInfo(ContextCompat.getSystemService(ScanService.this, WifiManager.class));
@@ -66,7 +74,7 @@ public class ScanService extends Service {
                     return;
                 }
 
-                var instant = SystemClock.currentNetworkTimeClock().instant();
+                var instant = ZonedDateTime.now().toInstant();
                 var now = instant.toEpochMilli();
                 var json = new JSObject()
                     .put("now", now)
@@ -109,6 +117,7 @@ public class ScanService extends Service {
         };
     }
 
+    @RequiresPermission(Manifest.permission.ACCESS_WIFI_STATE)
     private void registerCallback() {
         if (callback == null) {
             callback = createCallback();
@@ -120,6 +129,7 @@ public class ScanService extends Service {
             Log.i("ScanService", "callback already exists");
     }
 
+    @RequiresPermission(Manifest.permission.ACCESS_WIFI_STATE)
     private void unregisterCallback() {
         if (callback == null)
             Log.w("ScanService", "callback is already gone");
@@ -136,6 +146,7 @@ public class ScanService extends Service {
     public void onCreate() {
         runnable = new Runnable() {
             @Override
+            @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
             public void run() {
                 if (ContextCompat.getSystemService(ScanService.this, WifiManager.class).startScan())
                     Log.i("ScanService", "successfully requested a new scan");
@@ -154,6 +165,12 @@ public class ScanService extends Service {
 
     @Override
     @Nullable
+    @RequiresPermission(
+        allOf = {
+            Manifest.permission.FOREGROUND_SERVICE,
+            Manifest.permission.FOREGROUND_SERVICE_LOCATION
+        }
+    )
     public LocalBinder onBind(Intent intent) {
         if (intent.getAction() != BIND) return null;
         registerCallback();

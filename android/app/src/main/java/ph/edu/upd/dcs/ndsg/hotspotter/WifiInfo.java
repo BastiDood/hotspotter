@@ -1,8 +1,9 @@
 package ph.edu.upd.dcs.ndsg.hotspotter;
 
+import android.Manifest;
 import android.os.*;
 import android.net.wifi.*;
-import androidx.annotation.NonNull;
+import androidx.annotation.*;
 import com.getcapacitor.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -23,7 +24,6 @@ public class WifiInfo {
         var elapsed = SystemClock.elapsedRealtime();
         var timestamp = TimeUnit.MICROSECONDS.toMillis(result.timestamp);
         var unix = now - elapsed + timestamp;
-        var standard = result.getWifiStandard();
         var json = new JSObject()
             .put("bssid", result.BSSID)
             .put("ssid", result.SSID)
@@ -32,14 +32,23 @@ public class WifiInfo {
             .put("channel_width", result.channelWidth)
             .put("center_freq_0", result.centerFreq0)
             .put("center_freq_1", result.centerFreq1)
-            .put("wifi_timestamp", unix)
-            .put("standard", standard == ScanResult.WIFI_STANDARD_UNKNOWN ? null : standard);
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.R
-            ? json.put("level", api.calculateSignalLevel(result.level, DEFAULT_MAX_LEVEL)).put("max_level", DEFAULT_MAX_LEVEL)
-            : json.put("level", api.calculateSignalLevel(result.level)).put("max_level", api.getMaxSignalLevel());
+            .put("wifi_timestamp", unix);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+            return json
+                .put("level", api.calculateSignalLevel(result.level, DEFAULT_MAX_LEVEL))
+                .put("max_level", DEFAULT_MAX_LEVEL);
+        var standard = result.getWifiStandard();
+        return json
+            .put("level", api.calculateSignalLevel(result.level))
+            .put("max_level", api.getMaxSignalLevel())
+            .put("standard", standard == ScanResult.WIFI_STANDARD_UNKNOWN ? JSObject.NULL : standard);
     }
 
     @NonNull
+    @RequiresPermission(allOf = {
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+    })
     public JSONArray getScanResults() {
         var results = api.getScanResults();
         results.sort((a, b) -> b.level - a.level);
@@ -51,6 +60,7 @@ public class WifiInfo {
     }
 
     @NonNull
+    @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
     public JSObject startScan() {
         return new JSObject().put("ok", api.startScan());
     }

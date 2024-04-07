@@ -3,6 +3,7 @@ package ph.edu.upd.dcs.ndsg.hotspotter;
 import android.Manifest;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import androidx.annotation.RequiresPermission;
 import androidx.core.content.ContextCompat;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.*;
@@ -11,17 +12,24 @@ import java.util.HashSet;
 @CapacitorPlugin(
     name = "WifiInfo",
     permissions = {
-        @Permission(strings = {
-            Manifest.permission.ACCESS_WIFI_STATE,
-            Manifest.permission.CHANGE_WIFI_STATE,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        })
+        @Permission(
+            alias = "wifi",
+            strings = {
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            }
+        )
     }
 )
 public class WifiInfoPlugin extends Plugin {
     HashSet<String> watchers = new HashSet<>();
     WifiManager.ScanResultsCallback callback = new WifiManager.ScanResultsCallback() {
         @Override
+        @RequiresPermission(allOf = {
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        })
         public void onScanResultsAvailable() {
             var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
             var array = new WifiInfo(api).getScanResults();
@@ -30,13 +38,18 @@ public class WifiInfoPlugin extends Plugin {
         }
     };
 
-    @PluginMethod()
+    @PluginMethod
+    @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
     public void startScan(PluginCall ctx) {
         var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
         ctx.resolve(new WifiInfo(api).startScan());
     }
 
-    @PluginMethod()
+    @PluginMethod
+    @RequiresPermission(allOf = {
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    })
     public void getScanResults(PluginCall ctx) {
         var api = ContextCompat.getSystemService(getActivity(), WifiManager.class);
         var array = new WifiInfo(api).getScanResults();

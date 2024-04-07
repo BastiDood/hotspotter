@@ -1,8 +1,10 @@
 package ph.edu.upd.dcs.ndsg.hotspotter;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.*;
 import android.telephony.*;
-import androidx.annotation.NonNull;
+import androidx.annotation.*;
 import com.getcapacitor.JSObject;
 
 public class TelephonyInfo {
@@ -38,38 +40,34 @@ public class TelephonyInfo {
                     .put("evdo_snr", s.getEvdoSnr());
                 res.put("cdma", json);
             } else if (cell instanceof CellSignalStrengthGsm s) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    var timingAdvance = s.getTimingAdvance();
-                    json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvance);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        var bitErrorRate = s.getBitErrorRate();
-                        json.put("bit_error_rate", bitErrorRate == CellInfo.UNAVAILABLE ? JSObject.NULL : bitErrorRate);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            var rssi = s.getRssi();
-                            json.put("rssi", rssi == CellInfo.UNAVAILABLE ? JSObject.NULL : rssi);
-                        }
+                var timingAdvance = s.getTimingAdvance();
+                json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvance);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    var bitErrorRate = s.getBitErrorRate();
+                    json.put("bit_error_rate", bitErrorRate == CellInfo.UNAVAILABLE ? JSObject.NULL : bitErrorRate);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        var rssi = s.getRssi();
+                        json.put("rssi", rssi == CellInfo.UNAVAILABLE ? JSObject.NULL : rssi);
                     }
                 }
                 res.put("gsm", json);
             } else if (cell instanceof CellSignalStrengthLte s) {
                 var timingAdvance = s.getTimingAdvance();
-                json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvance);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    var cqi = s.getCqi();
-                    var rsrp = s.getRsrp();
-                    var rsrq = s.getRsrq();
-                    var rssnr = s.getRssnr();
-                    json.put("cqi", cqi == CellInfo.UNAVAILABLE ? JSObject.NULL : cqi)
-                        .put("rsrp", rsrp == CellInfo.UNAVAILABLE ? JSObject.NULL : rsrp)
-                        .put("rsrq", rsrq == CellInfo.UNAVAILABLE ? JSObject.NULL : rsrq)
-                        .put("rssnr", rssnr == CellInfo.UNAVAILABLE ? JSObject.NULL : rssnr);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        var rssi = s.getRssi();
-                        json.put("rssi", rssi == CellInfo.UNAVAILABLE ? JSObject.NULL : rssi);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            var cqiTableIndex = s.getCqiTableIndex();
-                            json.put("cqi_table_index", cqiTableIndex == CellInfo.UNAVAILABLE ? JSObject.NULL : cqiTableIndex);
-                        }
+                var cqi = s.getCqi();
+                var rsrp = s.getRsrp();
+                var rsrq = s.getRsrq();
+                var rssnr = s.getRssnr();
+                json.put("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? JSObject.NULL : timingAdvance)
+                    .put("cqi", cqi == CellInfo.UNAVAILABLE ? JSObject.NULL : cqi)
+                    .put("rsrp", rsrp == CellInfo.UNAVAILABLE ? JSObject.NULL : rsrp)
+                    .put("rsrq", rsrq == CellInfo.UNAVAILABLE ? JSObject.NULL : rsrq)
+                    .put("rssnr", rssnr == CellInfo.UNAVAILABLE ? JSObject.NULL : rssnr);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    var rssi = s.getRssi();
+                    json.put("rssi", rssi == CellInfo.UNAVAILABLE ? JSObject.NULL : rssi);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        var cqiTableIndex = s.getCqiTableIndex();
+                        json.put("cqi_table_index", cqiTableIndex == CellInfo.UNAVAILABLE ? JSObject.NULL : cqiTableIndex);
                     }
                 }
                 res.put("lte", json);
@@ -105,7 +103,7 @@ public class TelephonyInfo {
                 }
                 res.put("tdscdma", json);
             } else if (cell instanceof CellSignalStrengthWcdma s) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     var ecNo = s.getEcNo();
                     json.put("ec_no", ecNo == CellInfo.UNAVAILABLE ? JSObject.NULL : ecNo);
                 }
@@ -116,29 +114,45 @@ public class TelephonyInfo {
     }
 
     @NonNull
+    @RequiresPermission(anyOf = {
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_BASIC_PHONE_STATE,
+    })
+    @RequiresFeature(
+        name = PackageManager.FEATURE_TELEPHONY_SUBSCRIPTION,
+        enforcement = "android.content.pm.PackageManager#hasSystemFeature"
+    )
     private JSObject getSim() {
         // TODO(getDataNetworkType): Explore difference between `getActiveDataSubscriptionId` vs. `getDefaultDataSubscriptionId`.
         var networkType = api.getDataNetworkType();
-        var json = new JSObject()
-            // noinspection MissingPermission
+        var carrierId = api.getSimCarrierId();
+        var carrierName = api.getSimCarrierIdName();
+        return new JSObject()
             .put("network_type", networkType == TelephonyManager.NETWORK_TYPE_UNKNOWN ? JSObject.NULL : networkType)
+            .put("carrier_id", carrierId == TelephonyManager.UNKNOWN_CARRIER_ID ? JSObject.NULL : carrierId)
+            .put("carrier_name", carrierName == null ? JSObject.NULL : carrierName.toString())
             .put("operator_id", api.getSimOperator())
             .put("operator_name", api.getSimOperatorName());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            var carrierId = api.getSimCarrierId();
-            var carrierName = api.getSimCarrierIdName();
-            json.put("carrier_id", carrierId == TelephonyManager.UNKNOWN_CARRIER_ID ? JSObject.NULL : carrierId)
-                .put("carrier_name", carrierName == null ? JSObject.NULL : carrierName.toString());
-        }
-        return json;
     }
 
     @NonNull
+    @RequiresFeature(
+        name = PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS,
+        enforcement = "android.content.pm.PackageManager#hasSystemFeature"
+    )
     private JSObject getSignalStrength() {
         return TelephonyInfo.signalStrengthToJson(api.getSignalStrength());
     }
 
     @NonNull
+    @RequiresPermission(anyOf = {
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_BASIC_PHONE_STATE,
+    })
+    @RequiresFeature(
+        name = PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS,
+        enforcement = "android.content.pm.PackageManager#hasSystemFeature"
+    )
     public JSObject getCellQuality() {
         var strength = getSignalStrength();
         var sim = getSim();

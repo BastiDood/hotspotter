@@ -15,7 +15,12 @@ import java.lang.SecurityException;
 
 @CapacitorPlugin(
     name = "LoopPlugin",
-    permissions = { @Permission(strings = { Manifest.permission.POST_NOTIFICATIONS }) }
+    permissions = {
+        @Permission(
+            alias = "notification",
+            strings = { Manifest.permission.POST_NOTIFICATIONS }
+        )
+    }
 )
 public class LoopPlugin extends Plugin {
     private boolean bound = false;

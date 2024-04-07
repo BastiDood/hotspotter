@@ -8,6 +8,7 @@ import {
     maxValue,
     minValue,
     nullable,
+    nullish,
     number,
     object,
     safeInteger,
@@ -41,7 +42,7 @@ export const AccessPoint = object({
     center_freq_1: nullable(number([safeInteger()])),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     wifi_timestamp: coerce(date(), input => new Date(input as any)),
-    standard: nullable(enum_(Standard)),
+    standard: nullish(enum_(Standard)),
 });
 
 export type AccessPoint = Output<typeof AccessPoint>;

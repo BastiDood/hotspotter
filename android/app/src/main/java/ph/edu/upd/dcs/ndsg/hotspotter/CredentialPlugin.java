@@ -1,13 +1,24 @@
 package ph.edu.upd.dcs.ndsg.hotspotter;
 
+import android.Manifest;
 import android.os.CancellationSignal;
+import androidx.annotation.RequiresPermission;
+import androidx.core.content.ContextCompat;
 import androidx.credentials.*;
 import androidx.credentials.exceptions.*;
 import com.getcapacitor.*;
-import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.*;
 import com.google.android.libraries.identity.googleid.*;
 
-@CapacitorPlugin(name = "Credential")
+@CapacitorPlugin(
+    name = "Credential",
+    permissions = {
+        @Permission(
+            alias = "location",
+            strings = { Manifest.permission.ACCESS_FINE_LOCATION }
+        )
+    }
+)
 public class CredentialPlugin extends Plugin {
     @PluginMethod
     public void signIn(PluginCall ctx) {
@@ -28,14 +39,12 @@ public class CredentialPlugin extends Plugin {
                 act,
                 request,
                 null,
-                act.getMainExecutor(),
+                ContextCompat.getMainExecutor(act),
                 new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
                     @Override
                     public void onResult(GetCredentialResponse response) {
                         var cred = response.getCredential();
-                        if (!cred.getType().equals(GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)) return;
-                        if (cred instanceof CustomCredential c) {
-                            // TODO: Prefer to decode the ID Token directly.
+                        if (cred.getType().equals(GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) && cred instanceof CustomCredential c) {
                             var token = GoogleIdTokenCredential.createFrom(c.getData());
                             var json = new JSObject()
                                 .put("id", token.getIdToken())
@@ -43,12 +52,12 @@ public class CredentialPlugin extends Plugin {
                                 .put("email", token.getId())
                                 .put("picture", token.getProfilePictureUri());
                             ctx.resolve(json);
-                        }
+                        } else
+                            ctx.reject("invalid credential provided by the manager");
                     }
-
                     @Override
                     public void onError(GetCredentialException e) {
-                        ctx.reject(e.getType() + " - " + e.getMessage(), e);
+                        ctx.reject(e.getMessage(), e);
                     }
                 }
             );
@@ -62,16 +71,15 @@ public class CredentialPlugin extends Plugin {
             .clearCredentialStateAsync(
                 new ClearCredentialStateRequest(),
                 null,
-                act.getMainExecutor(),
+                ContextCompat.getMainExecutor(act),
                 new CredentialManagerCallback<Void, ClearCredentialException>() {
                     @Override
                     public void onResult(Void result) {
                         ctx.resolve();
                     }
-
                     @Override
                     public void onError(ClearCredentialException e) {
-                        ctx.reject(e.getType() + " - " + e.getMessage(), e);
+                        ctx.reject(e.getMessage(), e);
                     }
                 }
             );
