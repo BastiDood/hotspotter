@@ -6,7 +6,7 @@
     import SyncButton from './SyncButton.svelte';
     import Timeout from './Timeout.svelte';
 
-    import { clearWatch, startService, startWatch, stopService } from '$lib/plugins/Loop';
+    import { clearWatch, startWatch } from '$lib/plugins/Loop';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
     import { startScan } from '$lib/plugins/WifiInfo';
@@ -33,29 +33,8 @@
         }
     }
 
-    async function start() {
-        disabled = true;
-        try {
-            await startService();
-        } finally {
-            disabled = false;
-        }
-    }
-
-    async function stop() {
-        disabled = true;
-        try {
-            await stopService();
-        } finally {
-            disabled = false;
-        }
-    }
-
     onMount(() => {
-        const id = startWatch(data => {
-            files.push(data);
-            files = files;
-        });
+        const id = startWatch(data => (files = [...files, data]));
         return async () => await clearWatch(await id);
     });
 </script>
@@ -70,8 +49,6 @@
     {/if}
     <hr />
     <button class="variant-filled-primary btn w-full" on:click={request}>Request Scan</button>
-    <button class="variant-filled-secondary btn w-full" on:click={start}>Start Service</button>
-    <button class="variant-filled-tertiary btn w-full" on:click={stop}>Stop Service</button>
     <hr />
     <h3 class="h3">Cached Readings</h3>
     {#if files.length === 0}
