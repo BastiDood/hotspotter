@@ -17,13 +17,12 @@ export async function read() {
             case 'directory':
                 return;
             case 'file':
-                return readFile(name).then(payload => [name, payload] as const);
+                return readFile(name);
             default:
                 throw new Error('unexpected directory entry type');
         }
     });
-    const entries = await Promise.all(promises);
-    return Object.fromEntries(entries);
+    return await Promise.all(promises);
 }
 
 export async function write(data: TData) {

@@ -1,12 +1,8 @@
 <script lang="ts">
-    import type { PageData } from './$types';
-    import Path from 'path-browserify';
+    import type { Data } from '$lib/models/api';
     import { Ratings } from '@skeletonlabs/skeleton';
-
-    type Data = PageData['cache'][string];
-
     // eslint-disable-next-line init-declarations
-    export let files: [string, Data][];
+    export let files: Data[];
 </script>
 
 <div class="table-container">
@@ -14,7 +10,6 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Score</th>
                 <th>Longitude</th>
                 <th>Latitude</th>
                 <th>Location Timestamp</th>
@@ -24,11 +19,10 @@
             </tr>
         </thead>
         <tbody>
-            {#each files as [path, { score, gps: { timestamp: gpsTimestamp, longitude, latitude }, wifi, sim: { strength: { timestamp: simTimestamp, level } } }]}
-                {@const { base, name } = Path.parse(path)}
+            {#each files as { now, gps: { timestamp: gpsTimestamp, longitude, latitude }, wifi, sim: { strength: { timestamp: simTimestamp, level } } }}
+                {@const name = now.valueOf().toString()}
                 <tr>
-                    <td><a href="/readings/{base}/">{name}</a></td>
-                    <td>{score.toFixed(4)}</td>
+                    <td><a href="/readings/{name}/">{name}</a></td>
                     <td>{longitude}</td>
                     <td>{latitude}</td>
                     <td>{gpsTimestamp.toLocaleString()}</td>
