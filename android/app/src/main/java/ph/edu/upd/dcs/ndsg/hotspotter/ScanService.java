@@ -178,12 +178,11 @@ public class ScanService extends Service {
         Log.i("ScanService", "callback unregistered");
     }
 
-    private Handler handler;
+    private static Handler handler = Handler.createAsync(Looper.getMainLooper());
     private Runnable runnable;
 
     @Override
     public void onCreate() {
-        handler = Handler.createAsync(Looper.getMainLooper());
         runnable = new Runnable() {
             @Override
             @RequiresPermission(Manifest.permission.CHANGE_WIFI_STATE)
