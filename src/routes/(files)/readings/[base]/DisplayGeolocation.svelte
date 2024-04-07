@@ -6,7 +6,7 @@
     // eslint-disable-next-line init-declarations
     export let longitude: number;
     // eslint-disable-next-line init-declarations
-    export let coords_accuracy: number;
+    export let coords_accuracy: number | null;
     // eslint-disable-next-line init-declarations
     export let altitude: number | null;
     // eslint-disable-next-line init-declarations
