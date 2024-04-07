@@ -19,7 +19,19 @@ import java.lang.SecurityException;
         @Permission(
             alias = "notification",
             strings = { Manifest.permission.POST_NOTIFICATIONS }
-        )
+        ),
+        @Permission(
+            alias = "wifi",
+            strings = {
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            }
+        ),
+        @Permission(
+            alias = "cell",
+            strings = { Manifest.permission.READ_PHONE_STATE }
+        ),
     }
 )
 public class LoopPlugin extends Plugin {
@@ -64,6 +76,10 @@ public class LoopPlugin extends Plugin {
     @Override
     public void load() {
         super.load();
+        if (getPermissionStates().values().stream().anyMatch(state -> state != PermissionState.GRANTED)) {
+            Log.w("LoopPlugin", "insufficient permissions to start service");
+            return;
+        }
         try {
             var result = bind();
             if (result == null) Log.w("LoopPlugin", "service already bound");
@@ -82,9 +98,13 @@ public class LoopPlugin extends Plugin {
 
     @PluginMethod(returnType = PluginMethod.RETURN_CALLBACK)
     public void startWatch(PluginCall ctx) {
-        ctx.setKeepAlive(true);
-        var id = ctx.getCallbackId();
-        service.startWatch(id, data -> getBridge().getSavedCall(id).resolve(data));
+        if (bound) {
+            ctx.setKeepAlive(true);
+            var id = ctx.getCallbackId();
+            service.startWatch(id, data -> getBridge().getSavedCall(id).resolve(data));
+            return;
+        }
+        ctx.unavailable("loop service is turned off");
     }
 
     @PluginMethod(returnType = PluginMethod.RETURN_NONE)
@@ -94,8 +114,12 @@ public class LoopPlugin extends Plugin {
             ctx.reject("no watch id specified");
             return;
         }
-        service.clearWatch(id);
-        getBridge().releaseCall(id);
-        ctx.resolve();
+        if (bound) {
+            service.clearWatch(id);
+            getBridge().releaseCall(id);
+            ctx.resolve();
+            return;
+        }
+        ctx.unavailable("loop service is turned off");
     }
 }
