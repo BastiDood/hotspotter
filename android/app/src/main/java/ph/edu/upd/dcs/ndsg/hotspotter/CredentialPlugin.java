@@ -9,6 +9,7 @@ import androidx.credentials.exceptions.*;
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.*;
 import com.google.android.libraries.identity.googleid.*;
+import java.util.concurrent.ForkJoinPool;
 
 @CapacitorPlugin(
     name = "Credential",
@@ -39,7 +40,7 @@ public class CredentialPlugin extends Plugin {
                 act,
                 request,
                 null,
-                ContextCompat.getMainExecutor(act),
+                ForkJoinPool.commonPool(),
                 new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
                     @Override
                     public void onResult(GetCredentialResponse response) {
@@ -71,7 +72,7 @@ public class CredentialPlugin extends Plugin {
             .clearCredentialStateAsync(
                 new ClearCredentialStateRequest(),
                 null,
-                ContextCompat.getMainExecutor(act),
+                ForkJoinPool.commonPool(),
                 new CredentialManagerCallback<Void, ClearCredentialException>() {
                     @Override
                     public void onResult(Void result) {
