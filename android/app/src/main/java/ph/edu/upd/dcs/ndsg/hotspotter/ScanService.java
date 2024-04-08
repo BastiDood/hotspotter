@@ -104,24 +104,22 @@ public class ScanService extends Service {
         Manifest.permission.READ_PHONE_STATE,
     })
     private void onNewScanResults() {
-        var loc = new LocationInfo(ContextCompat.getSystemService(this, LocationManager.class));
-        var net = new WifiInfo(ContextCompat.getSystemService(this, WifiManager.class));
-        var tel = new TelephonyInfo(ContextCompat.getSystemService(this, TelephonyManager.class));
+        Log.i("ScanService", "reading triggered by callback");
+        var instant = ZonedDateTime.now().toInstant();
+        var now = instant.toEpochMilli();
 
-        var location = loc.getLastKnownLocation();
-        if (location == null) {
+        var net = new WifiInfo(ContextCompat.getSystemService(this, WifiManager.class));
+        var wifi = net.getScanResults();
+
+        var tel = new TelephonyInfo(ContextCompat.getSystemService(this, TelephonyManager.class));
+        var sim = tel.getCellQuality();
+
+        var loc = new LocationInfo(ContextCompat.getSystemService(this, LocationManager.class));
+        var gps = loc.getCurrentLocation();
+        if (gps == null) {
             Log.w("ScanService", "location is unavailable");
             return;
         }
-
-        var instant = ZonedDateTime.now().toInstant();
-        var now = instant.toEpochMilli();
-        var json = new JSObject()
-            .put("now", now)
-            .put("gps", location)
-            .put("wifi", net.getScanResults())
-            .put("sim", tel.getCellQuality());
-        Log.i("ScanService", "reading triggered by callback");
 
         // Save the reading to the cache
         var name = Long.toString(now) + ".json";
@@ -138,9 +136,16 @@ public class ScanService extends Service {
             return;
         }
 
+        var json = new JSObject()
+            .put("now", now)
+            .put("gps", gps)
+            .put("wifi", wifi)
+            .put("sim", sim);
+        var bytes = json.toString().getBytes(StandardCharsets.UTF_8);
+
         Log.i("ScanService", "writing to " + file.toString());
         try (var stream = new FileOutputStream(file)) {
-            stream.write(json.toString().getBytes(StandardCharsets.UTF_8));
+            stream.write(bytes);
             stream.flush();
         } catch (IOException err) {
             Log.e("ScanService", "cannot write to cached file", err);
