@@ -25,7 +25,7 @@
         disabled = true;
         try {
             const files = await Cache.read();
-            const promises = Object.entries(files).map(async ([path, payload]) => {
+            const promises = files.map(async payload => {
                 // The ordering of the operations is important here. We emphasize that
                 // the cache is only removed after a successful data submission. If the
                 // write operation fails (somehow), we are fine with the duplicated data.
@@ -33,7 +33,8 @@
                 // a successful transmission, in which case there is the possibility for
                 // the data to be deleted yet the transmission fails.
                 console.log(await Http.uploadReading(jwt, payload));
-                await Cache.remove(path);
+                const base = payload.now.valueOf().toString();
+                await Cache.remove(`${base}.json`);
             });
 
             const results = await Promise.allSettled(promises);

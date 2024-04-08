@@ -143,8 +143,12 @@
         </ErrorAlert>
     {/each}
     <hr />
-    <button class="variant-filled-primary btn w-full" on:click={({ currentTarget }) => boot(currentTarget)}>Boot Service</button>
-    <button class="variant-filled-primary btn w-full" on:click={({ currentTarget }) => request(currentTarget)}>Request Scan</button>
+    <button class="variant-filled-primary btn w-full" on:click={({ currentTarget }) => boot(currentTarget)}
+        >Boot Service</button
+    >
+    <button class="variant-filled-primary btn w-full" on:click={({ currentTarget }) => request(currentTarget)}
+        >Request Scan</button
+    >
     <hr />
     <h3 class="h3">Cached Readings</h3>
     {#if files.length === 0}
