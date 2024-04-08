@@ -22,7 +22,7 @@
             {#each files as { now, gps: { timestamp: gpsTimestamp, longitude, latitude }, wifi, sim: { strength: { timestamp: simTimestamp, level } } }}
                 {@const name = now.valueOf().toString()}
                 <tr>
-                    <td><a href="/readings/{name}/">{name}</a></td>
+                    <td><a href="/readings/{name}/" class="anchor">{name}</a></td>
                     <td>{longitude}</td>
                     <td>{latitude}</td>
                     <td>{gpsTimestamp.toLocaleString()}</td>
