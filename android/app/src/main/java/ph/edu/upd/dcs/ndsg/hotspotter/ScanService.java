@@ -127,7 +127,7 @@ public class ScanService extends Service {
         var name = Long.toString(now) + ".json";
         var file = this.getCacheDir().toPath().resolve(name).toFile();
 
-        Log.i("ScanService", "creating new file " + name);
+        Log.i("ScanService", "creating new file at " + file.toString());
         try {
             if (!file.createNewFile()) {
                 Log.e("ScanService", name);
@@ -138,7 +138,7 @@ public class ScanService extends Service {
             return;
         }
 
-        Log.i("ScanService", "writing to " + name);
+        Log.i("ScanService", "writing to " + file.toString());
         try (var stream = new FileOutputStream(file)) {
             stream.write(json.toString().getBytes(StandardCharsets.UTF_8));
             stream.flush();
