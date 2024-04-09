@@ -1,7 +1,7 @@
 import { array, parse } from 'valibot';
 import { error, json } from '@sveltejs/kit';
 import { Data } from '$lib/models/api';
-import { PostgresError } from 'postgres';
+import pg from 'postgres';
 import { uploadReadings } from '$lib/server/db';
 import { verifyGoogleJwt } from '$lib/jwt';
 
@@ -20,7 +20,7 @@ export async function POST({ request }) {
     try {
         return json(await uploadReadings(user, input), { status: 201 });
     } catch (err) {
-        if (err instanceof PostgresError) error(550, err);
+        if (err instanceof pg.PostgresError) error(550, err);
         throw err;
     }
 }
