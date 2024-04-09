@@ -24,12 +24,16 @@
             {#each files as { now, gps: { timestamp: gpsTimestamp, longitude, latitude }, wifi, sim: { strength: { timestamp: simTimestamp, level } } }}
                 {@const name = now.valueOf().toString()}
                 <tr>
-                    <td><a href="/readings/{name}/" class="anchor">{name}</a></td>
+                    <td
+                        ><a href="/readings/{name}/" class="anchor"
+                            ><time datetime={now.toISOString()}>{now.toLocaleDateString()}</time></a
+                        ></td
+                    >
                     <td>{longitude}</td>
                     <td>{latitude}</td>
-                    <td>{gpsTimestamp.toLocaleString()}</td>
+                    <td><time datetime={gpsTimestamp.toISOString()}>{gpsTimestamp.toLocaleString()}</time></td>
                     <td>{wifi.length}</td>
-                    <td>{simTimestamp.toLocaleString()}</td>
+                    <td><time datetime={simTimestamp.toISOString()}>{simTimestamp.toLocaleString()}</time></td>
                     <td>
                         <Ratings spacing="" value={level} max={4}>
                             <Icon src={Star} class="h-4" slot="empty" />
