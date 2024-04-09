@@ -26,7 +26,7 @@
                 <tr>
                     <td
                         ><a href="/readings/{name}/" class="anchor"
-                            ><time datetime={now.toISOString()}>{now.toLocaleDateString()}</time></a
+                            ><time datetime={now.toISOString()}>{now.toLocaleString()}</time></a
                         ></td
                     >
                     <td>{longitude}</td>
