@@ -11,7 +11,7 @@ import { assert } from '$lib/assert';
 
 /** @deprecated {@linkcode uploadReadings} */
 export async function uploadReading(jwt: string, data: Data) {
-    const url = new URL('api/reading/', PUBLIC_HOTSPOTTER_URL);
+    const url = new URL('api/reading', PUBLIC_HOTSPOTTER_URL);
     const response = await fetch(url, {
         method: 'POST',
         credentials: 'include',
@@ -35,7 +35,7 @@ export async function uploadReading(jwt: string, data: Data) {
 
 const ReadingIds = array(string([uuid()]));
 export async function uploadReadings(jwt: string, data: Data[]) {
-    const url = new URL('api/readings/', PUBLIC_HOTSPOTTER_URL);
+    const url = new URL('api/readings', PUBLIC_HOTSPOTTER_URL);
     const response = await fetch(url, {
         method: 'POST',
         credentials: 'include',
@@ -69,7 +69,7 @@ export const enum MarkerMode {
 }
 
 export async function fetchMarkers(mode: MarkerMode) {
-    const response = await fetch(new URL(`api/level/${mode}/`, PUBLIC_HOTSPOTTER_URL));
+    const response = await fetch(new URL(`api/level/${mode}`, PUBLIC_HOTSPOTTER_URL));
     if (response.status !== 200) throw new UnexpectedStatusCodeError(response.status);
     const json = await response.json();
     return parse(DataPoints, json, { abortEarly: true });
@@ -83,7 +83,7 @@ export async function fetchHexagons(
     maxY: number,
     signal?: AbortSignal,
 ) {
-    const url = new URL(`api/${cellType}/points/`, PUBLIC_HOTSPOTTER_URL);
+    const url = new URL(`api/${cellType}/points`, PUBLIC_HOTSPOTTER_URL);
     url.searchParams.set('min-x', minX.toString());
     url.searchParams.set('min-y', minY.toString());
     url.searchParams.set('max-x', maxX.toString());
@@ -102,7 +102,7 @@ export async function fetchHexagons(
 }
 
 export async function fetchCellScore(longitude: number, latitude: number, signal?: AbortSignal) {
-    const url = new URL('api/score/', PUBLIC_HOTSPOTTER_URL);
+    const url = new URL('api/score', PUBLIC_HOTSPOTTER_URL);
     url.searchParams.set('lon', longitude.toString());
     url.searchParams.set('lat', latitude.toString());
     const response = await fetch(url, { signal });
