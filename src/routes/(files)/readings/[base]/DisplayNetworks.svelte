@@ -3,7 +3,7 @@
     import { Icon } from '@steeze-ui/svelte-icon';
     import type { Output } from 'valibot';
     import { Ratings } from '@skeletonlabs/skeleton';
-    import { Star as src } from '@steeze-ui/heroicons';
+    import { Star } from '@steeze-ui/heroicons';
 
     // eslint-disable-next-line init-declarations
     export let networks: Output<typeof AccessPoint>[];
@@ -32,8 +32,8 @@
                     <td>{standard}</td>
                     <td>
                         <Ratings spacing="" value={level} max={max_level}>
-                            <Icon {src} class="h-4" slot="empty" />
-                            <Icon {src} class="h-4" slot="full" theme="solid" />
+                            <Icon src={Star} class="h-4" slot="empty" />
+                            <Icon src={Star} class="h-4" slot="full" theme="solid" />
                         </Ratings>
                     </td>
                     <td>{bssid}</td>

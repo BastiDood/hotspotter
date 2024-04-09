@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { Data } from '$lib/models/api';
+    import { Icon } from '@steeze-ui/svelte-icon';
     import { Ratings } from '@skeletonlabs/skeleton';
+    import { Star } from '@steeze-ui/heroicons';
     // eslint-disable-next-line init-declarations
     export let files: Data[];
 </script>
@@ -28,7 +30,12 @@
                     <td>{gpsTimestamp.toLocaleString()}</td>
                     <td>{wifi.length}</td>
                     <td>{simTimestamp.toLocaleString()}</td>
-                    <td><Ratings max={4} value={level} /></td>
+                    <td>
+                        <Ratings spacing="" value={level} max={4}>
+                            <Icon src={Star} class="h-4" slot="empty" />
+                            <Icon src={Star} class="h-4" slot="full" theme="solid" />
+                        </Ratings>
+                    </td>
                 </tr>
             {/each}
         </tbody>
