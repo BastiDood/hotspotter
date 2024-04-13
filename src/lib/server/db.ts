@@ -87,7 +87,7 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
     const tdscdmaId = typeof tdscdma === 'undefined' ? null : parse(BigId, tdscdma, { abortEarly: true }).id;
 
     // W-CDMA
-    const wcdmaScore = await computeCellScore(sql, 'wcdmaScore', gps.longitude, gps.latitude);
+    const wcdmaScore = await computeCellScore(sql, 'wcdma', gps.longitude, gps.latitude);
     const [wcdma, ...wcdmaRest] =
         typeof sim.strength.wcdma === 'undefined'
             ? []
