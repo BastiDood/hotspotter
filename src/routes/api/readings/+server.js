@@ -17,8 +17,10 @@ export async function POST({ request }) {
     const user = await verifyGoogleJwt(jwt);
     const obj = await request.json();
     const input = parse(array(Data), obj, { abortEarly: true });
+
     try {
-        return json(await uploadReadings(user, input), { status: 201 });
+        const score = await uploadReadings(user, input);
+        return json(score, { status: 201 });
     } catch (err) {
         if (err instanceof pg.PostgresError) error(550, err);
         throw err;

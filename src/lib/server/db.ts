@@ -8,13 +8,41 @@ import pg from 'postgres';
 
 // Global (private) connection pool
 const sql = pg(POSTGRES_URL, { types: { bigint: pg.BigInt }, ssl: 'prefer' });
+type Sql = typeof sql;
 
 const BigId = object({ id: bigint() });
 const Uuid = object({ id: string([uuid()]) });
 const CountResult = object({ result: number() });
 const HexResult = object({ result: HexagonAccessPointCount });
 
-async function insertReading(sql: pg.Sql<{ bigint: bigint }>, sub: string, { gps, sim, wifi }: Data) {
+async function computeWifiScore(sql: Sql, longitude: number, latitude: number, resolution = 9, halfLife = 10) {
+    const [result, ...rest] =
+        await sql`SELECT sum(score) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) GROUP BY disk) _`;
+    assert(rest.length === 0);
+    assert(typeof result !== 'undefined');
+    return parse(CountResult, result, { abortEarly: true }).result;
+}
+
+async function computeCellScore(
+    sql: Sql,
+    cell: string,
+    longitude: number,
+    latitude: number,
+    resolution = 9,
+    halfLife = 10,
+) {
+    const table = sql(`hotspotter.${cell}`);
+    const field = sql(`${cell}_id`);
+    const [result, ...rest] =
+        await sql`SELECT sum(score) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) GROUP BY disk) _`;
+    assert(rest.length === 0);
+    assert(typeof result !== 'undefined');
+    return parse(CountResult, result, { abortEarly: true }).result;
+}
+
+async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
+    // CDMA
+    const cdmaScore = await computeCellScore(sql, 'cdma', gps.longitude, gps.latitude);
     const [cdma, ...cdmaRest] =
         typeof sim.strength.cdma === 'undefined'
             ? []
@@ -22,6 +50,8 @@ async function insertReading(sql: pg.Sql<{ bigint: bigint }>, sub: string, { gps
     assert(cdmaRest.length === 0);
     const cdmaId = typeof cdma === 'undefined' ? null : parse(BigId, cdma, { abortEarly: true }).id;
 
+    // GSM
+    const gsmScore = await computeCellScore(sql, 'gsm', gps.longitude, gps.latitude);
     const [gsm, ...gsmRest] =
         typeof sim.strength.gsm === 'undefined'
             ? []
@@ -29,6 +59,8 @@ async function insertReading(sql: pg.Sql<{ bigint: bigint }>, sub: string, { gps
     assert(gsmRest.length === 0);
     const gsmId = typeof gsm === 'undefined' ? null : parse(BigId, gsm, { abortEarly: true }).id;
 
+    // LTE
+    const lteScore = await computeCellScore(sql, 'lte', gps.longitude, gps.latitude);
     const [lte, ...lteRest] =
         typeof sim.strength.lte === 'undefined'
             ? []
@@ -36,6 +68,8 @@ async function insertReading(sql: pg.Sql<{ bigint: bigint }>, sub: string, { gps
     assert(lteRest.length === 0);
     const lteId = typeof lte === 'undefined' ? null : parse(BigId, lte, { abortEarly: true }).id;
 
+    // NR
+    const nrScore = await computeCellScore(sql, 'nr', gps.longitude, gps.latitude);
     const [nr, ...nrRest] =
         typeof sim.strength.nr === 'undefined'
             ? []
@@ -43,6 +77,8 @@ async function insertReading(sql: pg.Sql<{ bigint: bigint }>, sub: string, { gps
     assert(nrRest.length === 0);
     const nrId = typeof nr === 'undefined' ? null : parse(BigId, nr, { abortEarly: true }).id;
 
+    // TDS-CDMA
+    const tdscdmaScore = await computeCellScore(sql, 'tdscdma', gps.longitude, gps.latitude);
     const [tdscdma, ...tdscdmaRest] =
         typeof sim.strength.tdscdma === 'undefined'
             ? []
@@ -50,6 +86,8 @@ async function insertReading(sql: pg.Sql<{ bigint: bigint }>, sub: string, { gps
     assert(tdscdmaRest.length === 0);
     const tdscdmaId = typeof tdscdma === 'undefined' ? null : parse(BigId, tdscdma, { abortEarly: true }).id;
 
+    // W-CDMA
+    const wcdmaScore = await computeCellScore(sql, 'wcdmaScore', gps.longitude, gps.latitude);
     const [wcdma, ...wcdmaRest] =
         typeof sim.strength.wcdma === 'undefined'
             ? []
@@ -63,19 +101,28 @@ async function insertReading(sql: pg.Sql<{ bigint: bigint }>, sub: string, { gps
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     const { id } = parse(Uuid, first, { abortEarly: true });
+
+    // Wi-Fi
+    const wifiScore = await computeWifiScore(sql, gps.longitude, gps.latitude);
     await sql`INSERT INTO hotspotter.wifi ${sql(wifi.map(w => ({ ...w, reading_id: id })))}`;
-    return id;
+
+    // Total Score
+    return cdmaScore + gsmScore + lteScore + nrScore + tdscdmaScore + wcdmaScore + wifiScore;
 }
 
 export function uploadReadings({ sub, email, name, picture }: User, readings: Data[]) {
-    return sql.begin(async sql => {
+    return sql.begin('ISOLATION LEVEL SERIALIZABLE', async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
-        return await Promise.all(readings.map(reading => insertReading(sql, sub, reading)));
+        const scores = await Promise.all(readings.map(reading => insertReading(sql, sub, reading)));
+        const total = scores.reduce((prev, curr) => prev + curr, 0);
+        await sql`UPDATE hotspotter.users SET score = score + ${total} WHERE user_id = ${sub}`;
+        return total;
     });
 }
 
+/** @deprecated {@linkcode uploadReadings} */
 export function uploadReading({ sub, email, name, picture }: User, data: Data) {
-    return sql.begin(async sql => {
+    return sql.begin('ISOLATION LEVEL SERIALIZABLE', async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
         return await insertReading(sql, sub, data);
     });
@@ -106,12 +153,4 @@ export async function aggregateCellularLevels(cell: CellType, minX: number, minY
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
-}
-
-export async function computeWifiCellScore(longitude: number, latitude: number) {
-    const [first, ...rest] =
-        await sql`SELECT sum(score) result FROM (SELECT pi() / 2 - atan(count(index)::DOUBLE PRECISION) score FROM (SELECT * FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), 9)) index) neighbors LEFT JOIN hotspotter.readings ON index = h3_lat_lng_to_cell(coords::POINT, 9) GROUP BY index) _`;
-    assert(rest.length === 0);
-    assert(typeof first !== 'undefined');
-    return parse(CountResult, first).result;
 }

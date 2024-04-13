@@ -5,9 +5,9 @@ import {
     UnexpectedStatusCodeError,
 } from './error';
 import { type CellType, type Data, DataPoints, HexagonAccessPointCount } from '$lib/models/api';
-import { array, parse, string, uuid } from 'valibot';
 import { PUBLIC_HOTSPOTTER_URL } from '$lib/env';
 import { assert } from '$lib/assert';
+import { parse } from 'valibot';
 
 /** @deprecated {@linkcode uploadReadings} */
 export async function uploadReading(jwt: string, data: Data) {
@@ -23,6 +23,7 @@ export async function uploadReading(jwt: string, data: Data) {
     });
     switch (response.status) {
         case 201:
+            // TODO: The new endpoint now returns a float.
             return await response.text();
         case 400:
             throw new MalformedAuthorizationError();
@@ -33,7 +34,6 @@ export async function uploadReading(jwt: string, data: Data) {
     }
 }
 
-const ReadingIds = array(string([uuid()]));
 export async function uploadReadings(jwt: string, data: Data[]) {
     const url = new URL('api/readings', PUBLIC_HOTSPOTTER_URL);
     const response = await fetch(url, {
@@ -47,7 +47,7 @@ export async function uploadReadings(jwt: string, data: Data[]) {
     });
     switch (response.status) {
         case 201:
-            return parse(ReadingIds, await response.json(), { abortEarly: true });
+            break;
         case 400:
             throw new MalformedAuthorizationError();
         case 401:
@@ -57,6 +57,10 @@ export async function uploadReadings(jwt: string, data: Data[]) {
         default:
             throw new UnexpectedStatusCodeError(response.status);
     }
+    const score = await response.json();
+    assert(typeof score === 'number');
+    assert(isFinite(score), 'invalid score returned by server');
+    return score;
 }
 
 export const enum MarkerMode {
@@ -114,8 +118,8 @@ export async function fetchCellScore(longitude: number, latitude: number, signal
         default:
             throw new UnexpectedStatusCodeError(response.status);
     }
-    const json = await response.text();
-    const score = parseFloat(json);
+    const score = await response.json();
+    assert(typeof score === 'number');
     assert(isFinite(score), 'invalid score returned by server');
     return score;
 }
