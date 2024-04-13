@@ -41,7 +41,7 @@
                 if (err instanceof BatchOperationError)
                     toast.trigger({
                         message: 'Failed to upload the readings in batch. The data is likely corrupted.',
-                        background: 'variant-filled-success',
+                        background: 'variant-filled-error',
                         autohide: false,
                     });
                 else
