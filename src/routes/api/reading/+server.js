@@ -19,5 +19,5 @@ export async function POST({ request }) {
     const input = parse(Data, json, { abortEarly: true });
 
     const reading = await uploadReading(user, input);
-    return new Response(reading, { status: 201 });
+    return new Response(reading.toString(), { status: 201 });
 }
