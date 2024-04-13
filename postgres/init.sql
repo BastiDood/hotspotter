@@ -65,6 +65,7 @@ CREATE SCHEMA hotspotter
         rscp SMALLINT CHECK(dbm BETWEEN -120 AND -24)
     )
     CREATE TABLE users(
+        score DOUBLE PRECISION NOT NULL DEFAULT 0.,
         user_id TEXT PRIMARY KEY NOT NULL,
         name TEXT NOT NULL,
         email TEXT NOT NULL,
@@ -72,7 +73,6 @@ CREATE SCHEMA hotspotter
     )
     CREATE TABLE readings(
         reading_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-        user_id TEXT NOT NULL REFERENCES users(user_id),
         -- Geolocation
         gps_timestamp TIMESTAMPTZ NOT NULL,
         coords CIRCLE NOT NULL,
@@ -91,7 +91,8 @@ CREATE SCHEMA hotspotter
         lte_id BIGINT REFERENCES lte(lte_id),
         nr_id BIGINT REFERENCES nr(nr_id),
         tdscdma_id BIGINT REFERENCES tdscdma(tdscdma_id),
-        wcdma_id BIGINT REFERENCES wcdma(wcdma_id)
+        wcdma_id BIGINT REFERENCES wcdma(wcdma_id),
+        user_id TEXT NOT NULL REFERENCES users(user_id)
     )
     CREATE TABLE wifi(
         reading_id UUID REFERENCES readings(reading_id) NOT NULL,
