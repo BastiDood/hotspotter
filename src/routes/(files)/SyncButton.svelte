@@ -25,12 +25,17 @@
         disabled = true;
         try {
             const files = await Cache.read();
-            console.log(await Http.uploadReadings(jwt, files));
+            const score = await Http.uploadReadings(jwt, files);
             const promises = files.map(({ now }) => {
                 const base = now.valueOf().toString();
                 return Cache.remove(`${base}.json`);
             });
             await Promise.all(promises);
+            toast.trigger({
+                message: `You earned ${Math.floor(score)} points by uploading ${files.length} readings!`,
+                background: 'variant-filled-success',
+                autohide: false,
+            });
         } catch (err) {
             if (err instanceof Error) {
                 if (err instanceof BatchOperationError)
