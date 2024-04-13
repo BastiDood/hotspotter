@@ -22,7 +22,10 @@ export async function POST({ request }) {
         const score = await uploadReadings(user, input);
         return json(score, { status: 201 });
     } catch (err) {
-        if (err instanceof pg.PostgresError) error(550, err);
+        if (err instanceof pg.PostgresError) {
+            console.error(err);
+            error(550, err);
+        }
         throw err;
     }
 }
