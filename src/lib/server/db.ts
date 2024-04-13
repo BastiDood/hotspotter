@@ -1,3 +1,4 @@
+import type { CellSignalStrength, SignalStrength } from '$lib/models/cell';
 import { type CellType, type Data, HexagonAccessPointCount } from '$lib/models/api';
 import { bigint, number, object, parse, string, uuid } from 'valibot';
 import { POSTGRES_URL } from '$lib/server/env';
@@ -25,75 +26,41 @@ async function computeWifiScore(sql: Sql, longitude: number, latitude: number, r
 
 async function computeCellScore(
     sql: Sql,
-    cell: string,
     longitude: number,
     latitude: number,
+    data: SignalStrength,
+    cell: keyof CellSignalStrength,
     resolution = 9,
     halfLife = 10,
 ) {
-    const table = sql(`hotspotter.${cell}`);
-    const field = sql(`${cell}_id`);
-    const [result, ...rest] =
+    const table = sql(`hotspotter.${cell}` as const);
+    const field = sql(`${cell}_id` as const);
+    const payload = data[cell];
+
+    const [upload, ...uploadRest] =
+        typeof payload === 'undefined'
+            ? []
+            : await sql`INSERT INTO hotspotter.cdma ${sql(payload)} RETURNING cdma_id id`;
+    assert(uploadRest.length === 0);
+    const id = typeof upload === 'undefined' ? null : parse(BigId, upload, { abortEarly: true }).id;
+
+    const [result, ...resultRest] =
         await sql`SELECT sum(score) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) GROUP BY disk) _`;
-    assert(rest.length === 0);
+    assert(resultRest.length === 0);
     assert(typeof result !== 'undefined');
-    return parse(CountResult, result, { abortEarly: true }).result;
+    const score = parse(CountResult, result, { abortEarly: true }).result;
+
+    return { id, score };
 }
 
 async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
-    // CDMA
-    const cdmaScore = await computeCellScore(sql, 'cdma', gps.longitude, gps.latitude);
-    const [cdma, ...cdmaRest] =
-        typeof sim.strength.cdma === 'undefined'
-            ? []
-            : await sql`INSERT INTO hotspotter.cdma ${sql(sim.strength.cdma)} RETURNING cdma_id id`;
-    assert(cdmaRest.length === 0);
-    const cdmaId = typeof cdma === 'undefined' ? null : parse(BigId, cdma, { abortEarly: true }).id;
-
-    // GSM
-    const gsmScore = await computeCellScore(sql, 'gsm', gps.longitude, gps.latitude);
-    const [gsm, ...gsmRest] =
-        typeof sim.strength.gsm === 'undefined'
-            ? []
-            : await sql`INSERT INTO hotspotter.gsm ${sql(sim.strength.gsm)} RETURNING gsm_id id`;
-    assert(gsmRest.length === 0);
-    const gsmId = typeof gsm === 'undefined' ? null : parse(BigId, gsm, { abortEarly: true }).id;
-
-    // LTE
-    const lteScore = await computeCellScore(sql, 'lte', gps.longitude, gps.latitude);
-    const [lte, ...lteRest] =
-        typeof sim.strength.lte === 'undefined'
-            ? []
-            : await sql`INSERT INTO hotspotter.lte ${sql(sim.strength.lte)} RETURNING lte_id id`;
-    assert(lteRest.length === 0);
-    const lteId = typeof lte === 'undefined' ? null : parse(BigId, lte, { abortEarly: true }).id;
-
-    // NR
-    const nrScore = await computeCellScore(sql, 'nr', gps.longitude, gps.latitude);
-    const [nr, ...nrRest] =
-        typeof sim.strength.nr === 'undefined'
-            ? []
-            : await sql`INSERT INTO hotspotter.nr ${sql(sim.strength.nr)} RETURNING nr_id id`;
-    assert(nrRest.length === 0);
-    const nrId = typeof nr === 'undefined' ? null : parse(BigId, nr, { abortEarly: true }).id;
-
-    // TDS-CDMA
-    const tdscdmaScore = await computeCellScore(sql, 'tdscdma', gps.longitude, gps.latitude);
-    const [tdscdma, ...tdscdmaRest] =
-        typeof sim.strength.tdscdma === 'undefined'
-            ? []
-            : await sql`INSERT INTO hotspotter.tdscdma ${sql(sim.strength.tdscdma)} RETURNING tdscdma id`;
-    assert(tdscdmaRest.length === 0);
-    const tdscdmaId = typeof tdscdma === 'undefined' ? null : parse(BigId, tdscdma, { abortEarly: true }).id;
-
-    // W-CDMA
-    const wcdmaScore = await computeCellScore(sql, 'wcdma', gps.longitude, gps.latitude);
-    const [wcdma, ...wcdmaRest] =
-        typeof sim.strength.wcdma === 'undefined'
-            ? []
-            : await sql`INSERT INTO hotspotter.wcdma ${sql(sim.strength.wcdma)} RETURNING wcdma id`;
-    assert(wcdmaRest.length === 0);
-    const wcdmaId = typeof wcdma === 'undefined' ? null : parse(BigId, wcdma, { abortEarly: true }).id;
+    const compute = computeCellScore.bind(null, sql, gps.longitude, gps.latitude, sim.strength);
+    const { id: cdmaId, score: cdmaScore } = await compute('cdma');
+    const { id: gsmId, score: gsmScore } = await compute('gsm');
+    const { id: lteId, score: lteScore } = await compute('lte');
+    const { id: nrId, score: nrScore } = await compute('nr');
+    const { id: tdscdmaId, score: tdscdmaScore } = await compute('tdscdma');
+    const { id: wcdmaId, score: wcdmaScore } = await compute('wcdma');
 
     // TODO: Distinguish between `null` and `undefined` as "no data" versus "no hardware".
     const [first, ...rest] =
