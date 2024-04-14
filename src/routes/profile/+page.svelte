@@ -41,16 +41,22 @@
     {:catch err}
         <ErrorAlert>{err}</ErrorAlert>
     {/await}
-    {#each users as { rank, name, picture, score }}
-        <div class="card flex items-center gap-4 p-4 shadow">
-            <div class="relative inline-block">
-                <span class="variant-filled-secondary badge-icon absolute -right-0 -top-0 z-10">{rank}</span>
-                <Avatar width="w-12" src={picture} />
+    {#await users}
+        <ProgressBar />
+    {:then users}
+        {#each users as { rank, name, picture, score }}
+            <div class="card flex items-center gap-4 p-4 shadow">
+                <div class="relative inline-block">
+                    <span class="variant-filled-secondary badge-icon absolute -right-0 -top-0 z-10">{rank}</span>
+                    <Avatar width="w-12" src={picture} />
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold">{name}</span>
+                    <span class="text-surface-700-200-token text-xs">{score} Points</span>
+                </div>
             </div>
-            <div class="flex flex-col">
-                <span class="font-bold">{name}</span>
-                <span class="text-surface-700-200-token text-xs">{score} Points</span>
-            </div>
-        </div>
-    {/each}
+        {/each}
+    {:catch err}
+        <ErrorAlert>{err}</ErrorAlert>
+    {/await}
 </div>
