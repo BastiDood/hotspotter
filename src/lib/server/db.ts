@@ -16,19 +16,9 @@ const Uuid = object({ id: string([uuid()]) });
 const CountResult = object({ result: number() });
 const HexResult = object({ result: HexagonAccessPointCount });
 
-/** The default maximum score used when scaling. */
-const MAX_SCORE = 100;
-
-async function computeWifiScore(
-    sql: Sql,
-    maxScore: number,
-    longitude: number,
-    latitude: number,
-    resolution = 9,
-    halfLife = 10,
-) {
+async function computeWifiScore(sql: Sql, longitude: number, latitude: number, resolution = 9, halfLife = 10) {
     const [result, ...rest] =
-        await sql`SELECT ${maxScore} * exp(sum(ln(score))) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) GROUP BY disk) _`;
+        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) GROUP BY disk) _`;
     assert(rest.length === 0);
     assert(typeof result !== 'undefined');
     return parse(CountResult, result, { abortEarly: true }).result;
@@ -36,7 +26,6 @@ async function computeWifiScore(
 
 async function computeCellScore(
     sql: Sql,
-    maxScore: number,
     longitude: number,
     latitude: number,
     data: SignalStrength,
@@ -54,7 +43,7 @@ async function computeCellScore(
     const id = typeof upload === 'undefined' ? null : parse(BigId, upload, { abortEarly: true }).id;
 
     const [result, ...resultRest] =
-        await sql`SELECT ${maxScore} * exp(sum(ln(score))) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) GROUP BY disk) _`;
+        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) GROUP BY disk) _`;
     assert(resultRest.length === 0);
     assert(typeof result !== 'undefined');
     const score = parse(CountResult, result, { abortEarly: true }).result;
@@ -63,7 +52,7 @@ async function computeCellScore(
 }
 
 async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
-    const compute = computeCellScore.bind(null, sql, MAX_SCORE, gps.longitude, gps.latitude, sim.strength);
+    const compute = computeCellScore.bind(null, sql, gps.longitude, gps.latitude, sim.strength);
     const { id: cdmaId, score: cdmaScore } = await compute('cdma');
     const { id: gsmId, score: gsmScore } = await compute('gsm');
     const { id: lteId, score: lteScore } = await compute('lte');
@@ -79,7 +68,7 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
     const { id } = parse(Uuid, first, { abortEarly: true });
 
     // Wi-Fi
-    const wifiScore = await computeWifiScore(sql, MAX_SCORE, gps.longitude, gps.latitude);
+    const wifiScore = await computeWifiScore(sql, gps.longitude, gps.latitude);
     await sql`INSERT INTO hotspotter.wifi ${sql(wifi.map(w => ({ ...w, reading_id: id })))}`;
 
     // Total Score
