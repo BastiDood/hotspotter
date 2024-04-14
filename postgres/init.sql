@@ -62,7 +62,7 @@ CREATE SCHEMA hotspotter
         dbm SMALLINT CHECK(dbm BETWEEN -120 AND -24),
         asu SMALLINT CHECK(asu BETWEEN 0 AND 96),
         level SMALLINT NOT NULL CHECK(level BETWEEN 0 AND 4),
-        rscp SMALLINT CHECK(dbm BETWEEN -120 AND -24)
+        ec_no SMALLINT CHECK(dbm BETWEEN -120 AND -24)
     )
     CREATE TABLE users(
         score DOUBLE PRECISION NOT NULL DEFAULT 0.,
