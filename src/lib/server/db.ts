@@ -1,4 +1,4 @@
-import type { CellSignalStrength, SignalStrength } from '$lib/models/cell';
+import { CellSignalStrength, type SignalStrength } from '$lib/models/cell';
 import { type CellType, type Data, HexagonAccessPointCount } from '$lib/models/api';
 import { bigint, number, object, parse, string, uuid } from 'valibot';
 import { POSTGRES_URL } from '$lib/server/env';
@@ -38,9 +38,7 @@ async function computeCellScore(
     const payload = data[cell];
 
     const [upload, ...uploadRest] =
-        typeof payload === 'undefined'
-            ? []
-            : await sql`INSERT INTO hotspotter.cdma ${sql(payload)} RETURNING cdma_id id`;
+        typeof payload === 'undefined' ? [] : await sql`INSERT INTO ${table} ${sql(payload)} RETURNING ${field} id`;
     assert(uploadRest.length === 0);
     const id = typeof upload === 'undefined' ? null : parse(BigId, upload, { abortEarly: true }).id;
 

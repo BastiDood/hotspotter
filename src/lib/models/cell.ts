@@ -7,6 +7,7 @@ import {
     maxValue,
     merge,
     minValue,
+    never,
     nullable,
     nullish,
     number,
@@ -141,12 +142,12 @@ export const Wcdma = object({
 export type Wcdma = Output<typeof Wcdma>;
 
 export const CellSignalStrength = object({
-    cdma: merge([CellSignalInfo, Cdma]),
-    gsm: merge([CellSignalInfo, Gsm]),
-    lte: merge([CellSignalInfo, Lte]),
-    nr: merge([CellSignalInfo, Nr]),
-    tdscdma: merge([CellSignalInfo, Tdscdma]),
-    wcdma: merge([CellSignalInfo, Wcdma]),
+    cdma: merge([CellSignalInfo, Cdma], never()),
+    gsm: merge([CellSignalInfo, Gsm], never()),
+    lte: merge([CellSignalInfo, Lte], never()),
+    nr: merge([CellSignalInfo, Nr], never()),
+    tdscdma: merge([CellSignalInfo, Tdscdma], never()),
+    wcdma: merge([CellSignalInfo, Wcdma], never()),
 });
 
 export type CellSignalStrength = Output<typeof CellSignalStrength>;
