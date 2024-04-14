@@ -1,5 +1,5 @@
 import { CellSignalInfo, Sim } from './cell';
-import { type Output, array, coerce, date, merge, number, object, record } from 'valibot';
+import { type Output, array, bigint, coerce, date, merge, number, object, record, string, url } from 'valibot';
 import { AccessPoint } from './wifi';
 import { Location } from './gps';
 
@@ -34,3 +34,17 @@ export type DataPoints = Output<typeof DataPoints>;
 
 export const HexagonAccessPointCount = record(number());
 export type HexagonAccessPointCount = Output<typeof HexagonAccessPointCount>;
+
+export const UserRankScore = object({ rank: bigint(), score: number() });
+export type UserRankScore = Output<typeof UserRankScore>;
+
+export const LeaderboardUsers = array(
+    object({
+        rank: bigint(),
+        id: string(),
+        name: string(),
+        picture: string([url()]),
+        score: number(),
+    }),
+);
+export type LeaderboardUsers = Output<typeof LeaderboardUsers>;

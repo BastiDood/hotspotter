@@ -1,5 +1,5 @@
 import { CellSignalStrength, type SignalStrength } from '$lib/models/cell';
-import { type CellType, type Data, HexagonAccessPointCount } from '$lib/models/api';
+import { type CellType, type Data, HexagonAccessPointCount, LeaderboardUsers, UserRankScore } from '$lib/models/api';
 import { bigint, number, object, parse, string, uuid } from 'valibot';
 import { POSTGRES_URL } from '$lib/server/env';
 import type { User } from '$lib/jwt';
@@ -129,4 +129,19 @@ export async function aggregateCellularLevels(cell: CellType, minX: number, minY
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
+}
+
+// TODO: Integrate into the user profile.
+export async function fetchUserScore(id: string) {
+    const [first, ...rest] =
+        await sql`SELECT rank() OVER (ORDER BY score DESC), score FROM hotspotter.users WHERE user_id = ${id}`;
+    assert(rest.length === 0);
+    return typeof first === 'undefined' ? null : parse(UserRankScore, first, { abortEarly: true });
+}
+
+export async function fetchLeaderboard(limit = 25) {
+    const users =
+        await sql`SELECT rank() OVER (ORDER BY score DESC), user_id id, name, picture, score FROM hotspotter.users ORDER BY score DESC LIMIT ${limit};`;
+    assert(users.length <= limit);
+    return parse(LeaderboardUsers, users, { abortEarly: true });
 }
