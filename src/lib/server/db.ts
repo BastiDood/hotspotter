@@ -141,7 +141,7 @@ export async function fetchUserScore(id: string) {
 
 export async function fetchLeaderboard(limit = 25) {
     const users =
-        await sql`SELECT rank() OVER (ORDER BY score DESC), user_id id, name, picture, score FROM hotspotter.users ORDER BY score DESC LIMIT ${limit};`;
+        await sql`SELECT rank() OVER (ORDER BY score DESC), name, picture, score FROM hotspotter.users ORDER BY score DESC LIMIT ${limit};`;
     assert(users.length <= limit);
     return parse(LeaderboardUsers, users, { abortEarly: true });
 }

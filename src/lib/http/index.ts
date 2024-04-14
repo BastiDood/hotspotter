@@ -90,9 +90,9 @@ export async function fetchHexagons(
     return valiParse(HexagonAccessPointCount, json, { abortEarly: true });
 }
 
-export async function fetchLeaderboard(signal?: AbortSignal) {
+export async function fetchLeaderboard(http: typeof fetch, signal?: AbortSignal) {
     const url = new URL('api/leaderboard', PUBLIC_HOTSPOTTER_URL);
-    const response = await fetch(url, { signal });
+    const response = await http(url, { signal, mode: 'cors' });
     if (response.status !== 200) throw new UnexpectedStatusCodeError(response.status);
     const json = jsonParse(await response.text());
     return valiParse(LeaderboardUsers, json, { abortEarly: true });

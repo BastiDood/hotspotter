@@ -1,7 +1,12 @@
-import { stringify } from 'devalue';
 import { fetchLeaderboard } from '$lib/server/db';
+import { stringify } from 'devalue';
 
 export async function GET() {
-    const readings = await fetchLeaderboard();
-    return new Response(stringify(readings));
+    const payload = stringify(await fetchLeaderboard());
+    return new Response(payload, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': payload.length.toString(),
+        },
+    });
 }

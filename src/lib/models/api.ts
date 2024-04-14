@@ -41,7 +41,6 @@ export type UserRankScore = Output<typeof UserRankScore>;
 export const LeaderboardUsers = array(
     object({
         rank: bigint(),
-        id: string(),
         name: string(),
         picture: string([url()]),
         score: number(),
