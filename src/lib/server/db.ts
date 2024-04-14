@@ -18,7 +18,7 @@ const HexResult = object({ result: HexagonAccessPointCount });
 
 async function computeWifiScore(sql: Sql, longitude: number, latitude: number, resolution = 9, halfLife = 10) {
     const [result, ...rest] =
-        await sql`SELECT sum(score) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) GROUP BY disk) _`;
+        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) GROUP BY disk) _`;
     assert(rest.length === 0);
     assert(typeof result !== 'undefined');
     return parse(CountResult, result, { abortEarly: true }).result;
@@ -43,7 +43,7 @@ async function computeCellScore(
     const id = typeof upload === 'undefined' ? null : parse(BigId, upload, { abortEarly: true }).id;
 
     const [result, ...resultRest] =
-        await sql`SELECT sum(score) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) GROUP BY disk) _`;
+        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) GROUP BY disk) _`;
     assert(resultRest.length === 0);
     assert(typeof result !== 'undefined');
     const score = parse(CountResult, result, { abortEarly: true }).result;
