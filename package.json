@@ -48,6 +48,7 @@
         "autoprefixer": "^10.4.19",
         "concurrently": "^8.2.2",
         "cookie": "^0.6.0",
+        "devalue": "^4.3.2",
         "dotenv": "^16.4.5",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
