@@ -66,7 +66,8 @@ export type CellSignalInfo = Output<typeof CellSignalInfo>;
 
 export const Cdma = object({
     dbm: number([safeInteger()]),
-    asu: number([safeInteger(), minValue(1), maxValue(16)]), // FIXME: Validate powers of two.
+    // FIXME: Validate powers of two.
+    asu: number([safeInteger(), minValue(1), maxValue(16)]),
     cdma_dbm: number([safeInteger()]),
     cdma_ecio: number([safeInteger()]),
     cdma_level: number([safeInteger(), minValue(0), maxValue(4)]),
@@ -80,10 +81,12 @@ export type Cdma = Output<typeof Cdma>;
 
 export const Gsm = object({
     dbm: number([safeInteger()]),
+    // FIXME: Consider `99` as valid value.
     asu: number([safeInteger(), minValue(0), maxValue(31)]),
+    // FIXME: Consider `99` as valid value.
     bit_error_rate: nullish(number([safeInteger(), minValue(0), maxValue(7)])),
     rssi: nullish(number([safeInteger(), minValue(-113), maxValue(-51)])),
-    timing_advance: nullish(number([safeInteger()])),
+    timing_advance: nullish(number([safeInteger(), minValue(0), maxValue(219)])),
 });
 
 export type Gsm = Output<typeof Gsm>;
@@ -103,10 +106,11 @@ export const Lte = object({
 export type Lte = Output<typeof Lte>;
 
 export const Nr = object({
+    // FIXME: Consider `255` as valid value.
     dbm: number([safeInteger(), minValue(-140), maxValue(-44)]),
     asu: number([safeInteger(), minValue(0), maxValue(97)]),
     csi_cqi_report: optional(array(number([safeInteger(), minValue(0), maxValue(15)]))),
-    csi_cqi_table_index: nullish(number([safeInteger(), minValue(0), maxValue(2)])),
+    csi_cqi_table_index: nullish(number([safeInteger(), minValue(1), maxValue(3)])),
     csi_rsrp: nullish(number([safeInteger(), minValue(-156), maxValue(-31)])),
     csi_rsrq: nullish(number([safeInteger(), minValue(-20), maxValue(-3)])),
     csi_sinr: nullish(number([safeInteger(), minValue(-23), maxValue(23)])),
@@ -120,6 +124,7 @@ export type Nr = Output<typeof Nr>;
 
 export const Tdscdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
+    // FIXME: Consider `255` as valid value.
     asu: number([safeInteger(), minValue(0), maxValue(96)]),
     rscp: nullish(number([safeInteger(), minValue(-120), maxValue(-24)])),
 });
@@ -128,8 +133,9 @@ export type Tdscdma = Output<typeof Tdscdma>;
 
 export const Wcdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
+    // FIXME: Consider `255` as valid value.
     asu: number([safeInteger(), minValue(0), maxValue(96)]),
-    ec_no: nullish(number([safeInteger(), minValue(-24), maxValue(-1)])),
+    ec_no: nullish(number([safeInteger(), minValue(-24), maxValue(1)])),
 });
 
 export type Wcdma = Output<typeof Wcdma>;
