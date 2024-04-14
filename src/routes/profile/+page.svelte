@@ -52,7 +52,7 @@
                 </div>
                 <div class="flex flex-col">
                     <span class="font-bold">{name}</span>
-                    <span class="text-surface-700-200-token text-xs">{score} Points</span>
+                    <span class="text-surface-700-200-token text-xs">{Math.floor(score)} Points</span>
                 </div>
             </div>
         {/each}
