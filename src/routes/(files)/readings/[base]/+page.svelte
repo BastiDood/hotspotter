@@ -21,7 +21,7 @@
 
 <div class="p-4">
     {#if reading === null}
-        <Error>Reading not found. Go back to the <a href="/" class="anchor">home page</a>.</Error>
+        <Error><span>Reading not found. Go back to the <a href="/" class="anchor">home page</a>.</span></Error>
     {:else}
         {@const {
             gps,
