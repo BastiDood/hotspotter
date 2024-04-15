@@ -48,16 +48,16 @@
                 <div class="flex aspect-square size-8 items-center justify-center bg-[#fe9929]/40">
                     <Icon src={Wifi} theme="mini" class="size-4" />
                 </div>
-                <div class="flex aspect-square size-8 items-center justify-center bg-[#993404]/40">20+</div>
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#993404]/40">30+</div>
             {:else}
-                <div class="flex aspect-square size-8 items-center justify-center bg-[#ffffd4]/40">0</div>
-                <div class="flex aspect-square size-8 items-center justify-center bg-[#fed98e]/40">
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#ffffb2]/40">0</div>
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#fecc5c]/40">
                     <Icon src={ChartBar} theme="mini" class="size-4" />
                 </div>
-                <div class="flex aspect-square size-8 items-center justify-center bg-[#fe9929]/40">
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#fd8d3c]/40">
                     <Icon src={ChartBar} theme="mini" class="size-4" />
                 </div>
-                <div class="flex aspect-square size-8 items-center justify-center bg-[#cc4c02]/40">4</div>
+                <div class="flex aspect-square size-8 items-center justify-center bg-[#e31a1c]/40">4</div>
             {/if}
         {/if}
     </div>
