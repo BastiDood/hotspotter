@@ -16,7 +16,7 @@ const Uuid = object({ id: string([uuid()]) });
 const CountResult = object({ result: number() });
 const HexResult = object({ result: HexagonAccessPointCount });
 
-async function computeWifiScore(sql: Sql, longitude: number, latitude: number, resolution = 9, halfLife = 10) {
+async function computeWifiMultiplier(sql: Sql, longitude: number, latitude: number, resolution = 9, halfLife = 10) {
     const [result, ...rest] =
         await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) GROUP BY disk) _`;
     assert(rest.length === 0);
@@ -24,7 +24,7 @@ async function computeWifiScore(sql: Sql, longitude: number, latitude: number, r
     return parse(CountResult, result, { abortEarly: true }).result;
 }
 
-async function computeCellScore(
+async function computeCellMultiplier(
     sql: Sql,
     longitude: number,
     latitude: number,
@@ -46,19 +46,19 @@ async function computeCellScore(
         await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) GROUP BY disk) _`;
     assert(resultRest.length === 0);
     assert(typeof result !== 'undefined');
-    const score = parse(CountResult, result, { abortEarly: true }).result;
+    const multiplier = parse(CountResult, result, { abortEarly: true }).result;
 
-    return { id, score };
+    return { id, multiplier };
 }
 
 async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
-    const compute = computeCellScore.bind(null, sql, gps.longitude, gps.latitude, sim.strength);
-    const { id: cdmaId, score: cdmaScore } = await compute('cdma');
-    const { id: gsmId, score: gsmScore } = await compute('gsm');
-    const { id: lteId, score: lteScore } = await compute('lte');
-    const { id: nrId, score: nrScore } = await compute('nr');
-    const { id: tdscdmaId, score: tdscdmaScore } = await compute('tdscdma');
-    const { id: wcdmaId, score: wcdmaScore } = await compute('wcdma');
+    const compute = computeCellMultiplier.bind(null, sql, gps.longitude, gps.latitude, sim.strength);
+    const { id: cdmaId, multiplier: cdmaMultiplier } = await compute('cdma');
+    const { id: gsmId, multiplier: gsmMultiplier } = await compute('gsm');
+    const { id: lteId, multiplier: lteMultiplier } = await compute('lte');
+    const { id: nrId, multiplier: nrMultiplier } = await compute('nr');
+    const { id: tdscdmaId, multiplier: tdscdmaMultiplier } = await compute('tdscdma');
+    const { id: wcdmaId, multiplier: wcdmaMultiplier } = await compute('wcdma');
 
     // TODO: Distinguish between `null` and `undefined` as "no data" versus "no hardware".
     const [first, ...rest] =
@@ -68,11 +68,18 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
     const { id } = parse(Uuid, first, { abortEarly: true });
 
     // Wi-Fi
-    const wifiScore = await computeWifiScore(sql, gps.longitude, gps.latitude);
+    const wifiMultiplier = await computeWifiMultiplier(sql, gps.longitude, gps.latitude);
     await sql`INSERT INTO hotspotter.wifi ${sql(wifi.map(w => ({ ...w, reading_id: id })))}`;
 
     // Total Score
-    return cdmaScore + gsmScore + lteScore + nrScore + tdscdmaScore + wcdmaScore + wifiScore;
+    const cdmaScore = cdmaMultiplier * (cdmaId === null ? 0 : 1);
+    const gsmScore = gsmMultiplier * (gsmId === null ? 0 : 1);
+    const lteScore = lteMultiplier * (lteId === null ? 0 : 1);
+    const nrScore = nrMultiplier * (nrId === null ? 0 : 1);
+    const tdscdmaScore = tdscdmaMultiplier * (tdscdmaId === null ? 0 : 1);
+    const wcdmaScore = wcdmaMultiplier * (wcdmaId === null ? 0 : 1);
+    const wifiScore = wifiMultiplier * (wifi.length === 0 ? 0 : 1);
+    return 10 * (cdmaScore + gsmScore + lteScore + nrScore + tdscdmaScore + wcdmaScore + wifiScore);
 }
 
 export function uploadReadings({ sub, email, name, picture }: User, readings: Data[]) {
