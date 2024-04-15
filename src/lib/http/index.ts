@@ -6,7 +6,6 @@ import {
 } from './error';
 import { type CellType, type Data, HexagonAccessPointCount, LeaderboardUsers } from '$lib/models/api';
 import { PUBLIC_HOTSPOTTER_URL } from '$lib/env';
-import { assert } from '$lib/assert';
 import { parse as jsonParse } from 'devalue';
 import { parse as valiParse } from 'valibot';
 
@@ -48,7 +47,7 @@ export async function uploadReadings(jwt: string, data: Data[]) {
     });
     switch (response.status) {
         case 201:
-            break;
+            return parseFloat(await response.text());
         case 400:
             throw new MalformedAuthorizationError();
         case 401:
@@ -58,10 +57,6 @@ export async function uploadReadings(jwt: string, data: Data[]) {
         default:
             throw new UnexpectedStatusCodeError(response.status);
     }
-    const score = await response.json();
-    assert(typeof score === 'number');
-    assert(isFinite(score), 'invalid score returned by server');
-    return score;
 }
 
 export async function fetchHexagons(
