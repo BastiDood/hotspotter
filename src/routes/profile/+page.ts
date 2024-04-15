@@ -1,8 +1,8 @@
 import { browser, building } from '$app/environment';
-import { fetchLeaderboard } from '$lib/http';
 import type { LeaderboardUsers } from '$lib/models/api.js';
+import { fetchLeaderboard } from '$lib/http';
 
-export async function load({ fetch }) {
+export function load({ fetch }) {
     const users = !building && browser ? fetchLeaderboard(fetch) : ([] as LeaderboardUsers);
     return { users };
 }
