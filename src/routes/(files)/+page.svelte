@@ -33,12 +33,15 @@
                 : { message: 'Loop service boot failed.', background: 'variant-filled-error' };
             toast.trigger(payload);
         } catch (err) {
-            if (err instanceof Error)
-                toast.trigger({
-                    message: err.message,
-                    background: 'variant-filled-error',
-                });
             console.error(err);
+            if (err instanceof Error) {
+                toast.trigger({
+                    message: `[${err.name}]: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+                return;
+            }
             throw err;
         } finally {
             button.disabled = false;
@@ -55,12 +58,15 @@
                 background: 'variant-filled-error',
             });
         } catch (err) {
-            if (err instanceof Error)
-                toast.trigger({
-                    message: err.message,
-                    background: 'variant-filled-error',
-                });
             console.error(err);
+            if (err instanceof Error) {
+                toast.trigger({
+                    message: `[${err.name}]: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+                return;
+            }
             throw err;
         } finally {
             button.disabled = false;
@@ -75,12 +81,15 @@
             if (typeof state === 'undefined') return;
             permissions[perm] = state;
         } catch (err) {
-            if (err instanceof Error)
-                toast.trigger({
-                    message: err.message,
-                    background: 'variant-filled-error',
-                });
             console.error(err);
+            if (err instanceof Error) {
+                toast.trigger({
+                    message: `[${err.name}]: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+                return;
+            }
             throw err;
         } finally {
             button.disabled = false;
@@ -91,12 +100,15 @@
         try {
             return await startWatch(data => (files = [...files, data]));
         } catch (err) {
-            if (err instanceof Error)
-                toast.trigger({
-                    message: err.message,
-                    background: 'variant-filled-error',
-                });
             console.error(err);
+            if (err instanceof Error) {
+                toast.trigger({
+                    message: `[${err.name}]: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
+                return null;
+            }
             throw err;
         }
     }
