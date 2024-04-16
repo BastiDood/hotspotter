@@ -83,7 +83,7 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
 }
 
 export function uploadReadings({ sub, email, name, picture }: User, readings: Data[]) {
-    return sql.begin('ISOLATION LEVEL SERIALIZABLE', async sql => {
+    return sql.begin('ISOLATION LEVEL REPEATABLE READ', async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
         const scores = await Promise.all(readings.map(reading => insertReading(sql, sub, reading)));
         const total = scores.reduce((prev, curr) => prev + curr, 0);
@@ -94,7 +94,7 @@ export function uploadReadings({ sub, email, name, picture }: User, readings: Da
 
 /** @deprecated {@linkcode uploadReadings} */
 export function uploadReading({ sub, email, name, picture }: User, data: Data) {
-    return sql.begin('ISOLATION LEVEL SERIALIZABLE', async sql => {
+    return sql.begin('ISOLATION LEVEL REPEATABLE READ', async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
         return await insertReading(sql, sub, data);
     });
