@@ -1,10 +1,10 @@
 <script lang="ts">
     import * as Cache from '$lib/plugins/Cache';
     import * as Http from '$lib/http';
-    import { chunked, imap } from 'itertools';
+    import { ApiError } from '$lib/http/error';
     import { ArrowPath } from '@steeze-ui/heroicons';
-    import { BatchOperationError } from '$lib/http/error';
     import { Icon } from '@steeze-ui/svelte-icon';
+    import { chunked } from 'itertools';
     import cookie from 'cookie';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { invalidateAll } from '$app/navigation';
@@ -13,6 +13,53 @@
     export let disabled: boolean;
 
     const toast = getToastStore();
+
+    async function* uploadBatches(jwt: string, size: number) {
+        const files = await Cache.read();
+        for (const chunk of chunked(files, size)) {
+            const score = await Http.uploadReadings(jwt, chunk).catch(err => {
+                if (err instanceof ApiError) {
+                    toast.trigger({
+                        message: `[${err.name}]: ${err.message}`,
+                        background: 'variant-filled-error',
+                        autohide: false,
+                    });
+                    console.error(err);
+                    return null;
+                }
+                throw err;
+            });
+            if (score === null) continue;
+            const results = await Promise.allSettled(
+                chunk.map(({ now }) => {
+                    const base = now.valueOf().toString();
+                    return Cache.remove(`${base}.json`);
+                }),
+            );
+            await invalidateAll();
+            for (const result of results)
+                switch (result.status) {
+                    case 'rejected':
+                        toast.trigger({
+                            message:
+                                result.reason instanceof Error
+                                    ? `[${result.reason.name}]: ${result.reason.message}`
+                                    : result.reason.toString(),
+                            background: 'variant-filled-error',
+                            autohide: false,
+                        });
+                        console.error(result.reason);
+                    // fallsthrough
+                    case 'fulfilled':
+                    // fallsthrough
+                    default:
+                        break;
+                }
+            yield score;
+        }
+    }
+
+    const BATCH_SIZE = 10;
     async function sync() {
         const jwt = cookie.parse(document.cookie)['id'];
         if (typeof jwt === 'undefined') {
@@ -25,79 +72,25 @@
         }
         disabled = true;
         try {
-            const files = await Cache.read();
-            const scores = await Promise.allSettled(
-                imap(chunked(files, 10), async chunk => {
-                    const score = await Http.uploadReadings(jwt, chunk);
-                    const results = await Promise.allSettled(
-                        chunk.map(({ now }) => {
-                            const base = now.valueOf().toString();
-                            return Cache.remove(`${base}.json`);
-                        }),
-                    );
-                    for (const result of results)
-                        switch (result.status) {
-                            case 'rejected':
-                                toast.trigger({
-                                    message:
-                                        result.reason instanceof Error
-                                            ? `[${result.reason.name}]: ${result.reason.message}`
-                                            : result.reason.toString(),
-                                    background: 'variant-filled-error',
-                                    autohide: false,
-                                });
-                                console.error(result.reason);
-                            // fallsthrough
-                            case 'fulfilled':
-                            // fallsthrough
-                            default:
-                                break;
-                        }
-                    return score;
-                }),
-            );
-            const score = scores.reduce((score, curr) => {
-                switch (curr.status) {
-                    case 'fulfilled':
-                        return score + curr.value;
-                    case 'rejected':
-                        toast.trigger({
-                            message:
-                                curr.reason instanceof Error
-                                    ? `[${curr.reason.name}]: ${curr.reason.message}`
-                                    : curr.reason.toString(),
-                            background: 'variant-filled-error',
-                            autohide: false,
-                        });
-                        console.error(curr.reason);
-                    // fallsthrough
-                    default:
-                        return score;
-                }
-            }, 0);
+            // TODO: Prefer `Array.fromAsync` when this is widely available.
+            const scores = [] as number[];
+            for await (const score of uploadBatches(jwt, BATCH_SIZE)) scores.push(score);
+            const score = scores.reduce((prev, curr) => prev + curr, 0);
             toast.trigger({
-                message: `You earned ${Math.floor(score)} points by uploading ${scores.length} readings!`,
+                message: `You earned ${Math.floor(score)} points by uploading ${scores.length} batches of ${BATCH_SIZE} readings!`,
                 background: 'variant-filled-success',
             });
         } catch (err) {
             if (err instanceof Error) {
-                if (err instanceof BatchOperationError)
-                    toast.trigger({
-                        message: 'Failed to upload the readings in batch. The data is likely corrupted.',
-                        background: 'variant-filled-error',
-                        autohide: false,
-                    });
-                else
-                    toast.trigger({
-                        message: `[${err.name}]: ${err.message}`,
-                        background: 'variant-filled-error',
-                        autohide: false,
-                    });
+                toast.trigger({
+                    message: `[${err.name}]: ${err.message}`,
+                    background: 'variant-filled-error',
+                    autohide: false,
+                });
                 return;
             }
             throw err;
         } finally {
-            await invalidateAll();
             disabled = false;
         }
     }

@@ -1,24 +1,26 @@
-export class UnexpectedStatusCodeError extends Error {
+export class ApiError extends Error {}
+
+export class UnexpectedStatusCodeError extends ApiError {
     /** @param {number} code */
     constructor(code) {
-        super(`unexpected status code [${code}]`);
+        super(`Unexpected status code [${code}] encountered.`);
     }
 }
 
-export class MalformedAuthorizationError extends Error {
+export class MalformedAuthorizationError extends ApiError {
     constructor() {
-        super('malformed Authorization header');
+        super('The Authorization header is malformed.');
     }
 }
 
-export class EmptyAuthorizationError extends Error {
+export class EmptyAuthorizationError extends ApiError {
     constructor() {
-        super('empty Authorization header');
+        super('The Authorization header is empty.');
     }
 }
 
-export class BatchOperationError extends Error {
+export class BatchOperationError extends ApiError {
     constructor() {
-        super('batch operation failed');
+        super('Failed to upload the readings in batch. The data is likely corrupted.');
     }
 }
