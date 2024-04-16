@@ -1,6 +1,7 @@
 <script lang="ts">
     import * as Cache from '$lib/plugins/Cache';
     import * as Http from '$lib/http';
+    import { chunked, imap } from 'itertools';
     import { ArrowPath } from '@steeze-ui/heroicons';
     import { BatchOperationError } from '$lib/http/error';
     import { Icon } from '@steeze-ui/svelte-icon';
@@ -25,16 +26,58 @@
         disabled = true;
         try {
             const files = await Cache.read();
-            const score = await Http.uploadReadings(jwt, files);
-            const promises = files.map(({ now }) => {
-                const base = now.valueOf().toString();
-                return Cache.remove(`${base}.json`);
-            });
-            await Promise.all(promises);
+            const scores = await Promise.allSettled(
+                imap(chunked(files, 10), async chunk => {
+                    const score = await Http.uploadReadings(jwt, chunk);
+                    const results = await Promise.allSettled(
+                        chunk.map(({ now }) => {
+                            const base = now.valueOf().toString();
+                            return Cache.remove(`${base}.json`);
+                        }),
+                    );
+                    for (const result of results)
+                        switch (result.status) {
+                            case 'rejected':
+                                toast.trigger({
+                                    message:
+                                        result.reason instanceof Error
+                                            ? `[${result.reason.name}]: ${result.reason.message}`
+                                            : result.reason.toString(),
+                                    background: 'variant-filled-error',
+                                    autohide: false,
+                                });
+                                console.error(result.reason);
+                            // fallsthrough
+                            case 'fulfilled':
+                            // fallsthrough
+                            default:
+                                break;
+                        }
+                    return score;
+                }),
+            );
+            const score = scores.reduce((score, curr) => {
+                switch (curr.status) {
+                    case 'fulfilled':
+                        return score + curr.value;
+                    case 'rejected':
+                        toast.trigger({
+                            message:
+                                curr.reason instanceof Error
+                                    ? `[${curr.reason.name}]: ${curr.reason.message}`
+                                    : curr.reason.toString(),
+                            background: 'variant-filled-error',
+                            autohide: false,
+                        });
+                        console.error(curr.reason);
+                    // fallsthrough
+                    default:
+                        return score;
+                }
+            }, 0);
             toast.trigger({
-                message: `You earned ${Math.floor(score)} points by uploading ${files.length} readings!`,
+                message: `You earned ${Math.floor(score)} points by uploading ${scores.length} readings!`,
                 background: 'variant-filled-success',
-                autohide: false,
             });
         } catch (err) {
             if (err instanceof Error) {

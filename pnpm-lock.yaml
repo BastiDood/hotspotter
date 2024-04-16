@@ -95,6 +95,9 @@ devDependencies:
   h3-js:
     specifier: ^4.1.0
     version: 4.1.0
+  itertools:
+    specifier: ^2.3.1
+    version: 2.3.1
   jose:
     specifier: ^5.2.4
     version: 5.2.4
@@ -2960,6 +2963,10 @@ packages:
 
   /isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+    dev: true
+
+  /itertools@2.3.1:
+    resolution: {integrity: sha512-Pz3wPD9EDaJcVzI6LfNp1Lz3sYgN/jXVGhE3z9k2w1OmcGdMGhLOQfNlJRqxDp9lJCWUb/O7ZuQCNaqBg2DvVg==}
     dev: true
 
   /jackspeak@2.3.6:

@@ -54,6 +54,7 @@
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-svelte": "^2.37.0",
         "h3-js": "^4.1.0",
+        "itertools": "^2.3.1",
         "jose": "^5.2.4",
         "ol": "^9.1.0",
         "path-browserify": "^1.0.1",
