@@ -69,7 +69,10 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
 
     // Wi-Fi
     const wifiMultiplier = await computeWifiMultiplier(sql, gps.longitude, gps.latitude);
-    await sql`INSERT INTO hotspotter.wifi ${sql(wifi.map(w => ({ ...w, reading_id: id })))}`;
+    const wifiRaw =
+        wifi.length > 0
+            ? (await sql`INSERT INTO hotspotter.wifi ${sql(wifi.map(w => ({ ...w, reading_id: id })))}`, 1)
+            : 0;
 
     // Total Score
     const cdmaScore = cdmaMultiplier * (cdmaId === null ? 0 : 1);
@@ -78,12 +81,12 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
     const nrScore = nrMultiplier * (nrId === null ? 0 : 1);
     const tdscdmaScore = tdscdmaMultiplier * (tdscdmaId === null ? 0 : 1);
     const wcdmaScore = wcdmaMultiplier * (wcdmaId === null ? 0 : 1);
-    const wifiScore = wifiMultiplier * (wifi.length === 0 ? 0 : 1);
+    const wifiScore = wifiMultiplier * wifiRaw;
     return 10 * (cdmaScore + gsmScore + lteScore + nrScore + tdscdmaScore + wcdmaScore + wifiScore);
 }
 
 export function uploadReadings({ sub, email, name, picture }: User, readings: Data[]) {
-    return sql.begin('ISOLATION LEVEL REPEATABLE READ', async sql => {
+    return sql.begin(async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
         const scores = await Promise.all(readings.map(reading => insertReading(sql, sub, reading)));
         const total = scores.reduce((prev, curr) => prev + curr, 0);
@@ -94,7 +97,7 @@ export function uploadReadings({ sub, email, name, picture }: User, readings: Da
 
 /** @deprecated {@linkcode uploadReadings} */
 export function uploadReading({ sub, email, name, picture }: User, data: Data) {
-    return sql.begin('ISOLATION LEVEL REPEATABLE READ', async sql => {
+    return sql.begin(async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
         return await insertReading(sql, sub, data);
     });
