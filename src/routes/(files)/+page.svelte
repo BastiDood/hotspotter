@@ -127,7 +127,7 @@
     {#each perms as [perm, state] (perm)}
         {#if state === 'granted'}
             <SuccessAlert>
-                <span class="text-sm">Permission to access <b>{perm}</b> information was granted.</span>
+                <span class="text-sm">Permission for <b>{perm}</b> granted.</span>
             </SuccessAlert>
         {:else if state === 'denied'}
             <ErrorAlert>
@@ -143,7 +143,6 @@
                     <button
                         type="button"
                         class="variant-glass-success btn-icon p-1 shadow"
-                        {disabled}
                         on:click={({ currentTarget }) => prompt(currentTarget, perm)}><Icon src={ShieldCheck} /></button
                     >
                 </div>
