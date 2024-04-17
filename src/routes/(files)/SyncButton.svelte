@@ -14,7 +14,6 @@
 
     const toast = getToastStore();
 
-    const BATCH_SIZE = 10;
     async function sync() {
         const jwt = cookie.parse(document.cookie)['id'];
         if (typeof jwt === 'undefined') {
@@ -28,7 +27,7 @@
         disabled = true;
         try {
             const files = await Cache.read();
-            for (const chunk of chunked(files, BATCH_SIZE))
+            for (const chunk of chunked(files, 10))
                 try {
                     const score = await Http.uploadReadings(jwt, chunk);
                     const results = await Promise.allSettled(
@@ -57,7 +56,7 @@
                                 break;
                         }
                     toast.trigger({
-                        message: `You earned ${Math.floor(score)} points by uploading ${BATCH_SIZE} readings!`,
+                        message: `You earned ${Math.floor(score)} points by uploading ${chunk.length} readings!`,
                         background: 'variant-filled-success',
                     });
                 } catch (err) {
