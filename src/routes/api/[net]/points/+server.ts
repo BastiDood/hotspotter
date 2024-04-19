@@ -2,12 +2,19 @@ import { aggregateAccessPoints, aggregateCellularLevels } from '$lib/server/db';
 import { error, json } from '@sveltejs/kit';
 import { CellType } from '$lib/models/api.js';
 
-function extractNumberFromQuery(params: URLSearchParams, query: string) {
+function parseInteger(num: string) {
+    return parseInt(num, 10);
+}
+
+function extractNumberFromQuery(parse: typeof parseFloat, params: URLSearchParams, query: string) {
     const value = params.get(query);
     if (value === null) return null;
-    const result = parseFloat(value);
+    const result = parse(value);
     return isFinite(result) ? result : null;
 }
+
+const extractFloat = extractNumberFromQuery.bind(null, parseFloat);
+const extractInteger = extractNumberFromQuery.bind(null, parseInteger);
 
 function resolveSelector(net: string) {
     switch (net) {
@@ -31,7 +38,7 @@ function resolveSelector(net: string) {
 }
 
 export async function GET({ url: { searchParams }, params: { net } }) {
-    const extract = extractNumberFromQuery.bind(null, searchParams);
+    const extract = extractFloat.bind(null, searchParams);
 
     const minX = extract('min-x');
     if (minX === null) error(400, 'invalid min-x');
@@ -48,9 +55,10 @@ export async function GET({ url: { searchParams }, params: { net } }) {
     const selector = resolveSelector(net);
     if (selector === null) error(400, 'invalid network type');
 
+    const age = extractInteger(searchParams, 'age');
     const promise =
         selector === CellType.WiFi
-            ? aggregateAccessPoints(minX, minY, maxX, maxY)
-            : aggregateCellularLevels(selector, minX, minY, maxX, maxY);
+            ? aggregateAccessPoints(minX, minY, maxX, maxY, age)
+            : aggregateCellularLevels(selector, minX, minY, maxX, maxY, age);
     return json(await promise);
 }
