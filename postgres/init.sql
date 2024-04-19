@@ -73,7 +73,6 @@ CREATE SCHEMA hotspotter
     )
     CREATE TABLE readings(
         reading_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-        wifi_timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
         -- Geolocation
         gps_timestamp TIMESTAMPTZ NOT NULL,
         coords CIRCLE NOT NULL,
