@@ -16,15 +16,25 @@ const Uuid = object({ id: string([uuid()]) });
 const CountResult = object({ result: number() });
 const HexResult = object({ result: HexagonAccessPointCount });
 
+/**
+ * Comptues the Wi-Fi multiplier score between `0` and `1`. Note that only cells fresher than two weeks
+ * are considered for scoring. This allows us to incentivize users to update stale data points.
+ */
 async function computeWifiMultiplier(sql: Sql, longitude: number, latitude: number, resolution = 9, halfLife = 10) {
+    // TODO: Consider age of stalest data in score computation.
     const [result, ...rest] =
-        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) GROUP BY disk) _`;
+        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '2W' < wifi_timestamp GROUP BY disk) _`;
     assert(rest.length === 0);
     assert(typeof result !== 'undefined');
     return parse(CountResult, result, { abortEarly: true }).result;
 }
 
-async function computeCellMultiplier(
+/**
+ * Comptues the cell multiplier score between 0 and 1. Also inserts the cell into the database afterward.
+ * Note that only cells fresher than one week are considered for scoring. This allows us to incentivize
+ * users to update stale data points.
+ */
+async function computeCellMultiplierThenInsert(
     sql: Sql,
     longitude: number,
     latitude: number,
@@ -33,32 +43,39 @@ async function computeCellMultiplier(
     resolution = 9,
     halfLife = 10,
 ) {
+    // TODO: Consider age of stalest data in score computation.
     const table = sql(`hotspotter.${cell}` as const);
     const field = sql(`${cell}_id` as const);
     const payload = data[cell];
+
+    const [result, ...resultRest] =
+        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) WHERE NOW() - INTERVAL '1W' < cell_timestamp GROUP BY disk) _`;
+    assert(resultRest.length === 0);
+    assert(typeof result !== 'undefined');
+    const multiplier = parse(CountResult, result, { abortEarly: true }).result;
 
     const [upload, ...uploadRest] =
         typeof payload === 'undefined' ? [] : await sql`INSERT INTO ${table} ${sql(payload)} RETURNING ${field} id`;
     assert(uploadRest.length === 0);
     const id = typeof upload === 'undefined' ? null : parse(BigId, upload, { abortEarly: true }).id;
 
-    const [result, ...resultRest] =
-        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) GROUP BY disk) _`;
-    assert(resultRest.length === 0);
-    assert(typeof result !== 'undefined');
-    const multiplier = parse(CountResult, result, { abortEarly: true }).result;
-
     return { id, multiplier };
 }
 
 async function insertReading(sql: Sql, sub: string, { gps, sim, wifi, now }: Data) {
-    const compute = computeCellMultiplier.bind(null, sql, gps.longitude, gps.latitude, sim.strength);
-    const { id: cdmaId, multiplier: cdmaMultiplier } = await compute('cdma');
-    const { id: gsmId, multiplier: gsmMultiplier } = await compute('gsm');
-    const { id: lteId, multiplier: lteMultiplier } = await compute('lte');
-    const { id: nrId, multiplier: nrMultiplier } = await compute('nr');
-    const { id: tdscdmaId, multiplier: tdscdmaMultiplier } = await compute('tdscdma');
-    const { id: wcdmaId, multiplier: wcdmaMultiplier } = await compute('wcdma');
+    const computeThenInsert = computeCellMultiplierThenInsert.bind(
+        null,
+        sql,
+        gps.longitude,
+        gps.latitude,
+        sim.strength,
+    );
+    const { id: cdmaId, multiplier: cdmaMultiplier } = await computeThenInsert('cdma');
+    const { id: gsmId, multiplier: gsmMultiplier } = await computeThenInsert('gsm');
+    const { id: lteId, multiplier: lteMultiplier } = await computeThenInsert('lte');
+    const { id: nrId, multiplier: nrMultiplier } = await computeThenInsert('nr');
+    const { id: tdscdmaId, multiplier: tdscdmaMultiplier } = await computeThenInsert('tdscdma');
+    const { id: wcdmaId, multiplier: wcdmaMultiplier } = await computeThenInsert('wcdma');
 
     // TODO: Distinguish between `null` and `undefined` as "no data" versus "no hardware".
     const [first, ...rest] =
