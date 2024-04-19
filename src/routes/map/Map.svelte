@@ -50,6 +50,7 @@
     const gpsVisibleStore = dashboard.gps;
     const hexVisibleStore = dashboard.hex;
     const cellStore = dashboard.cell;
+    const ageStore = dashboard.age;
 
     const gps = new Circle(center, accuracy);
     const gpsFeature = new Feature(gps);
@@ -79,9 +80,9 @@
     });
     $: hexLayer.setVisible($hexVisibleStore);
 
-    const refreshHexagons = abortable(async (signal, cell: CellType) => {
+    const refreshHexagons = abortable(async (signal, cell: CellType, age: number | null) => {
         const { minX, maxX, minY, maxY, proj } = validateExtent(dashboard.view);
-        const hexes = await fetchHexagons(cell, minX, minY, maxX, maxY, signal);
+        const hexes = await fetchHexagons(cell, minX, minY, maxX, maxY, age, signal);
         const [gradient, max] =
             cell === CellType.WiFi ? [WIFI_GRADIENT, MAX_ACCESS_POINTS] : [CELL_GRADIENT, MAX_SIGNAL_STRENGTH];
         const features = Object.entries(hexes).map(([hex, count]) => {
@@ -94,7 +95,7 @@
         hexFeatures.clear();
         hexFeatures.extend(features);
     });
-    $: refreshHexagons($cellStore);
+    $: refreshHexagons($cellStore, $ageStore);
 
     const popup = new PopupOverlay();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,7 +116,7 @@
     }
 
     function onLoadEnd() {
-        refreshHexagons($cellStore);
+        refreshHexagons($cellStore, $ageStore);
     }
 
     // eslint-disable-next-line init-declarations

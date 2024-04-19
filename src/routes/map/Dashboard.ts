@@ -32,4 +32,8 @@ export class DashboardControl extends Control {
     get cell() {
         return this.#component.cell;
     }
+
+    get age() {
+        return this.#component.age;
+    }
 }

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { ChartBar, Wifi } from '@steeze-ui/heroicons';
+    import AgeSelect from './AgeSelect.svelte';
     import { CellType } from '$lib/models/api';
     import type { Coordinate } from 'ol/coordinate';
     import { Icon } from '@steeze-ui/svelte-icon';
@@ -29,6 +30,9 @@
 
     /** The source of the hexagons. */
     export const cell = writable(CellType.WiFi);
+
+    /** Filter the data points by this age. */
+    export const age = writable(7 as 7 | 14 | 28 | null);
 </script>
 
 <div class="pointer-events-none grid h-full grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] gap-4 p-4 text-xs">
@@ -61,8 +65,9 @@
             {/if}
         {/if}
     </div>
-    <div class="row-start 1 col-start-3">
+    <div class="row-start 1 col-start-3 space-y-4">
         <NetworkSelect name="data" bind:value={$cell} />
+        <AgeSelect name="age" bind:value={$age} />
     </div>
     <p class="col-start-3 row-start-3 w-full self-end text-right">
         &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" class="anchor pointer-events-auto"

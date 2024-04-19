@@ -65,9 +65,11 @@ export async function fetchHexagons(
     minY: number,
     maxX: number,
     maxY: number,
+    age: number | null,
     signal?: AbortSignal,
 ) {
     const url = new URL(`api/${cellType}/points`, PUBLIC_HOTSPOTTER_URL);
+    if (age !== null) url.searchParams.set('age', age.toString());
     url.searchParams.set('min-x', minX.toString());
     url.searchParams.set('min-y', minY.toString());
     url.searchParams.set('max-x', maxX.toString());
