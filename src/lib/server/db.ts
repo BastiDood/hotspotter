@@ -51,7 +51,7 @@ async function computeCellMultiplier(
     return { id, multiplier };
 }
 
-async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
+async function insertReading(sql: Sql, sub: string, { gps, sim, wifi, now }: Data) {
     const compute = computeCellMultiplier.bind(null, sql, gps.longitude, gps.latitude, sim.strength);
     const { id: cdmaId, multiplier: cdmaMultiplier } = await compute('cdma');
     const { id: gsmId, multiplier: gsmMultiplier } = await compute('gsm');
@@ -62,7 +62,7 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
 
     // TODO: Distinguish between `null` and `undefined` as "no data" versus "no hardware".
     const [first, ...rest] =
-        await sql`INSERT INTO hotspotter.readings (user_id, gps_timestamp, coords, altitude_level, altitude_accuracy, speed, heading, network_type, carrier_id, operator_id, cell_timestamp, cdma_id, gsm_id, lte_id, nr_id, tdscdma_id, wcdma_id) VALUES (${sub}, ${gps.timestamp}, CIRCLE(POINT(${gps.longitude}, ${gps.latitude}), ${gps.coords_accuracy}), ${gps.altitude}, ${gps.altitude_accuracy ?? null}, ${gps.speed}, ${gps.heading}, ${sim.network_type}, ${sim.carrier_id ?? null}, ${sim.operator_id}, ${sim.strength.timestamp}, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`;
+        await sql`INSERT INTO hotspotter.readings (wifi_timestamp, user_id, gps_timestamp, coords, altitude_level, altitude_accuracy, speed, heading, network_type, carrier_id, operator_id, cell_timestamp, cdma_id, gsm_id, lte_id, nr_id, tdscdma_id, wcdma_id) VALUES (${now}, ${sub}, ${gps.timestamp}, CIRCLE(POINT(${gps.longitude}, ${gps.latitude}), ${gps.coords_accuracy}), ${gps.altitude}, ${gps.altitude_accuracy ?? null}, ${gps.speed}, ${gps.heading}, ${sim.network_type}, ${sim.carrier_id ?? null}, ${sim.operator_id}, ${sim.strength.timestamp}, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     const { id } = parse(Uuid, first, { abortEarly: true });
