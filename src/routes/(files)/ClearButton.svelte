@@ -1,7 +1,7 @@
 <script lang="ts">
     import * as Cache from '$lib/plugins/Cache';
-    import { ArrowPath } from '@steeze-ui/heroicons';
     import { Icon } from '@steeze-ui/svelte-icon';
+    import { Trash } from '@steeze-ui/heroicons';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { invalidateAll } from '$app/navigation';
 
@@ -33,6 +33,6 @@
 </script>
 
 <button {disabled} class="variant-filled-error btn" on:click={clear}>
-    <Icon src={ArrowPath} theme="outline" class="h-4" />
+    <Icon src={Trash} theme="outline" class="h-4" />
     <span>Clear</span>
 </button>
