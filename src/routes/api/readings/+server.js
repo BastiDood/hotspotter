@@ -22,15 +22,9 @@ export async function POST({ request }) {
         const score = await uploadReadings(user, input);
         return new Response(score.toString(), { status: 201 });
     } catch (err) {
-        if (err instanceof pg.PostgresError) {
-            console.error(err);
-            error(550, err);
-        } else if (err instanceof ValiError) {
-            console.error(err);
-            const issues = err.issues.map(({ path }) => path?.map(p => JSON.stringify(p, null, 4)) ?? []);
-            for (const issue of issues) console.log(issue);
-            error(550, err);
-        }
+        console.error(err);
+        console.dir(err);
+        if (err instanceof pg.PostgresError || err instanceof ValiError) error(550, err);
         throw err;
     }
 }
