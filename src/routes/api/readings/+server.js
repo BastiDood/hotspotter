@@ -1,4 +1,4 @@
-import { array, parse } from 'valibot';
+import { ValiError, array, parse } from 'valibot';
 import { Data } from '$lib/models/api';
 import { error } from '@sveltejs/kit';
 import pg from 'postgres';
@@ -24,6 +24,11 @@ export async function POST({ request }) {
     } catch (err) {
         if (err instanceof pg.PostgresError) {
             console.error(err);
+            error(550, err);
+        } else if (err instanceof ValiError) {
+            console.error(err);
+            const issues = err.issues.map(({ path }) => path?.map(p => JSON.stringify(p, null, 4)) ?? []);
+            for (const issue of issues) console.log(issue);
             error(550, err);
         }
         throw err;
