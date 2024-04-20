@@ -23,7 +23,7 @@ const HexResult = object({ result: HexagonAccessPointCount });
 async function computeWifiMultiplier(sql: Sql, longitude: number, latitude: number, resolution = 9, halfLife = 10) {
     // TODO: Consider age of stalest data in score computation.
     const [result, ...rest] =
-        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '2W' < wifi_timestamp GROUP BY disk) _`;
+        await sql`SELECT exp(sum(ln(score))) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN (SELECT reading_id, coords, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '2W' < wifi_timestamp GROUP BY disk) _`;
     assert(rest.length === 0);
     assert(typeof result !== 'undefined');
     return parse(CountResult, result, { abortEarly: true }).result;
