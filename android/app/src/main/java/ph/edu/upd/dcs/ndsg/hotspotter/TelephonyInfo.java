@@ -6,6 +6,7 @@ import android.os.*;
 import android.telephony.*;
 import androidx.annotation.*;
 import com.getcapacitor.JSObject;
+import org.json.JSONArray;
 
 public class TelephonyInfo {
     private @NonNull TelephonyManager api;
@@ -82,7 +83,7 @@ public class TelephonyInfo {
                     .put("ss_sinr", ssSinr == CellInfo.UNAVAILABLE ? JSObject.NULL : ssSinr);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     var csiCqiTableIndex = s.getCsiCqiTableIndex();
-                    json.put("csi_cqi_report", s.getCsiCqiReport())
+                    json.put("csi_cqi_report", new JSONArray(s.getCsiCqiReport()))
                         .put("csi_cqi_table_index", csiCqiTableIndex == CellInfo.UNAVAILABLE ? JSObject.NULL : csiCqiTableIndex);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         var timingAdvanceMicros = s.getTimingAdvanceMicros();

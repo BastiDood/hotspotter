@@ -107,10 +107,15 @@ export const Lte = object({
 export type Lte = Output<typeof Lte>;
 
 export const Nr = object({
-    // FIXME: Consider `255` as valid value.
     dbm: number([safeInteger(), minValue(-140), maxValue(-44)]),
+    // FIXME: Consider `255` as valid value.
     asu: number([safeInteger(), minValue(0), maxValue(97)]),
-    csi_cqi_report: optional(array(number([safeInteger(), minValue(0), maxValue(15)]))),
+    // TODO: Deprecate the string workaround.
+    csi_cqi_report: optional(
+        coerce(array(number([safeInteger(), minValue(0), maxValue(15)])), input =>
+            typeof input === 'string' ? JSON.parse(input) : input,
+        ),
+    ),
     csi_cqi_table_index: nullish(number([safeInteger(), minValue(1), maxValue(3)])),
     csi_rsrp: nullish(number([safeInteger(), minValue(-156), maxValue(-31)])),
     csi_rsrq: nullish(number([safeInteger(), minValue(-20), maxValue(-3)])),
