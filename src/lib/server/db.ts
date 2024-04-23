@@ -135,10 +135,14 @@ export async function aggregateAccessPoints(
     maxY: number,
     age: number | null,
 ) {
+    const unique = sql`SELECT DISTINCT ON (trunc(bssid), ssid) reading_id, wifi_timestamp FROM hotspotter.wifi WHERE ssid <> ''`;
+    const isWithinBoundingBox = sql`coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))`;
+    const isWithinInterval = age === null ? sql`TRUE` : sql`(NOW() - make_interval(days => ${age})) < ts`;
+    const minHistory = sql`SELECT reading_id, min(wifi_timestamp) ts FROM (${unique}) uniq GROUP BY reading_id`;
     const resolution = resolveResolution(minX, maxX);
-    const interval = age === null ? sql`TRUE` : sql`(NOW() - make_interval(days => ${age})) < ts`;
+    const hexes = sql`SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM (${minHistory}) min_history JOIN hotspotter.readings USING (reading_id) WHERE ${isWithinInterval} AND ${isWithinBoundingBox}`;
     const [first, ...rest] =
-        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}') result FROM (SELECT hex, count(DISTINCT (man, ssid)), min(wifi_timestamp) ts FROM (SELECT DISTINCT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, trunc(bssid) man, ssid, wifi_timestamp FROM hotspotter.wifi JOIN hotspotter.readings USING (reading_id) WHERE ssid <> '' AND coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) uniq GROUP BY hex) _ WHERE ${interval}`;
+        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}') result FROM (SELECT hex, count(hex) FROM (${hexes}) hexes GROUP BY hex) _`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
