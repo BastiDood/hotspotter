@@ -30,7 +30,7 @@ public class ScanService extends Service {
     @NonNull
     private Notification createNotification(@NonNull String content) {
         return new NotificationCompat.Builder(this, "scan")
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.ic_stat_hotspotter)
             .setContentTitle("Hotspotter")
             .setContentText(content)
             .setOngoing(true)
