@@ -136,7 +136,7 @@ export async function aggregateAccessPoints(
     age: number | null,
 ) {
     const resolution = resolveResolution(minX, maxX);
-    const interval = age === null ? sql`TRUE` : sql`NOW() - make_interval(days => ${age}) < ts`;
+    const interval = age === null ? sql`TRUE` : sql`(NOW() - make_interval(days => ${age})) < ts`;
     const [first, ...rest] =
         await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}') result FROM (SELECT hex, count(DISTINCT (man, ssid)), min(wifi_timestamp) ts FROM (SELECT DISTINCT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, trunc(bssid) man, ssid, wifi_timestamp FROM hotspotter.wifi JOIN hotspotter.readings USING (reading_id) WHERE ssid <> '' AND coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) uniq GROUP BY hex) _ WHERE ${interval}`;
     assert(rest.length === 0);
@@ -156,7 +156,7 @@ export async function aggregateCellularLevels(
     const table = sql(`hotspotter.${cell}`);
     const id = sql(`${cell}_id`);
     const resolution = resolveResolution(minX, maxX);
-    const interval = age === null ? sql`TRUE` : sql`NOW() - make_interval(days => ${age}) < cell_timestamp`;
+    const interval = age === null ? sql`TRUE` : sql`(NOW() - make_interval(days => ${age})) < cell_timestamp`;
     const [first, ...rest] =
         await sql`SELECT coalesce(jsonb_object_agg(hex, avg), '{}') result FROM (SELECT hex, avg(level)::DOUBLE PRECISION FROM (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, level FROM hotspotter.readings JOIN ${table} USING (${id}) WHERE ${interval} AND coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hist GROUP BY hex) _`;
     assert(rest.length === 0);
