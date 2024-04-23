@@ -2,9 +2,14 @@
     import './app.css';
     import { AppBar, AppShell, LightSwitch, Toast, initializeStores } from '@skeletonlabs/skeleton';
     import NavBar from './NavBar.svelte';
+    import favicon from '$lib/logo/favicon.png?url';
     import logo from '$lib/logo/hotspotter.svg?raw';
     initializeStores();
 </script>
+
+<svelte:head>
+    <link rel="icon" href={favicon} />
+</svelte:head>
 
 <Toast />
 <AppShell>
