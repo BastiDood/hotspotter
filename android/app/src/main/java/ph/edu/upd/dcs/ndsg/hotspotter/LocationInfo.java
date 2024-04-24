@@ -54,10 +54,10 @@ public class LocationInfo {
         });
         while (true)
             try {
-                Log.i("LocationInfo", "getting async location");
+                Log.i("LocationInfo", "getting async " + provider + " location");
                 return future.get(10, TimeUnit.SECONDS);
             } catch (TimeoutException ex) {
-                Log.w("LocationInfo", "ten-second timeout for async location expired", ex);
+                Log.w("LocationInfo", "ten-second timeout for async " + provider + " location expired", ex);
                 return null;
             } catch (InterruptedException ex) {
                 Log.e("LocationInfo", provider + " location thread interrupted while waiting for callback... trying again", ex);
