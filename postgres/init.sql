@@ -81,8 +81,8 @@ CREATE SCHEMA hotspotter
         speed DOUBLE PRECISION,
         heading DOUBLE PRECISION,
         -- Cellular
-        network_type INT NOT NULL,
-        carrier_id INT NOT NULL,
+        network_type INT,
+        carrier_id INT,
         operator_id INT NOT NULL,
         -- Signal
         cell_timestamp TIMESTAMPTZ NOT NULL,
