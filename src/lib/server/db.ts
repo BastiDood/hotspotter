@@ -47,11 +47,13 @@ async function insertThenComputeCellMultiplier(
     const table = sql(`hotspotter.${cell}` as const);
     const field = sql(`${cell}_id` as const);
     const payload = data[cell];
+    if (typeof payload === 'undefined') return { id: null, multiplier: 0 };
+    for (const key of Object.keys(payload)) if (typeof payload[key] === 'undefined') delete payload[key];
 
-    const [upload, ...uploadRest] =
-        typeof payload === 'undefined' ? [] : await sql`INSERT INTO ${table} ${sql(payload)} RETURNING ${field} id`;
+    const [upload, ...uploadRest] = await sql`INSERT INTO ${table} ${sql(payload)} RETURNING ${field} id`;
     assert(uploadRest.length === 0);
-    const id = typeof upload === 'undefined' ? null : parse(BigId, upload, { abortEarly: true }).id;
+    assert(typeof upload !== 'undefined');
+    const { id } = parse(BigId, upload, { abortEarly: true });
 
     const [result, ...resultRest] =
         await sql`SELECT exp(coalesce(sum(ln(score)), 0)) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) WHERE NOW() - INTERVAL '1W' < cell_timestamp GROUP BY disk) _`;

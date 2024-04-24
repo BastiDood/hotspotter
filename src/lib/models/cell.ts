@@ -7,7 +7,6 @@ import {
     maxValue,
     merge,
     minValue,
-    never,
     nullable,
     nullish,
     number,
@@ -16,6 +15,7 @@ import {
     partial,
     safeInteger,
     string,
+    unknown,
 } from 'valibot';
 
 // TODO: Remove this after deprecating the `null` method.
@@ -154,26 +154,29 @@ export const Wcdma = object({
 export type Wcdma = Output<typeof Wcdma>;
 
 export const CellSignalStrength = object({
-    cdma: merge([CellSignalInfo, Cdma], never()),
-    gsm: merge([CellSignalInfo, Gsm], never()),
-    lte: merge([CellSignalInfo, Lte], never()),
-    nr: merge([CellSignalInfo, Nr], never()),
-    tdscdma: merge([CellSignalInfo, Tdscdma], never()),
-    wcdma: merge([CellSignalInfo, Wcdma], never()),
+    cdma: merge([CellSignalInfo, Cdma], unknown()),
+    gsm: merge([CellSignalInfo, Gsm], unknown()),
+    lte: merge([CellSignalInfo, Lte], unknown()),
+    nr: merge([CellSignalInfo, Nr], unknown()),
+    tdscdma: merge([CellSignalInfo, Tdscdma], unknown()),
+    wcdma: merge([CellSignalInfo, Wcdma], unknown()),
 });
 
 export type CellSignalStrength = Output<typeof CellSignalStrength>;
 
-export const SignalStrength = merge([
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    object({
-        timestamp: coerce(date(), input =>
-            typeof input === 'string' || typeof input === 'number' ? new Date(input) : input,
-        ),
-    }),
-    partial(CellSignalStrength),
-    CellSignalInfo,
-]);
+export const SignalStrength = merge(
+    [
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        object({
+            timestamp: coerce(date(), input =>
+                typeof input === 'string' || typeof input === 'number' ? new Date(input) : input,
+            ),
+        }),
+        partial(CellSignalStrength),
+        CellSignalInfo,
+    ],
+    unknown(),
+);
 
 export type SignalStrength = Output<typeof SignalStrength>;
 
