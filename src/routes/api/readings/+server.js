@@ -22,9 +22,33 @@ export async function POST({ request }) {
         const score = await uploadReadings(user, input);
         return new Response(score.toString(), { status: 201 });
     } catch (err) {
-        console.error(err);
-        console.dir(err);
-        if (err instanceof pg.PostgresError || err instanceof ValiError) error(550, err);
+        if (err instanceof pg.PostgresError) {
+            console.error(`[PG-${err.code}]: ${err.message}`);
+            error(550, err);
+        } else if (err instanceof ValiError) {
+            for (const { reason, context, received, path } of err.issues) {
+                const trace =
+                    path
+                        ?.map(path => {
+                            switch (path.type) {
+                                case 'object':
+                                    return path.key;
+                                case 'array':
+                                case 'tuple':
+                                case 'set':
+                                case 'record':
+                                    return path.key.toString();
+                                case 'map':
+                                case 'unknown':
+                                default:
+                                    return path.key instanceof Object ? path.key.toString() : '<?>';
+                            }
+                        })
+                        .join('.') || '<?>';
+                console.error(`received ${received} in ${trace} for ${context}@${reason}`);
+            }
+            error(551, err);
+        }
         throw err;
     }
 }
