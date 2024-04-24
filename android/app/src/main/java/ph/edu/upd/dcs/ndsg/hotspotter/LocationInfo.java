@@ -1,27 +1,35 @@
 package ph.edu.upd.dcs.ndsg.hotspotter;
 
 import android.Manifest;
-import android.location.*;
-import android.os.*;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.util.Log;
-import androidx.annotation.*;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.core.location.LocationManagerCompat;
 import com.getcapacitor.JSObject;
 import java.lang.InterruptedException;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.TimeUnit;
 
 public class LocationInfo {
-    private static final String PROVIDER = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
-        ? LocationManager.GPS_PROVIDER
-        : LocationManager.FUSED_PROVIDER;
     private @NonNull LocationManager api;
 
     LocationInfo(@NonNull LocationManager api) {
         this.api = api;
     }
 
-    private static JSObject convertLocationToJson(Location location) {
+    public static JSObject convertLocationToJson(Location location) {
         return new JSObject()
             .put("timestamp", location.getTime())
             .put("latitude", location.getLatitude())
@@ -38,15 +46,28 @@ public class LocationInfo {
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION,
     })
-    public JSObject getLastKnownLocation() {
-        var now = SystemClock.elapsedRealtimeNanos();
-        return api.getAllProviders()
-            .stream()
-            .map(api::getLastKnownLocation)
-            .filter(Objects::nonNull)
-            .max(Comparator.comparingLong(Location::getElapsedRealtimeNanos))
-            .map(LocationInfo::convertLocationToJson)
-            .orElse(null);
+    private Location getCurrentLocationByProvider(String provider) {
+        var future = new CompletableFuture<Location>();
+        LocationManagerCompat.getCurrentLocation(api, provider, null, ForkJoinPool.commonPool(), location -> {
+            if (future.complete(location)) return;
+            Log.wtf("LocationInfo", "location callback already completed");
+        });
+        while (true)
+            try {
+                Log.i("LocationInfo", "getting async location");
+                return future.get(10, TimeUnit.SECONDS);
+            } catch (TimeoutException ex) {
+                Log.w("LocationInfo", "ten-second timeout for async location expired", ex);
+                return null;
+            } catch (InterruptedException ex) {
+                Log.e("LocationInfo", provider + " location thread interrupted while waiting for callback... trying again", ex);
+            } catch (CancellationException ex) {
+                Log.wtf("LocationInfo", provider + " location request cancelled", ex);
+                return null;
+            } catch (ExecutionException ex) {
+                Log.wtf("LocationInfo", provider + " location callback panicked", ex);
+                return null;
+            }
     }
 
     @Nullable
@@ -54,23 +75,12 @@ public class LocationInfo {
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_FINE_LOCATION,
     })
-    public JSObject getCurrentLocation() {
-        var thread = Thread.currentThread();
-        var queue = new SynchronousQueue<Location>();
-        LocationManagerCompat.getCurrentLocation(api, PROVIDER, null, ForkJoinPool.commonPool(), location -> {
-            try {
-                queue.put(location);
-            } catch (InterruptedException err) {
-                Log.e("LocationInfo", "producer thread for current location interrupted", err);
-                thread.interrupt();
-            }
-        });
-        try {
-            var location = queue.take();
-            return location == null ? null : convertLocationToJson(location);
-        } catch (InterruptedException err) {
-            Log.e("LocationInfo", "consumer thread for current location interrupted", err);
-            return null;
-        }
+    public Location getCurrentLocation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            return getCurrentLocationByProvider(LocationManager.FUSED_PROVIDER);
+        var gps = getCurrentLocationByProvider(LocationManager.GPS_PROVIDER);
+        return gps == null
+            ? getCurrentLocationByProvider(LocationManager.NETWORK_PROVIDER)
+            : gps;
     }
 }

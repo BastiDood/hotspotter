@@ -17,6 +17,7 @@ import java.io.*;
 import java.lang.Runnable;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 import java.time.*;
@@ -115,9 +116,9 @@ public class ScanService extends Service {
         var sim = tel.getCellQuality();
 
         var loc = new LocationInfo(ContextCompat.getSystemService(this, LocationManager.class));
-        var gps = loc.getCurrentLocation();
+        var gps = LocationInfo.convertLocationToJson(loc.getCurrentLocation());
         if (gps == null) {
-            Log.w("ScanService", "location is unavailable");
+            Log.w("ScanService", "location is unavailable... dropping this scan");
             return;
         }
 
