@@ -182,8 +182,8 @@ export type SignalStrength = Output<typeof SignalStrength>;
 
 export const Sim = object({
     network_type: nullable(enum_(NetworkType)),
-    carrier_id: nullish(number()),
-    carrier_name: nullish(string()),
+    carrier_id: nullable(number()),
+    carrier_name: nullable(string()),
     operator_id: string(),
     operator_name: string(),
     strength: SignalStrength,
