@@ -18,6 +18,12 @@ import {
     string,
 } from 'valibot';
 
+// TODO: Remove this after deprecating the `null` method.
+function coerceNullAsUndefined(input: unknown): unknown {
+    // eslint-disable-next-line no-undefined
+    return input === null ? undefined : input;
+}
+
 export enum NetworkType {
     /** General Packet Radio Service (2.5G) */
     GPRS,
@@ -68,7 +74,7 @@ export type CellSignalInfo = Output<typeof CellSignalInfo>;
 export const Cdma = object({
     dbm: number([safeInteger()]),
     // FIXME: Validate powers of two.
-    asu: number([safeInteger(), minValue(1), maxValue(16)]),
+    asu: nullable(number([safeInteger(), minValue(1), maxValue(16)])),
     cdma_dbm: number([safeInteger()]),
     cdma_ecio: number([safeInteger()]),
     cdma_level: number([safeInteger(), minValue(0), maxValue(4)]),
@@ -82,66 +88,65 @@ export type Cdma = Output<typeof Cdma>;
 
 export const Gsm = object({
     dbm: number([safeInteger()]),
-    // FIXME: Consider `99` as valid value.
-    asu: number([safeInteger(), minValue(0), maxValue(31)]),
-    // FIXME: Consider `99` as valid value.
-    bit_error_rate: nullish(number([safeInteger(), minValue(0), maxValue(7)])),
-    rssi: nullish(number([safeInteger(), minValue(-113), maxValue(-51)])),
-    timing_advance: nullish(number([safeInteger(), minValue(0), maxValue(219)])),
+    asu: optional(number([safeInteger(), minValue(0), maxValue(31)])),
+    bit_error_rate: optional(nullable(number([safeInteger(), minValue(0), maxValue(7)]))),
+    rssi: optional(coerce(number([safeInteger(), minValue(-113), maxValue(-51)]), coerceNullAsUndefined)),
+    timing_advance: optional(
+        coerce(nullable(number([safeInteger(), minValue(0), maxValue(219)])), coerceNullAsUndefined),
+    ),
 });
 
 export type Gsm = Output<typeof Gsm>;
 
 export const Lte = object({
     dbm: number([safeInteger()]),
-    asu: number([safeInteger(), minValue(0), maxValue(97)]),
-    cqi: nullish(number([safeInteger(), minValue(0), maxValue(15)])),
-    cqi_table_index: nullish(number([safeInteger(), minValue(1), maxValue(6)])),
-    rsrp: nullish(number([safeInteger(), minValue(-140), maxValue(-43)])),
-    rsrq: nullish(number([safeInteger()])),
-    rssi: nullish(number([safeInteger(), minValue(-113), maxValue(-51)])),
-    rssnr: nullish(number([safeInteger(), minValue(-20), maxValue(30)])),
-    timing_advance: nullable(number([safeInteger(), minValue(0), maxValue(1282)])),
+    asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))),
+    cqi: optional(coerce(number([safeInteger(), minValue(0), maxValue(15)]), coerceNullAsUndefined)),
+    cqi_table_index: optional(coerce(number([safeInteger(), minValue(1), maxValue(6)]), coerceNullAsUndefined)),
+    rsrp: optional(coerce(number([safeInteger(), minValue(-140), maxValue(-43)]), coerceNullAsUndefined)),
+    rsrq: optional(coerce(number([safeInteger()]), coerceNullAsUndefined)),
+    rssi: optional(coerce(number([safeInteger(), minValue(-113), maxValue(-51)]), coerceNullAsUndefined)),
+    rssnr: optional(coerce(number([safeInteger(), minValue(-20), maxValue(30)]), coerceNullAsUndefined)),
+    timing_advance: optional(coerce(number([safeInteger(), minValue(0), maxValue(1282)]), coerceNullAsUndefined)),
 });
 
 export type Lte = Output<typeof Lte>;
 
 export const Nr = object({
     dbm: number([safeInteger(), minValue(-140), maxValue(-44)]),
-    // FIXME: Consider `255` as valid value.
-    asu: number([safeInteger(), minValue(0), maxValue(97)]),
+    asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))),
     // TODO: Deprecate the string workaround.
     csi_cqi_report: optional(
         coerce(array(number([safeInteger(), minValue(0), maxValue(15)])), input =>
             typeof input === 'string' ? JSON.parse(input) : input,
         ),
     ),
-    csi_cqi_table_index: nullish(number([safeInteger(), minValue(1), maxValue(3)])),
-    csi_rsrp: nullish(number([safeInteger(), minValue(-156), maxValue(-31)])),
-    csi_rsrq: nullish(number([safeInteger(), minValue(-20), maxValue(-3)])),
-    csi_sinr: nullish(number([safeInteger(), minValue(-23), maxValue(23)])),
-    ss_rsrp: nullish(number([safeInteger(), minValue(-156), maxValue(-31)])),
-    ss_rsrq: nullish(number([safeInteger(), minValue(-43), maxValue(20)])),
-    ss_sinr: nullish(number([safeInteger(), minValue(-23), maxValue(40)])),
-    timing_advance_micros: nullish(number([safeInteger(), minValue(0), maxValue(1282)])),
+    csi_cqi_table_index: optional(coerce(number([safeInteger(), minValue(1), maxValue(3)]), coerceNullAsUndefined)),
+    csi_rsrp: optional(coerce(number([safeInteger(), minValue(-156), maxValue(-31)]), coerceNullAsUndefined)),
+    csi_rsrq: optional(coerce(number([safeInteger(), minValue(-20), maxValue(-3)]), coerceNullAsUndefined)),
+    csi_sinr: optional(coerce(number([safeInteger(), minValue(-23), maxValue(23)]), coerceNullAsUndefined)),
+    ss_rsrp: optional(coerce(number([safeInteger(), minValue(-156), maxValue(-31)]), coerceNullAsUndefined)),
+    ss_rsrq: optional(coerce(number([safeInteger(), minValue(-43), maxValue(20)]), coerceNullAsUndefined)),
+    ss_sinr: optional(coerce(number([safeInteger(), minValue(-23), maxValue(40)]), coerceNullAsUndefined)),
+    timing_advance_micros: optional(
+        coerce(number([safeInteger(), minValue(0), maxValue(1282)]), coerceNullAsUndefined),
+    ),
 });
 
 export type Nr = Output<typeof Nr>;
 
 export const Tdscdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
-    // FIXME: Consider `255` as valid value.
-    asu: number([safeInteger(), minValue(0), maxValue(96)]),
-    rscp: nullish(number([safeInteger(), minValue(-120), maxValue(-24)])),
+    asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))),
+    rscp: optional(coerce(number([safeInteger(), minValue(-120), maxValue(-24)]), coerceNullAsUndefined)),
 });
 
 export type Tdscdma = Output<typeof Tdscdma>;
 
 export const Wcdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
-    // FIXME: Consider `255` as valid value.
-    asu: number([safeInteger(), minValue(0), maxValue(96)]),
-    ec_no: nullish(number([safeInteger(), minValue(-24), maxValue(1)])),
+    asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))),
+    ec_no: optional(coerce(number([safeInteger(), minValue(-24), maxValue(1)]), coerceNullAsUndefined)),
 });
 
 export type Wcdma = Output<typeof Wcdma>;
@@ -159,7 +164,11 @@ export type CellSignalStrength = Output<typeof CellSignalStrength>;
 
 export const SignalStrength = merge([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    object({ timestamp: coerce(date(), input => new Date(input as any)) }),
+    object({
+        timestamp: coerce(date(), input =>
+            typeof input === 'string' || typeof input === 'number' ? new Date(input) : input,
+        ),
+    }),
     partial(CellSignalStrength),
     CellSignalInfo,
 ]);

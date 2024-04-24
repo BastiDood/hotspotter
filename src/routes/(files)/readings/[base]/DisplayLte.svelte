@@ -1,18 +1,18 @@
 <script lang="ts">
-    // eslint-disable-next-line init-declarations
-    export let timing_advance: number | null;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let rssi = undefined as number | null | undefined;
+    export let timing_advance = undefined as number | undefined;
+    // eslint-disable-next-line init-declarations, no-undefined
+    export let rssi = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
     export let cqi = undefined as number | null | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let cqi_table_index = undefined as number | null | undefined;
+    export let cqi_table_index = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let rsrp = undefined as number | null | undefined;
+    export let rsrp = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let rsrq = undefined as number | null | undefined;
+    export let rsrq = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let rssnr = undefined as number | null | undefined;
+    export let rssnr = undefined as number | undefined;
 </script>
 
 <div class="table-container">

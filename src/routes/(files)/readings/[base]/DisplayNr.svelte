@@ -2,21 +2,21 @@
     // eslint-disable-next-line init-declarations, no-undefined
     export let csi_cqi_report = undefined as number[] | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let csi_cqi_table_index = undefined as number | null | undefined;
+    export let csi_cqi_table_index = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let csi_rsrp = undefined as number | null | undefined;
+    export let csi_rsrp = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let csi_rsrq = undefined as number | null | undefined;
+    export let csi_rsrq = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let csi_sinr = undefined as number | null | undefined;
+    export let csi_sinr = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let ss_rsrp = undefined as number | null | undefined;
+    export let ss_rsrp = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let ss_rsrq = undefined as number | null | undefined;
+    export let ss_rsrq = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let ss_sinr = undefined as number | null | undefined;
+    export let ss_sinr = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let timing_advance_micros = undefined as number | null | undefined;
+    export let timing_advance_micros = undefined as number | undefined;
 </script>
 
 <div class="table-container">

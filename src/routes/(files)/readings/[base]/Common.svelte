@@ -6,7 +6,7 @@
     // eslint-disable-next-line init-declarations
     export let dbm: number;
     // eslint-disable-next-line init-declarations
-    export let asu: number;
+    export let asu: number | null | undefined;
     // eslint-disable-next-line init-declarations
     export let level: number;
 </script>
