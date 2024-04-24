@@ -90,9 +90,10 @@ export const Gsm = object({
     dbm: number([safeInteger()]),
     asu: optional(number([safeInteger(), minValue(0), maxValue(31)])),
     bit_error_rate: optional(nullable(number([safeInteger(), minValue(0), maxValue(7)]))),
-    rssi: optional(coerce(number([safeInteger(), minValue(-113), maxValue(-51)]), coerceNullAsUndefined)),
-    timing_advance: optional(
-        coerce(nullable(number([safeInteger(), minValue(0), maxValue(219)])), coerceNullAsUndefined),
+    rssi: coerce(optional(number([safeInteger(), minValue(-113), maxValue(-51)])), coerceNullAsUndefined),
+    timing_advance: coerce(
+        optional(nullable(number([safeInteger(), minValue(0), maxValue(219)]))),
+        coerceNullAsUndefined,
     ),
 });
 
@@ -101,13 +102,13 @@ export type Gsm = Output<typeof Gsm>;
 export const Lte = object({
     dbm: number([safeInteger()]),
     asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))),
-    cqi: optional(coerce(number([safeInteger(), minValue(0), maxValue(15)]), coerceNullAsUndefined)),
-    cqi_table_index: optional(coerce(number([safeInteger(), minValue(1), maxValue(6)]), coerceNullAsUndefined)),
-    rsrp: optional(coerce(number([safeInteger(), minValue(-140), maxValue(-43)]), coerceNullAsUndefined)),
-    rsrq: optional(coerce(number([safeInteger()]), coerceNullAsUndefined)),
-    rssi: optional(coerce(number([safeInteger(), minValue(-113), maxValue(-51)]), coerceNullAsUndefined)),
-    rssnr: optional(coerce(number([safeInteger(), minValue(-20), maxValue(30)]), coerceNullAsUndefined)),
-    timing_advance: optional(coerce(number([safeInteger(), minValue(0), maxValue(1282)]), coerceNullAsUndefined)),
+    cqi: coerce(optional(number([safeInteger(), minValue(0), maxValue(15)])), coerceNullAsUndefined),
+    cqi_table_index: coerce(optional(number([safeInteger(), minValue(1), maxValue(6)])), coerceNullAsUndefined),
+    rsrp: coerce(optional(number([safeInteger(), minValue(-140), maxValue(-43)])), coerceNullAsUndefined),
+    rsrq: coerce(optional(number([safeInteger()])), coerceNullAsUndefined),
+    rssi: coerce(optional(number([safeInteger(), minValue(-113), maxValue(-51)])), coerceNullAsUndefined),
+    rssnr: coerce(optional(number([safeInteger(), minValue(-20), maxValue(30)])), coerceNullAsUndefined),
+    timing_advance: coerce(optional(number([safeInteger(), minValue(0), maxValue(1282)])), coerceNullAsUndefined),
 });
 
 export type Lte = Output<typeof Lte>;
@@ -121,15 +122,16 @@ export const Nr = object({
             typeof input === 'string' ? JSON.parse(input) : input,
         ),
     ),
-    csi_cqi_table_index: optional(coerce(number([safeInteger(), minValue(1), maxValue(3)]), coerceNullAsUndefined)),
-    csi_rsrp: optional(coerce(number([safeInteger(), minValue(-156), maxValue(-31)]), coerceNullAsUndefined)),
-    csi_rsrq: optional(coerce(number([safeInteger(), minValue(-20), maxValue(-3)]), coerceNullAsUndefined)),
-    csi_sinr: optional(coerce(number([safeInteger(), minValue(-23), maxValue(23)]), coerceNullAsUndefined)),
-    ss_rsrp: optional(coerce(number([safeInteger(), minValue(-156), maxValue(-31)]), coerceNullAsUndefined)),
-    ss_rsrq: optional(coerce(number([safeInteger(), minValue(-43), maxValue(20)]), coerceNullAsUndefined)),
-    ss_sinr: optional(coerce(number([safeInteger(), minValue(-23), maxValue(40)]), coerceNullAsUndefined)),
-    timing_advance_micros: optional(
-        coerce(number([safeInteger(), minValue(0), maxValue(1282)]), coerceNullAsUndefined),
+    csi_cqi_table_index: coerce(optional(number([safeInteger(), minValue(1), maxValue(3)])), coerceNullAsUndefined),
+    csi_rsrp: coerce(optional(number([safeInteger(), minValue(-156), maxValue(-31)])), coerceNullAsUndefined),
+    csi_rsrq: coerce(optional(number([safeInteger(), minValue(-20), maxValue(-3)])), coerceNullAsUndefined),
+    csi_sinr: coerce(optional(number([safeInteger(), minValue(-23), maxValue(23)])), coerceNullAsUndefined),
+    ss_rsrp: coerce(optional(number([safeInteger(), minValue(-156), maxValue(-31)])), coerceNullAsUndefined),
+    ss_rsrq: coerce(optional(number([safeInteger(), minValue(-43), maxValue(20)])), coerceNullAsUndefined),
+    ss_sinr: coerce(optional(number([safeInteger(), minValue(-23), maxValue(40)])), coerceNullAsUndefined),
+    timing_advance_micros: coerce(
+        optional(number([safeInteger(), minValue(0), maxValue(1282)])),
+        coerceNullAsUndefined,
     ),
 });
 
@@ -138,7 +140,7 @@ export type Nr = Output<typeof Nr>;
 export const Tdscdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
     asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))),
-    rscp: optional(coerce(number([safeInteger(), minValue(-120), maxValue(-24)]), coerceNullAsUndefined)),
+    rscp: coerce(optional(number([safeInteger(), minValue(-120), maxValue(-24)])), coerceNullAsUndefined),
 });
 
 export type Tdscdma = Output<typeof Tdscdma>;
@@ -146,7 +148,7 @@ export type Tdscdma = Output<typeof Tdscdma>;
 export const Wcdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
     asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))),
-    ec_no: optional(coerce(number([safeInteger(), minValue(-24), maxValue(1)]), coerceNullAsUndefined)),
+    ec_no: coerce(optional(number([safeInteger(), minValue(-24), maxValue(1)])), coerceNullAsUndefined),
 });
 
 export type Wcdma = Output<typeof Wcdma>;
