@@ -114,6 +114,10 @@ public class ScanService extends Service {
 
         var tel = new TelephonyInfo(ContextCompat.getSystemService(this, TelephonyManager.class));
         var sim = tel.getCellQuality();
+        if (sim == null) {
+            Log.e("ScanService", "cell information is unavailable... dropping this scan");
+            return;
+        }
 
         var loc = new LocationInfo(ContextCompat.getSystemService(this, LocationManager.class));
         var gps = LocationInfo.convertLocationToJson(loc.getCurrentLocation());
