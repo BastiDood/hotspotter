@@ -9,31 +9,6 @@ import { PUBLIC_HOTSPOTTER_URL } from '$lib/env';
 import { parse as jsonParse } from 'devalue';
 import { parse as valiParse } from 'valibot';
 
-/** @deprecated {@linkcode uploadReadings} */
-export async function uploadReading(jwt: string, data: Data) {
-    const url = new URL('api/reading', PUBLIC_HOTSPOTTER_URL);
-    const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-            Authorization: `Bearer ${jwt}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    });
-    switch (response.status) {
-        case 201:
-            // TODO: The new endpoint now returns a float.
-            return await response.text();
-        case 400:
-            throw new MalformedAuthorizationError();
-        case 401:
-            throw new EmptyAuthorizationError();
-        default:
-            throw new UnexpectedStatusCodeError(response.status);
-    }
-}
-
 export async function uploadReadings(jwt: string, data: Data[]) {
     const url = new URL('api/readings', PUBLIC_HOTSPOTTER_URL);
     const response = await fetch(url, {
