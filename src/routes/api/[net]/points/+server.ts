@@ -11,9 +11,10 @@ function parseInteger(num: string) {
 
 function extractNumberFromQuery(parse: typeof parseFloat, params: URLSearchParams, query: string) {
     const value = params.get(query);
-    if (value === null) return null;
+    if (value === null) error(400, `missing query parameter [${query}]`);
     const result = parse(value);
-    return isFinite(result) ? result : null;
+    if (isFinite(result)) return result;
+    error(400, `invalid query parameter [${query}]`);
 }
 
 const extractFloat = extractNumberFromQuery.bind(null, parseFloat);
@@ -36,29 +37,18 @@ function resolveSelector(net: string) {
         case 'nr':
             return CellType.Nr;
         default:
-            return null;
+            error(400, 'unknown cell type');
     }
 }
 
 export async function GET({ url: { searchParams }, params: { net } }) {
-    const extract = extractFloat.bind(null, searchParams);
+    const selector = resolveSelector(net);
+    const minX = extractFloat(searchParams, 'min-x');
+    const minY = extractFloat(searchParams, 'min-y');
+    const maxX = extractFloat(searchParams, 'max-x');
+    const maxY = extractFloat(searchParams, 'max-y');
+    const age = extractInteger(searchParams, 'age');
     try {
-        const minX = extract('min-x');
-        if (minX === null) error(400, 'invalid min-x');
-
-        const minY = extract('min-y');
-        if (minY === null) error(400, 'invalid min-y');
-
-        const maxX = extract('max-x');
-        if (maxX === null) error(400, 'invalid max-x');
-
-        const maxY = extract('max-y');
-        if (maxY === null) error(400, 'invalid max-y');
-
-        const selector = resolveSelector(net);
-        if (selector === null) error(400, 'invalid network type');
-
-        const age = extractInteger(searchParams, 'age');
         const promise =
             selector === CellType.WiFi
                 ? aggregateAccessPoints(minX, minY, maxX, maxY, age)
