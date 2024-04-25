@@ -12,8 +12,8 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RequiresPermission;
 import com.getcapacitor.JSObject;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class TelephonyInfo {
     private @NonNull TelephonyManager api;
@@ -56,7 +56,7 @@ public class TelephonyInfo {
                     var rssi = s.getRssi();
                     json.putOpt("rssi", rssi == CellInfo.UNAVAILABLE ? null : rssi);
                 }
-                res.put("gsm", json);
+                res.putSafe("gsm", json);
             } else if (cell instanceof CellSignalStrengthLte s) {
                 var timingAdvance = s.getTimingAdvance();
                 var cqi = s.getCqi();
@@ -75,7 +75,7 @@ public class TelephonyInfo {
                     var cqiTableIndex = s.getCqiTableIndex();
                     json.putOpt("cqi_table_index", cqiTableIndex == CellInfo.UNAVAILABLE ? null : cqiTableIndex);
                 }
-                res.put("lte", json);
+                res.putSafe("lte", json);
             } else if (cell instanceof CellSignalStrengthNr s) {
                 var csiRsrp = s.getCsiRsrp();
                 var csiRsrq = s.getCsiRsrq();
@@ -92,26 +92,26 @@ public class TelephonyInfo {
                     .putOpt("ss_sinr", ssSinr == CellInfo.UNAVAILABLE ? null : ssSinr);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     var csiCqiTableIndex = s.getCsiCqiTableIndex();
-                    json.put("csi_cqi_report", new JSONArray(s.getCsiCqiReport()))
+                    json.putSafe("csi_cqi_report", new JSONArray(s.getCsiCqiReport()))
                         .putOpt("csi_cqi_table_index", csiCqiTableIndex == CellInfo.UNAVAILABLE ? null : csiCqiTableIndex);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         var timingAdvanceMicros = s.getTimingAdvanceMicros();
                         json.putOpt("timing_advance_micros", timingAdvanceMicros == CellInfo.UNAVAILABLE ? null : timingAdvanceMicros);
                     }
                 }
-                res.put("nr", json);
+                res.putSafe("nr", json);
             } else if (cell instanceof CellSignalStrengthTdscdma s) {
                 var rscp = s.getRscp();
                 json.putOpt("asu", asu == CellInfo.UNAVAILABLE ? null : asu == 255 ? JSObject.NULL : asu)
                     .putOpt("rscp", rscp == CellInfo.UNAVAILABLE ? null : rscp);
-                res.put("tdscdma", json);
+                res.putSafe("tdscdma", json);
             } else if (cell instanceof CellSignalStrengthWcdma s) {
                 json.putOpt("asu", asu == CellInfo.UNAVAILABLE ? null : asu == 255 ? JSObject.NULL : asu);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     var ecNo = s.getEcNo();
                     json.putOpt("ec_no", ecNo == CellInfo.UNAVAILABLE ? null : ecNo);
                 }
-                res.put("wcdma", json);
+                res.putSafe("wcdma", json);
             }
         }
         return res;
