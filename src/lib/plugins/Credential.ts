@@ -12,7 +12,7 @@ const Credential = registerPlugin<CredentialPlugin>('Credential');
 /** @param id Client ID of the server. */
 export async function signIn(id: string) {
     const result = await Credential.signIn({ id });
-    return parse(Token, result, { abortEarly: true });
+    return parse(Token, result);
 }
 
 export async function signOut() {

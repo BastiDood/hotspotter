@@ -19,11 +19,11 @@ const NullableWatchId = nullable(Data);
 export async function startWatch(callback: (data: Data) => void) {
     if (Loop === null) return null;
     const id = await Loop.startWatch(null, data => {
-        const payload = parse(NullableWatchId, data, { abortEarly: true });
+        const payload = parse(NullableWatchId, data);
         if (payload === null) return;
         callback(payload);
     });
-    return parse(string(), id, { abortEarly: true });
+    return parse(string(), id);
 }
 
 export async function clearWatch(id: string) {
@@ -45,5 +45,5 @@ const BootResult = object({ bound: boolean() });
 export async function bootService() {
     if (Loop === null) return false;
     const result = await Loop.bootService();
-    return parse(BootResult, result, { abortEarly: true }).bound;
+    return parse(BootResult, result).bound;
 }

@@ -84,7 +84,7 @@ export async function fetchHexagons(
             throw new UnexpectedStatusCodeError(response.status);
     }
     const json = await response.json();
-    return valiParse(HexagonAccessPointCount, json, { abortEarly: true });
+    return valiParse(HexagonAccessPointCount, json);
 }
 
 export async function fetchLeaderboard(http: typeof fetch, signal?: AbortSignal) {
@@ -92,5 +92,5 @@ export async function fetchLeaderboard(http: typeof fetch, signal?: AbortSignal)
     const response = await http(url, { signal, mode: 'cors' });
     if (response.status !== 200) throw new UnexpectedStatusCodeError(response.status);
     const json = jsonParse(await response.text());
-    return valiParse(LeaderboardUsers, json, { abortEarly: true });
+    return valiParse(LeaderboardUsers, json);
 }

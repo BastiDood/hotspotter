@@ -4,5 +4,5 @@ import { parse } from 'valibot';
 export async function load({ fetch }) {
     const response = await fetch('/meta.json');
     const json = await response.json();
-    return parse(Meta, json, { abortEarly: true });
+    return parse(Meta, json);
 }

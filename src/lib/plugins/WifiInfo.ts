@@ -12,5 +12,5 @@ const StartScanResult = object({ ok: boolean() });
 export async function startScan() {
     if (WifiInfo === null) return false;
     const output = await WifiInfo.startScan();
-    return parse(StartScanResult, output, { abortEarly: true }).ok;
+    return parse(StartScanResult, output).ok;
 }

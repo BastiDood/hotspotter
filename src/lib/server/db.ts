@@ -26,7 +26,7 @@ async function computeWifiMultiplier(sql: Sql, longitude: number, latitude: numb
         await sql`SELECT exp(coalesce(sum(ln(score)), 0)) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN (SELECT reading_id, coords, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '2W' < wifi_timestamp GROUP BY disk) _`;
     assert(rest.length === 0);
     assert(typeof result !== 'undefined');
-    return parse(CountResult, result, { abortEarly: true }).result;
+    return parse(CountResult, result).result;
 }
 
 /**
@@ -53,13 +53,13 @@ async function insertThenComputeCellMultiplier(
     const [upload, ...uploadRest] = await sql`INSERT INTO ${table} ${sql(payload)} RETURNING ${field} id`;
     assert(uploadRest.length === 0);
     assert(typeof upload !== 'undefined');
-    const { id } = parse(BigId, upload, { abortEarly: true });
+    const { id } = parse(BigId, upload);
 
     const [result, ...resultRest] =
         await sql`SELECT exp(coalesce(sum(ln(score)), 0)) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) WHERE NOW() - INTERVAL '1W' < cell_timestamp GROUP BY disk) _`;
     assert(resultRest.length === 0);
     assert(typeof result !== 'undefined');
-    const score = parse(CountResult, result, { abortEarly: true }).result;
+    const score = parse(CountResult, result).result;
     return { id, score };
 }
 
@@ -83,7 +83,7 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
         await sql`INSERT INTO hotspotter.readings (user_id, gps_timestamp, coords, altitude_level, altitude_accuracy, speed, heading, network_type, carrier_id, operator_id, cell_timestamp, cdma_id, gsm_id, lte_id, nr_id, tdscdma_id, wcdma_id) VALUES (${sub}, ${gps.timestamp}, CIRCLE(POINT(${gps.longitude}, ${gps.latitude}), ${gps.coords_accuracy}), ${gps.altitude}, ${gps.altitude_accuracy ?? null}, ${gps.speed}, ${gps.heading}, ${sim.network_type}, ${sim.carrier_id ?? null}, ${sim.operator_id}, ${sim.strength.timestamp}, ${cdmaId}, ${gsmId}, ${lteId}, ${nrId}, ${tdscdmaId}, ${wcdmaId}) RETURNING reading_id id`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
-    const { id } = parse(Uuid, first, { abortEarly: true });
+    const { id } = parse(Uuid, first);
 
     // Wi-Fi
     const wifiRaw =
@@ -168,12 +168,12 @@ export async function fetchUserScore(id: string) {
     const [first, ...rest] =
         await sql`SELECT rank() OVER (ORDER BY score DESC), score FROM hotspotter.users WHERE user_id = ${id}`;
     assert(rest.length === 0);
-    return typeof first === 'undefined' ? null : parse(UserRankScore, first, { abortEarly: true });
+    return typeof first === 'undefined' ? null : parse(UserRankScore, first);
 }
 
 export async function fetchLeaderboard(limit = 25) {
     const users =
         await sql`SELECT rank() OVER (ORDER BY score DESC), name, picture, score FROM hotspotter.users WHERE score > 0 ORDER BY score DESC LIMIT ${limit};`;
     assert(users.length <= limit);
-    return parse(LeaderboardUsers, users, { abortEarly: true });
+    return parse(LeaderboardUsers, users);
 }

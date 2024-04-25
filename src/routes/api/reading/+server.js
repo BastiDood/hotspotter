@@ -16,7 +16,7 @@ export async function POST({ request }) {
 
     const user = await verifyGoogleJwt(jwt);
     const json = await request.json();
-    const input = parse(Data, json, { abortEarly: true });
+    const input = parse(Data, json);
 
     const reading = await uploadReading(user, input);
     return new Response(reading.toString(), { status: 201 });

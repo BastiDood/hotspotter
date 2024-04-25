@@ -16,7 +16,7 @@ export async function POST({ request }) {
 
     const user = await verifyGoogleJwt(jwt);
     const obj = await request.json();
-    const input = parse(array(Data), obj, { abortEarly: true });
+    const input = parse(array(Data), obj);
 
     try {
         const score = await uploadReadings(user, input);
