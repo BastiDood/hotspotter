@@ -26,10 +26,9 @@
     const toast = getToastStore();
 
     async function boot() {
-        if (Object.values(permissions).every(state => state === 'granted')) {
+        if (Object.values(permissions).every(state => state === 'granted'))
             if (await bootService()) console.log('Loop service booted.');
             else console.error('Loop service boot failed.');
-        }
     }
 
     async function prompt(button: HTMLButtonElement, perm: string) {
