@@ -27,12 +27,8 @@
 
     async function boot() {
         if (Object.values(permissions).every(state => state === 'granted')) {
-            const success = await bootService();
-            toast.trigger(
-                success
-                    ? { message: 'Loop service booted.', background: 'variant-filled-success' }
-                    : { message: 'Loop service boot failed.', background: 'variant-filled-error' },
-            );
+            if (await bootService()) console.log('Loop service booted.');
+            else console.error('Loop service boot failed.');
         }
     }
 
