@@ -107,14 +107,6 @@ export function uploadReadings({ sub, email, name, picture }: User, readings: Da
     });
 }
 
-/** @deprecated {@linkcode uploadReadings} */
-export function uploadReading({ sub, email, name, picture }: User, data: Data) {
-    return sql.begin(async sql => {
-        await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
-        return await insertReading(sql, sub, data);
-    });
-}
-
 const RESOLUTIONS = [0, 0.022, 0.044, 0.088, 0.352, 0.703, 1.406, 2.813, 5.625, 11.25, 22.5, 45, 90];
 export function resolveResolution(minX: number, maxX: number) {
     assert(minX < maxX, 'invalid longitude delta');
