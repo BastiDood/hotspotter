@@ -2,7 +2,7 @@
     import * as Cache from '$lib/plugins/Cache';
     import * as Http from '$lib/http';
     import { ApiError } from '$lib/http/error';
-    import { ArrowPath } from '@steeze-ui/heroicons';
+    import { CloudArrowUp } from '@steeze-ui/heroicons';
     import { Icon } from '@steeze-ui/svelte-icon';
     import { chunked } from 'itertools';
     import cookie from 'cookie';
@@ -87,7 +87,7 @@
     }
 </script>
 
-<button {disabled} class="variant-filled-secondary btn" on:click={sync}>
-    <Icon src={ArrowPath} theme="outline" class="h-4" />
-    <span>Sync</span>
+<button type="button" {disabled} class="variant-filled-secondary btn" on:click={sync}>
+    <Icon src={CloudArrowUp} theme="outline" class="h-6 w-min" />
+    <span>Upload</span>
 </button>

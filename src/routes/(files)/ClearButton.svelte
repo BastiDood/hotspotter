@@ -32,7 +32,7 @@
     }
 </script>
 
-<button {disabled} class="variant-filled-error btn" on:click={clear}>
-    <Icon src={Trash} theme="outline" class="h-4" />
+<button type="button" {disabled} class="variant-filled-error btn" on:click={clear}>
+    <Icon src={Trash} theme="outline" class="h-6 w-min" />
     <span>Clear</span>
 </button>

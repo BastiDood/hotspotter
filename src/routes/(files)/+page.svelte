@@ -1,7 +1,8 @@
 <script lang="ts">
     import ClearButton from './ClearButton.svelte';
     import DisplayData from './DisplayData.svelte';
-    import SyncButton from './SyncButton.svelte';
+    import ScanButton from './ScanButton.svelte';
+    import UploadButton from './UploadButton.svelte';
 
     import ErrorAlert from '$lib/alerts/Error.svelte';
     import SuccessAlert from '$lib/alerts/Success.svelte';
@@ -13,7 +14,6 @@
     import { bootService, clearWatch, requestPermissions, startWatch } from '$lib/plugins/Loop';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { onMount } from 'svelte';
-    import { startScan } from '$lib/plugins/WifiInfo';
 
     // eslint-disable-next-line init-declarations
     export let data;
@@ -25,51 +25,14 @@
 
     const toast = getToastStore();
 
-    async function boot(button: HTMLButtonElement) {
-        button.disabled = true;
-        try {
-            const payload = (await bootService())
-                ? { message: 'Loop service started.', background: 'variant-filled-success' }
-                : { message: 'Loop service boot failed.', background: 'variant-filled-error' };
-            toast.trigger(payload);
-        } catch (err) {
-            console.error(err);
-            if (err instanceof Error) {
-                toast.trigger({
-                    message: `[${err.name}]: ${err.message}`,
-                    background: 'variant-filled-error',
-                    autohide: false,
-                });
-                return;
-            }
-            throw err;
-        } finally {
-            button.disabled = false;
-        }
-    }
-
-    async function request(button: HTMLButtonElement) {
-        button.disabled = true;
-        try {
-            if (await startScan()) return;
-            toast.trigger({
-                message:
-                    'Wi-Fi scanning failed. This may be due to permission errors, throttling, or disabled Wi-Fi radios.',
-                background: 'variant-filled-error',
-            });
-        } catch (err) {
-            console.error(err);
-            if (err instanceof Error) {
-                toast.trigger({
-                    message: `[${err.name}]: ${err.message}`,
-                    background: 'variant-filled-error',
-                    autohide: false,
-                });
-                return;
-            }
-            throw err;
-        } finally {
-            button.disabled = false;
+    async function boot() {
+        if (Object.values(permissions).every(state => state === 'granted')) {
+            const success = await bootService();
+            toast.trigger(
+                success
+                    ? { message: 'Loop service booted.', background: 'variant-filled-success' }
+                    : { message: 'Loop service boot failed.', background: 'variant-filled-error' },
+            );
         }
     }
 
@@ -80,6 +43,7 @@
             const state = result[perm];
             if (typeof state === 'undefined') return;
             permissions[perm] = state;
+            await boot();
         } catch (err) {
             console.error(err);
             if (err instanceof Error) {
@@ -113,8 +77,14 @@
         }
     }
 
+    async function mount() {
+        const id = await watch();
+        await boot();
+        return id;
+    }
+
     onMount(() => {
-        const id = watch();
+        const id = mount();
         return async () => {
             const handle = await id;
             if (handle === null) return;
@@ -154,19 +124,15 @@
         </ErrorAlert>
     {/each}
     <hr />
-    <button class="variant-filled-primary btn w-full" on:click={({ currentTarget }) => boot(currentTarget)}
-        >Boot Service</button
-    >
-    <button class="variant-filled-primary btn w-full" on:click={({ currentTarget }) => request(currentTarget)}
-        >Request Scan</button
-    >
-    <hr />
     <h3 class="h3">Cached Readings</h3>
     {#if files.length === 0}
         <SuccessAlert>All readings synchronized. &#x1F389;</SuccessAlert>
     {:else}
-        <SyncButton bind:disabled />
-        <ClearButton bind:disabled />
+        <div class="grid grid-cols-3 gap-2">
+            <ScanButton bind:disabled />
+            <UploadButton bind:disabled />
+            <ClearButton bind:disabled />
+        </div>
         <DisplayData {files} />
     {/if}
 </div>
