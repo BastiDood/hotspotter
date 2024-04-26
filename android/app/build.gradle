@@ -1,25 +1,40 @@
 apply plugin: 'com.android.application'
 
+// For the release build, make sure to initialize a private key with which to sign the APK.
+// `keytool -genkey -v -keystore <storeFile> -keyalg RSA -keysize 2048 -validity 365 -alias <keyAlias>`
+def keystoreFile = file('keystore.properties')
+def keystoreProps = new Properties()
+keystoreProps.load(new FileInputStream(keystoreFile))
+
 android {
-    namespace "ph.edu.upd.dcs.ndsg.hotspotter"
+    namespace 'ph.edu.upd.dcs.ndsg.hotspotter'
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ph.edu.upd.dcs.ndsg.hotspotter"
+        applicationId 'ph.edu.upd.dcs.ndsg.hotspotter'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionName '1.0'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            storeFile file(keystoreProps['storeFile'])
+            storePassword keystoreProps['storePassword']
+            keyAlias keystoreProps['keyAlias']
+            keyPassword keystoreProps['keyPassword']
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
