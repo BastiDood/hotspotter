@@ -41,15 +41,19 @@ public class LoopPlugin extends Plugin {
         @Override
         public void onNullBinding(ComponentName name) {
             Log.wtf("ServiceConnection", "unrecognized intent action for -> " + name);
+            service = null;
+            bound = false;
         }
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            service = (ScanService.LocalBinder) binder;
             Log.i("ServiceConnection", "service connected for -> " + name);
+            service = (ScanService.LocalBinder) binder;
+            bound = true;
         }
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Log.wtf("ServiceConnection", "service disconnected for -> " + name);
+            bound = false;
         }
     };
 
