@@ -121,6 +121,23 @@ pnpm build
 > [!WARNING]
 > Whenever changes are made to the [SvelteKit] application, the `build/` folder must be rebuild with the `pnpm build` command. Many hours of debugging can be wasted on outdated build artifacts.
 
+### Signing the Mobile Application
+
+To [sign the release APKs](https://developer.android.com/build/building-cmdline#sign_cmdline), one can generate a 2048-bit RSA private key (valid for 365 days) using the following `keytool` command.
+
+```bash
+keytool -genkey -v -keystore android/app/store.jks -keyalg RSA -keysize 2048 -validity 365 -alias hotspotter
+```
+
+To [configure Gradle to sign the debug and release APKs](https://developer.android.com/build/building-cmdline#gradle_signing), create a `android/app/keystore.properties` file that contains the following passwords (as previously provided to the `keytool` command).
+
+```ini
+storeFile=store.jks
+storePassword=
+keyAlias=hotspotter
+keyPassword=
+```
+
 ### Installing the Mobile Application
 
 With the `build/` now available, we can now install the application into the Android device. There are two ways to run the application:
