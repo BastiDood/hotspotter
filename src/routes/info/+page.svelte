@@ -6,6 +6,6 @@
     $: date = new Date(timestamp);
 </script>
 
-<div class="p-4">
+<div class="space-y-4 p-4">
     <DisplayMeta {date} {revision} />
 </div>
