@@ -3,7 +3,7 @@ CREATE SCHEMA hotspotter
     CREATE TABLE cdma(
         cdma_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
         dbm SMALLINT NOT NULL,
-        asu SMALLINT NOT NULL CHECK(asu IN (1, 2, 4, 8, 16)),
+        asu SMALLINT CHECK(asu IN (1, 2, 4, 8, 16)),
         level SMALLINT NOT NULL CHECK(level BETWEEN 0 AND 4),
         cdma_dbm SMALLINT NOT NULL,
         cdma_ecio SMALLINT NOT NULL,
@@ -20,7 +20,7 @@ CREATE SCHEMA hotspotter
         level SMALLINT NOT NULL CHECK(level BETWEEN 0 AND 4),
         bit_error_rate SMALLINT CHECK(bit_error_rate BETWEEN 0 AND 7),
         rssi SMALLINT CHECK(rssi BETWEEN -113 AND -51),
-        timing_advance SMALLINT NOT NULL
+        timing_advance SMALLINT
     )
     CREATE TABLE lte(
         lte_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY NOT NULL,
