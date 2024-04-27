@@ -5,28 +5,21 @@ import { ValiError } from 'valibot';
 import pg from 'postgres';
 import { printIssues } from '$lib/error/valibot';
 
-function parseInteger(num: string) {
-    return parseInt(num, 10);
-}
-
-function extractNumberFromQuery(parse: typeof parseFloat, params: URLSearchParams, query: string) {
+function extractFloat(params: URLSearchParams, query: string) {
     const value = params.get(query);
     if (value === null) error(400, `missing query parameter [${query}]`);
-    const result = parse(value);
+    const result = parseFloat(value);
     if (isFinite(result)) return result;
     error(400, `invalid query parameter [${query}]`);
 }
 
-function extractOptionalNumberFromQuery(parse: typeof parseFloat, params: URLSearchParams, query: string) {
+function extractOptionalInteger(params: URLSearchParams, query: string) {
     const value = params.get(query);
     if (value === null) return null;
-    const result = parse(value);
-    if (isFinite(result)) return result;
+    const result = parseInt(value, 10);
+    if (Number.isSafeInteger(result)) return result;
     error(400, `invalid query parameter [${query}]`);
 }
-
-const extractFloat = extractNumberFromQuery.bind(null, parseFloat);
-const extractOptionalInteger = extractOptionalNumberFromQuery.bind(null, parseInteger);
 
 function resolveSelector(net: string) {
     switch (net) {
