@@ -5,7 +5,7 @@
     export let value: 7 | 14 | 28 | null;
 </script>
 
-<select {name} bind:value class="select pointer-events-auto">
+<select {name} bind:value class="select variant-form-material pointer-events-auto">
     <option value={7}>One Week (7 Days)</option>
     <option value={14}>Two Week (14 Days)</option>
     <option value={28}>One Month (28 Days)</option>

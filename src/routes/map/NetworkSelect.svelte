@@ -6,7 +6,7 @@
     export let value: CellType;
 </script>
 
-<select {name} bind:value class="select pointer-events-auto">
+<select {name} bind:value class="select variant-form-material pointer-events-auto">
     <option value={CellType.WiFi}>WiFi</option>
     <option value={CellType.Gsm}>GSM (2G)</option>
     <option value={CellType.Cdma}>CDMA (3G)</option>
