@@ -21,14 +21,6 @@ export class DashboardControl extends Control {
         return this.#component.view;
     }
 
-    get gps() {
-        return this.#component.gps;
-    }
-
-    get hex() {
-        return this.#component.hex;
-    }
-
     get cell() {
         return this.#component.cell;
     }

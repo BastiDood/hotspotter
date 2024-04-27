@@ -47,8 +47,6 @@
 
     // eslint-disable-next-line init-declarations
     const dashboard = new DashboardControl(center);
-    const gpsVisibleStore = dashboard.gps;
-    const hexVisibleStore = dashboard.hex;
     const cellStore = dashboard.cell;
     const ageStore = dashboard.age;
 
@@ -61,25 +59,7 @@
         }),
     );
 
-    const gpsLayer = new VectorLayer({ source: new VectorSource({ features: new Collection([gpsFeature]) }) });
-    $: gpsLayer.setVisible($gpsVisibleStore);
-
     const hexFeatures = new Collection<Feature>();
-    const hexLayer = new VectorLayer({
-        source: new VectorSource({ features: hexFeatures }),
-        style(feature) {
-            const color = feature.get('color');
-            if (typeof color !== 'string') return;
-            return [
-                new Style({
-                    fill: new Fill({ color }),
-                    stroke: new Stroke({ color: [79, 70, 229, 0.5], width: 2 }),
-                }),
-            ];
-        },
-    });
-    $: hexLayer.setVisible($hexVisibleStore);
-
     const refreshHexagons = abortable(async (signal, cell: CellType, age: number | null) => {
         const { minX, maxX, minY, maxY, proj } = validateExtent(dashboard.view);
         const hexes = await fetchHexagons(cell, minX, minY, maxX, maxY, age, signal);
@@ -122,6 +102,20 @@
     // eslint-disable-next-line init-declarations
     let target: HTMLDivElement | undefined;
     onMount(() => {
+        const gpsLayer = new VectorLayer({ source: new VectorSource({ features: new Collection([gpsFeature]) }) });
+        const hexLayer = new VectorLayer({
+            source: new VectorSource({ features: hexFeatures }),
+            style(feature) {
+                const color = feature.get('color');
+                if (typeof color !== 'string') return;
+                return [
+                    new Style({
+                        fill: new Fill({ color }),
+                        stroke: new Stroke({ color: [79, 70, 229, 0.5], width: 2 }),
+                    }),
+                ];
+            },
+        });
         const map = new Map({
             target,
             view: dashboard.view,

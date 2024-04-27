@@ -4,6 +4,10 @@
     import { Geolocation } from '@capacitor/geolocation';
     import Map from './Map.svelte';
 
+    // eslint-disable-next-line init-declarations
+    export let data;
+    $: ({ carriers } = data);
+
     /** @param {number} code */
     function messageFromGpsErrorCode(code) {
         switch (code) {
