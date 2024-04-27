@@ -17,8 +17,16 @@ function extractNumberFromQuery(parse: typeof parseFloat, params: URLSearchParam
     error(400, `invalid query parameter [${query}]`);
 }
 
+function extractOptionalNumberFromQuery(parse: typeof parseFloat, params: URLSearchParams, query: string) {
+    const value = params.get(query);
+    if (value === null) return null;
+    const result = parse(value);
+    if (isFinite(result)) return result;
+    error(400, `invalid query parameter [${query}]`);
+}
+
 const extractFloat = extractNumberFromQuery.bind(null, parseFloat);
-const extractInteger = extractNumberFromQuery.bind(null, parseInteger);
+const extractOptionalInteger = extractOptionalNumberFromQuery.bind(null, parseInteger);
 
 function resolveSelector(net: string) {
     switch (net) {
@@ -47,7 +55,7 @@ export async function GET({ url: { searchParams }, params: { net } }) {
     const minY = extractFloat(searchParams, 'min-y');
     const maxX = extractFloat(searchParams, 'max-x');
     const maxY = extractFloat(searchParams, 'max-y');
-    const age = extractInteger(searchParams, 'age');
+    const age = extractOptionalInteger(searchParams, 'age');
     try {
         const promise =
             selector === CellType.WiFi
