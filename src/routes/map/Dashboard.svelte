@@ -53,7 +53,7 @@
             <div class="flex aspect-square size-8 items-center justify-center bg-[#e31a1c]/40">4</div>
         {/if}
     </div>
-    <p class="col-start-3 row-start-3 w-full self-end text-right text-[xx-small]">
+    <p class="col-start-3 row-start-3 w-full self-end text-right">
         &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" class="anchor pointer-events-auto"
             >OpenStreetMap</a
         > Contributors
