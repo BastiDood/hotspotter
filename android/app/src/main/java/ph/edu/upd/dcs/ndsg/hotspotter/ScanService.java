@@ -1,26 +1,39 @@
 package ph.edu.upd.dcs.ndsg.hotspotter;
 
 import android.Manifest;
-import android.app.*;
-import android.content.*;
+import android.app.Notification;
+import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ServiceInfo;
 import android.location.LocationManager;
 import android.net.wifi.WifiManager;
-import android.os.*;
+import android.os.Binder;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import androidx.core.content.ContextCompat;
-import androidx.annotation.*;
-import androidx.core.app.*;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.ServiceCompat;
 import com.getcapacitor.JSObject;
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.Runnable;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
-import java.time.*;
+import java.time.ZonedDateTime;
 
 public class ScanService extends Service {
     public static final String BIND = "ph.edu.upd.dcs.ndsg.hotspotter.BIND";
