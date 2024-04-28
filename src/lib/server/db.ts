@@ -129,7 +129,7 @@ export async function aggregateAccessPoints(
     const resolution = resolveResolution(minX, maxX);
     const hexes = sql`SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM (${minHistory}) min_history JOIN hotspotter.readings USING (reading_id) WHERE ${isWithinInterval} AND ${isWithinBoundingBox}`;
     const [first, ...rest] =
-        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}') result FROM (SELECT hex, count(hex) FROM (${hexes}) hexes GROUP BY hex) _`;
+        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}'::JSONB) result FROM (SELECT hex, count(hex) FROM (${hexes}) hexes GROUP BY hex) _`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
@@ -149,7 +149,7 @@ export async function aggregateCellularLevels(
     const resolution = resolveResolution(minX, maxX);
     const interval = age === null ? sql`TRUE` : sql`NOW() - make_interval(days => ${age}) < cell_timestamp`;
     const [first, ...rest] =
-        await sql`SELECT coalesce(jsonb_object_agg(hex, avg), '{}') result FROM (SELECT hex, avg(level)::DOUBLE PRECISION FROM (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, level FROM hotspotter.readings JOIN ${table} USING (${id}) WHERE ${interval} AND coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hist GROUP BY hex) _`;
+        await sql`SELECT coalesce(jsonb_object_agg(hex, avg), '{}'::JSONB) result FROM (SELECT hex, avg(level)::DOUBLE PRECISION FROM (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, level FROM hotspotter.readings JOIN ${table} USING (${id}) WHERE ${interval} AND coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))) hist GROUP BY hex) _`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
