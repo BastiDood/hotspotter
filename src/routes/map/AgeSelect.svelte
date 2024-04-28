@@ -6,8 +6,8 @@
 </script>
 
 <select {name} bind:value class="select variant-form-material pointer-events-auto">
-    <option value={7}>One Week (7 Days)</option>
-    <option value={14}>Two Week (14 Days)</option>
-    <option value={28}>One Month (28 Days)</option>
+    <option value={7}>Past Week</option>
+    <option value={14}>Past Two Weeks</option>
+    <option value={28}>Past Month</option>
     <option value={null}>All Time</option>
 </select>
