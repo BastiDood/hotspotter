@@ -1,7 +1,4 @@
 <script lang="ts">
-    import { Clock } from '@steeze-ui/heroicons';
-    import { Icon } from '@steeze-ui/svelte-icon';
-
     // eslint-disable-next-line init-declarations
     export let date: Date;
     // eslint-disable-next-line init-declarations

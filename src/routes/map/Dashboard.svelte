@@ -5,7 +5,6 @@
     import type { Coordinate } from 'ol/coordinate';
     import { Icon } from '@steeze-ui/svelte-icon';
     import NetworkSelect from './NetworkSelect.svelte';
-    import { SlideToggle } from '@skeletonlabs/skeleton';
     import { View } from 'ol';
     import { writable } from 'svelte/store';
 
