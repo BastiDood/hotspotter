@@ -1,12 +1,13 @@
 <script lang="ts">
     import { CellType } from '$lib/models/api';
+    import { slide } from 'svelte/transition';
     // eslint-disable-next-line init-declarations
     export let name: string;
     // eslint-disable-next-line init-declarations
     export let value: CellType;
 </script>
 
-<select {name} bind:value class="select variant-form-material pointer-events-auto">
+<select {name} bind:value class="select variant-form-material pointer-events-auto" transition:slide={{ duration: 300 }}>
     <option value={CellType.WiFi}>WiFi</option>
     <option value={CellType.Gsm}>GSM (2G)</option>
     <option value={CellType.Cdma}>CDMA (3G)</option>

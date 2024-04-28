@@ -28,4 +28,8 @@ export class DashboardControl extends Control {
     get age() {
         return this.#component.age;
     }
+
+    get operator() {
+        return this.#component.operator;
+    }
 }
