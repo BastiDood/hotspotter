@@ -1,4 +1,10 @@
-export class ApiError extends Error {}
+export class ApiError extends Error {
+    /** @param {string} [msg] */
+    constructor(msg) {
+        super(msg);
+        this.name = this.constructor.name;
+    }
+}
 
 export class UnexpectedStatusCodeError extends ApiError {
     /** @param {number} code */
