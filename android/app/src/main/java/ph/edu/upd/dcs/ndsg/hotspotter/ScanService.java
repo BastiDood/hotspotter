@@ -35,6 +35,7 @@ public class ScanService extends Service {
             .setContentTitle("Hotspotter")
             .setContentText(content)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .build();
     }
 
