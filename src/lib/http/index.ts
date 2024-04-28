@@ -41,10 +41,12 @@ export async function fetchHexagons(
     maxX: number,
     maxY: number,
     age: number | null,
+    operator: number | null,
     signal?: AbortSignal,
 ) {
     const url = new URL(`api/${cellType}/points`, PUBLIC_HOTSPOTTER_URL);
     if (age !== null) url.searchParams.set('age', age.toString());
+    if (operator !== null) url.searchParams.set('operator', operator.toString());
     url.searchParams.set('min-x', minX.toString());
     url.searchParams.set('min-y', minY.toString());
     url.searchParams.set('max-x', maxX.toString());

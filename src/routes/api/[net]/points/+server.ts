@@ -49,11 +49,12 @@ export async function GET({ url: { searchParams }, params: { net } }) {
     const maxX = extractFloat(searchParams, 'max-x');
     const maxY = extractFloat(searchParams, 'max-y');
     const age = extractOptionalInteger(searchParams, 'age');
+    const operatorPrefix = extractOptionalInteger(searchParams, 'operator');
     try {
         const promise =
             selector === CellType.WiFi
                 ? aggregateAccessPoints(minX, minY, maxX, maxY, age)
-                : aggregateCellularLevels(selector, minX, minY, maxX, maxY, age);
+                : aggregateCellularLevels(selector, minX, minY, maxX, maxY, age, operatorPrefix);
         return json(await promise);
     } catch (err) {
         if (err instanceof pg.PostgresError) {
