@@ -116,4 +116,6 @@ CREATE SCHEMA hotspotter
     CREATE INDEX ON readings(nr_id)
     CREATE INDEX ON readings(tdscdma_id)
     CREATE INDEX ON readings(wcdma_id)
+    CREATE INDEX ON readings(cell_timestamp)
+    CREATE INDEX ON readings(operator_id::TEXT)
     CREATE INDEX ON readings USING GIST(POINT(coords));
