@@ -34,12 +34,16 @@ import java.util.Optional;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 public class ScanService extends Service {
     public static final String BIND = "ph.edu.upd.dcs.ndsg.hotspotter.BIND";
     public static final String SCAN = "ph.edu.upd.dcs.ndsg.hotspotter.SCAN";
     public static final String STOP = "ph.edu.upd.dcs.ndsg.hotspotter.STOP";
+
     private static final int START_FLAG_MASK = Service.START_FLAG_RETRY | Service.START_FLAG_REDELIVERY;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
 
     @NonNull
     private Notification createNotification(@NonNull String content) {
@@ -120,8 +124,8 @@ public class ScanService extends Service {
     })
     private void onNewScanResults() {
         Log.i("ScanService", "reading triggered by callback");
-        var instant = ZonedDateTime.now().toInstant();
-        var now = instant.toEpochMilli();
+        var zonedDateTime = ZonedDateTime.now();
+        var now = zonedDateTime.toInstant().toEpochMilli();
 
         var net = new WifiInfo(ContextCompat.getSystemService(this, WifiManager.class));
         var wifi = net.getScanResults();
@@ -172,7 +176,7 @@ public class ScanService extends Service {
         }
 
         // Notify the user interface of the new reading
-        var content = "Last cached on " + instant.toString() + ".";
+        var content = "Last cached on " + DATE_FORMATTER.format(zonedDateTime) + ".";
         var notification = this.createNotification(content);
         NotificationManagerCompat.from(this).notify(1, notification);
         Log.i("ScanService", "foreground notification updated");
