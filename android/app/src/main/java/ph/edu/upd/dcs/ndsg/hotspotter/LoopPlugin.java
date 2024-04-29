@@ -61,7 +61,7 @@ public class LoopPlugin extends Plugin {
         if (bound) return null;
         bound = true;
         var activity = getActivity();
-        var channel = new NotificationChannelCompat.Builder("scan", NotificationManagerCompat.IMPORTANCE_DEFAULT)
+        var channel = new NotificationChannelCompat.Builder("scan", NotificationManagerCompat.IMPORTANCE_LOW)
             .setName("Hotspotter Upload Service")
             .setDescription("Listens for new Wi-Fi scans.")
             .setVibrationEnabled(false)
