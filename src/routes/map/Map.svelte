@@ -112,7 +112,7 @@
                 return [
                     new Style({
                         fill: new Fill({ color }),
-                        stroke: new Stroke({ color: [79, 70, 229, 0.5], width: 2 }),
+                        stroke: new Stroke({ color: '#3aa76c80', width: 2 }),
                     }),
                 ];
             },
