@@ -64,6 +64,7 @@ public class LoopPlugin extends Plugin {
         var channel = new NotificationChannelCompat.Builder("scan", NotificationManagerCompat.IMPORTANCE_DEFAULT)
             .setName("Hotspotter Upload Service")
             .setDescription("Listens for new Wi-Fi scans.")
+            .setVibrationEnabled(false)
             .build();
         NotificationManagerCompat.from(activity).createNotificationChannel(channel);
         var intent = new Intent(ScanService.BIND, null, activity, ScanService.class);
