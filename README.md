@@ -15,7 +15,7 @@ The mobile application is a single-page [SvelteKit] application powered by the [
     -   `platforms;android-34`
     -   `build-tools;34.0.0`
 -   [OpenJDK 17]
--   Android 9 (API 28)
+-   Android 10 (API 28)
 
 [PostgreSQL]: https://www.postgresql.org/download/
 [Node.js]: https://nodejs.org/en/download/
