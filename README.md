@@ -46,6 +46,7 @@ In a `.env` file, populate the following environment variables.
 | ----------------------------- | ------------------------------------------------------------------------------------ | :----------: | ----------: |
 | `MOBILE`                      | If set to `1`, builds the SvelteKit application as a static site for the mobile app. |   &#x274c;   |         `0` |
 | `POSTGRES_URL`                | Connection URL to the [PostgreSQL] instance.                                         |   &#x2714;   |
+| `PUBLIC_GOOGLE_APP_CLIENT_ID` | The OAuth app client ID for Android from the [Google Cloud console][credentials].    |   &#x2714;   |
 | `PUBLIC_GOOGLE_WEB_CLIENT_ID` | The OAuth web client ID from the [Google Cloud console][credentials].                |   &#x2714;   |
 | `PUBLIC_HOTSPOTTER_URL`       | The base endpoint for the Hotspotter API.                                            |   &#x2714;   |
 
@@ -55,7 +56,8 @@ In a `.env` file, populate the following environment variables.
 # Example Configuration
 MOBILE=1
 POSTGRES_URL='postgres://127.0.0.1/postgres'
-PUBLIC_GOOGLE_WEB_CLIENT_ID='18878593077-1mfrpdc8kfs9p5f6fm3ac5lruq1bmpp5.apps.googleusercontent.com'
+PUBLIC_GOOGLE_APP_CLIENT_ID=18878593077-vsfeephdmnr5035916obko0cbjq02djm.apps.googleusercontent.com
+PUBLIC_GOOGLE_WEB_CLIENT_ID=18878593077-1mfrpdc8kfs9p5f6fm3ac5lruq1bmpp5.apps.googleusercontent.com
 PUBLIC_HOTSPOTTER_URL='https://hotspotter.vercel.app/'
 ```
 
