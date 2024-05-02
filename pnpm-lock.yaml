@@ -29,6 +29,21 @@ importers:
       '@capacitor/preferences':
         specifier: 6.0.0
         version: 6.0.0(@capacitor/core@6.0.0)
+      '@easepick/amp-plugin':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@easepick/core':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@easepick/lock-plugin':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@easepick/preset-plugin':
+        specifier: ^1.2.1
+        version: 1.2.1
+      '@easepick/range-plugin':
+        specifier: ^1.2.1
+        version: 1.2.1
       '@linthtml/linthtml':
         specifier: ^0.9.6
         version: 0.9.6
@@ -83,6 +98,9 @@ importers:
       cookie:
         specifier: ^0.6.0
         version: 0.6.0
+      date-fns:
+        specifier: ^3.6.0
+        version: 3.6.0
       devalue:
         specifier: ^5.0.0
         version: 5.0.0
@@ -243,6 +261,27 @@ packages:
 
   '@dual-bundle/import-meta-resolve@4.0.0':
     resolution: {integrity: sha512-ZKXyJeFAzcpKM2kk8ipoGIPUqx9BX52omTGnfwjJvxOCaZTM2wtDK7zN0aIgPRbT9XYAlha0HtmZ+XKteuh0Gw==}
+
+  '@easepick/amp-plugin@1.2.1':
+    resolution: {integrity: sha512-LbGd7RU+fiucxTqJnBpT5SwACX1BoEK4yi1joLqN50O57jpN0jQMMvDO/vp/F4Zr8MO6kwaamRmOXhqo/Vb4aw==}
+
+  '@easepick/base-plugin@1.2.1':
+    resolution: {integrity: sha512-aonBQaRyZwNH/gmPzSzZDVjQjgy/rxWd+TXnM0E3Nxkeu4yMbXV+GnWVQbBwTvJx74M7iSCHJowdmZ5T46B7Vg==}
+
+  '@easepick/core@1.2.1':
+    resolution: {integrity: sha512-V/blEia/ykAq+0mnQ9djOU5wvMZ+iffL5iuQrKLObpMOw38kL/qo4inH4pCbB3wm7sDjrJTuDKf+6+FrgdFGsw==}
+
+  '@easepick/datetime@1.2.1':
+    resolution: {integrity: sha512-KIUvWo/kEipwBqPTazjfUf6R7dKb2ztPizPoB/0ZMYz3HrWJptsLSZQma3R1nM/zkaexnk/e4L4nX+vDjwBtYA==}
+
+  '@easepick/lock-plugin@1.2.1':
+    resolution: {integrity: sha512-6sJCdliMpnQtzL9dwznS9vYaQUy66VRKPZ+jFdVR1ohiNUVM6C7dSGdG3dPntVTywTy2Z9uU+yJOeWcVFDT61A==}
+
+  '@easepick/preset-plugin@1.2.1':
+    resolution: {integrity: sha512-VAnjyWpf39kXTR6DYbpCJIBeBhbOgRoNTqntpSb5uF9O398KuHUpIM4Ep1id3fTIlfnRrKxzp54rAFwvc48eCA==}
+
+  '@easepick/range-plugin@1.2.1':
+    resolution: {integrity: sha512-yEHLUq32Kj0exLz4txxchALQVJUbwyXvnovfN7yxTrCJLpi6uMmPXcW4lyYig2P9+xM9JqF6JsNqOsi0+5GlHQ==}
 
   '@esbuild/aix-ppc64@0.20.2':
     resolution: {integrity: sha512-D+EBOJHXdNZcLJRBkhENNG8Wji2kgc9AZ9KiPr1JuZjsNtyHzrsfLRrY0tk2H2aoFu6RANO1y1iPPUCDYWkb5g==}
@@ -1143,6 +1182,9 @@ packages:
   date-fns@2.30.0:
     resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
     engines: {node: '>=0.11'}
+
+  date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
 
   debug@4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
@@ -3121,6 +3163,33 @@ snapshots:
 
   '@dual-bundle/import-meta-resolve@4.0.0': {}
 
+  '@easepick/amp-plugin@1.2.1':
+    dependencies:
+      '@easepick/base-plugin': 1.2.1
+
+  '@easepick/base-plugin@1.2.1':
+    dependencies:
+      '@easepick/core': 1.2.1
+
+  '@easepick/core@1.2.1':
+    dependencies:
+      '@easepick/datetime': 1.2.1
+
+  '@easepick/datetime@1.2.1': {}
+
+  '@easepick/lock-plugin@1.2.1':
+    dependencies:
+      '@easepick/base-plugin': 1.2.1
+
+  '@easepick/preset-plugin@1.2.1':
+    dependencies:
+      '@easepick/base-plugin': 1.2.1
+      '@easepick/range-plugin': 1.2.1
+
+  '@easepick/range-plugin@1.2.1':
+    dependencies:
+      '@easepick/base-plugin': 1.2.1
+
   '@esbuild/aix-ppc64@0.20.2':
     optional: true
 
@@ -4083,6 +4152,8 @@ snapshots:
   date-fns@2.30.0:
     dependencies:
       '@babel/runtime': 7.24.5
+
+  date-fns@3.6.0: {}
 
   debug@4.3.4:
     dependencies:

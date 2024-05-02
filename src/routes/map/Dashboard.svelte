@@ -1,6 +1,7 @@
 <script lang="ts">
     import { CellType } from '$lib/models/api';
     import type { Coordinate } from 'ol/coordinate';
+    import OpenDrawerButton from './OpenDrawerButton.svelte';
     import { View } from 'ol';
     import { writable } from 'svelte/store';
 
@@ -45,6 +46,7 @@
         </div>
     </div>
     <div class="col-start-1 row-start-3 flex gap-2">
+        <OpenDrawerButton />
         <div class="flex items-center justify-self-start overflow-hidden rounded-xl">
             {#if $cell === CellType.WiFi}
                 <WifiLegend />

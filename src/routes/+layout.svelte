@@ -1,7 +1,8 @@
 <script>
     import './app.css';
-    import { AppBar, AppShell, LightSwitch, Toast, initializeStores } from '@skeletonlabs/skeleton';
+    import { AppBar, AppShell, Drawer, LightSwitch, Toast, initializeStores } from '@skeletonlabs/skeleton';
     import { App } from '@capacitor/app';
+    import DatePicker from './DatePicker.svelte';
     import NavBar from './NavBar.svelte';
     import favicon from '$lib/logo/favicon.png?url';
     import logo from '$lib/logo/hotspotter.svg?raw';
@@ -23,6 +24,10 @@
     <link rel="icon" href={favicon} />
 </svelte:head>
 
+<Drawer duration={300} width="w-3/4" regionDrawer="p-2 space-y-4">
+    <h3 class="h3">Advanced Filters</h3>
+    <DatePicker on:change={console.log} />
+</Drawer>
 <Toast />
 <AppShell>
     <AppBar slot="header">
