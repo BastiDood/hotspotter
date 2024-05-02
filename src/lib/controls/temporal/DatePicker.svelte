@@ -58,6 +58,7 @@
         // eslint-disable-next-line new-cap
         const picker = new easepick.create({
             element: startDateElement,
+            autoApply: false,
             css: [baseCss, rangeCss, lockCss, presetCss, ampCss, css],
             plugins: [range.RangePlugin, lock.LockPlugin, preset.PresetPlugin, amp.AmpPlugin],
             LockPlugin: { minDate: MIN_DATE, maxDate: NOW },
