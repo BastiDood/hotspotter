@@ -38,7 +38,9 @@
 
 <Drawer duration={300} width="w-3/4" regionDrawer="p-4 space-y-4">
     <h3 class="h3">Advanced Filters</h3>
-    <DatePicker bind:startDate={$start} bind:endDate={$end} />
+    {#await Promise.resolve() then}
+        <DatePicker bind:startDate={$start} bind:endDate={$end} />
+    {/await}
 </Drawer>
 <Toast />
 <AppShell>
