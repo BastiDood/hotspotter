@@ -21,6 +21,11 @@ function extractOptionalInteger(params: URLSearchParams, query: string) {
     error(400, `invalid query parameter [${query}]`);
 }
 
+function extractOptionalDate(params: URLSearchParams, query: string) {
+    const value = params.get(query);
+    return value === null ? null : new Date(value);
+}
+
 function resolveSelector(net: string) {
     switch (net) {
         case 'wifi':
@@ -48,13 +53,14 @@ export async function GET({ url: { searchParams }, params: { net } }) {
     const minY = extractFloat(searchParams, 'min-y');
     const maxX = extractFloat(searchParams, 'max-x');
     const maxY = extractFloat(searchParams, 'max-y');
-    const age = extractOptionalInteger(searchParams, 'age');
+    const startDate = extractOptionalDate(searchParams, 'start');
+    const endDate = extractOptionalDate(searchParams, 'end');
     const operatorPrefix = extractOptionalInteger(searchParams, 'operator');
     try {
         const promise =
             selector === CellType.WiFi
-                ? aggregateAccessPoints(minX, minY, maxX, maxY, age)
-                : aggregateCellularLevels(selector, minX, minY, maxX, maxY, age, operatorPrefix);
+                ? aggregateAccessPoints(minX, minY, maxX, maxY, startDate, endDate)
+                : aggregateCellularLevels(selector, minX, minY, maxX, maxY, operatorPrefix, startDate, endDate);
         return json(await promise);
     } catch (err) {
         if (err instanceof pg.PostgresError) {

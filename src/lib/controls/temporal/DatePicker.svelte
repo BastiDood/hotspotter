@@ -35,10 +35,11 @@
         assert(evt instanceof CustomEvent);
         assert(typeof evt.detail === 'object');
         const { start, end } = evt.detail;
-        assert(start instanceof datetime.DateTime);
-        assert(end instanceof datetime.DateTime);
-        startDate = start;
-        endDate = end;
+        // eslint-disable-next-line no-undefined
+        startDate = start instanceof datetime.DateTime ? start : undefined;
+        // eslint-disable-next-line no-undefined
+        endDate = end instanceof datetime.DateTime ? end : undefined;
+        console.log(startDate, endDate);
     }
 
     function onReset() {
@@ -65,7 +66,6 @@
                 endDate,
                 elementEnd: endDateElement,
                 strict: false,
-                repick: true,
                 tooltip: true,
                 locale: { one: 'Day', other: 'Days' },
             },
