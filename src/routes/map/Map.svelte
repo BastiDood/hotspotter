@@ -14,6 +14,10 @@
 
 <script lang="ts">
     import 'ol/ol.css';
+    import * as Network from '$lib/controls/network';
+    import * as Operator from '$lib/controls/operator';
+    import * as Temporal from '$lib/controls/temporal';
+    import * as datetime from '@easepick/datetime';
     import { Circle, Polygon } from 'ol/geom';
     import { Collection, Feature, Map, type MapBrowserEvent } from 'ol';
     import { Fill, Stroke, Style } from 'ol/style';
@@ -47,9 +51,10 @@
 
     // eslint-disable-next-line init-declarations
     const dashboard = new DashboardControl(center);
-    const cellStore = dashboard.cell;
-    const ageStore = dashboard.age;
-    const operatorStore = dashboard.operator;
+    const networkStore = Network.get();
+    const startDateStore = Temporal.getStart();
+    const endDateStore = Temporal.getEnd();
+    const operatorStore = Operator.get();
 
     const gps = new Circle(center, accuracy);
     const gpsFeature = new Feature(gps);
@@ -61,22 +66,24 @@
     );
 
     const hexFeatures = new Collection<Feature>();
-    const refreshHexagons = abortable(async (signal, cell: CellType, age: number | null, operator: number | null) => {
-        const { minX, maxX, minY, maxY, proj } = validateExtent(dashboard.view);
-        const hexes = await fetchHexagons(cell, minX, minY, maxX, maxY, age, operator, signal);
-        const [gradient, max] =
-            cell === CellType.WiFi ? [WIFI_GRADIENT, MAX_ACCESS_POINTS] : [CELL_GRADIENT, MAX_SIGNAL_STRENGTH];
-        const features = Object.entries(hexes).map(([hex, count]) => {
-            const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
-            const density = Math.min(count, max) / max;
-            const color = gradient[Math.floor(density * (gradient.length - 1))];
-            assert(typeof color !== 'undefined');
-            return new Feature({ geometry, hex, count, color });
-        });
-        hexFeatures.clear();
-        hexFeatures.extend(features);
-    });
-    $: refreshHexagons($cellStore, $ageStore, $operatorStore);
+    const refreshHexagons = abortable(
+        async (signal, cell: CellType, operator: number | null, start?: datetime.DateTime, end?: datetime.DateTime) => {
+            const { minX, maxX, minY, maxY, proj } = validateExtent(dashboard.view);
+            const hexes = await fetchHexagons(cell, minX, minY, maxX, maxY, operator, start, end, signal);
+            const [gradient, max] =
+                cell === CellType.WiFi ? [WIFI_GRADIENT, MAX_ACCESS_POINTS] : [CELL_GRADIENT, MAX_SIGNAL_STRENGTH];
+            const features = Object.entries(hexes).map(([hex, count]) => {
+                const geometry = new Polygon([cellToBoundary(hex, true)]).transform('EPSG:4326', proj);
+                const density = Math.min(count, max) / max;
+                const color = gradient[Math.floor(density * (gradient.length - 1))];
+                assert(typeof color !== 'undefined');
+                return new Feature({ geometry, hex, count, color });
+            });
+            hexFeatures.clear();
+            hexFeatures.extend(features);
+        },
+    );
+    $: refreshHexagons($networkStore, $operatorStore, $startDateStore, $endDateStore);
 
     const popup = new PopupOverlay();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,7 +94,7 @@
             if (typeof feat !== 'undefined') {
                 const count = feat.get('count');
                 assert(typeof count === 'number');
-                popup.count = $cellStore === CellType.WiFi ? count.toString() : count.toFixed(2);
+                popup.count = $networkStore === CellType.WiFi ? count.toString() : count.toFixed(2);
                 popup.setPosition(coordinate);
                 return;
             }
@@ -97,7 +104,7 @@
     }
 
     function onLoadEnd() {
-        refreshHexagons($cellStore, $ageStore, $operatorStore);
+        refreshHexagons($networkStore, $operatorStore, $startDateStore, $endDateStore);
     }
 
     // eslint-disable-next-line init-declarations

@@ -33,6 +33,7 @@
         "@capacitor/preferences": "6.0.0",
         "@easepick/amp-plugin": "^1.2.1",
         "@easepick/core": "^1.2.1",
+        "@easepick/datetime": "^1.2.1",
         "@easepick/lock-plugin": "^1.2.1",
         "@easepick/preset-plugin": "^1.2.1",
         "@easepick/range-plugin": "^1.2.1",

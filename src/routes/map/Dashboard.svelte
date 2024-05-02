@@ -3,11 +3,9 @@
     import type { Coordinate } from 'ol/coordinate';
     import OpenDrawerButton from './OpenDrawerButton.svelte';
     import { View } from 'ol';
-    import { writable } from 'svelte/store';
 
-    import AgeSelect from './AgeSelect.svelte';
-    import NetworkSelect from './NetworkSelect.svelte';
-    import OperatorSelect from './OperatorSelect.svelte';
+    import * as Network from '$lib/controls/network';
+    import * as Operator from '$lib/controls/operator';
 
     import CellLegend from './CellLegend.svelte';
     import WifiLegend from './WifiLegend.svelte';
@@ -26,29 +24,25 @@
     $: view.setCenter(center);
 
     /** The source of the hexagons. */
-    export const cell = writable(CellType.WiFi);
+    const network = Network.get();
 
     /** Filter the data points by this age. */
-    export const age = writable(7 as 7 | 14 | 28 | null);
-
-    /** Filter the data points by this age. */
-    export const operator = writable(null as number | null);
+    const operator = Operator.get();
 </script>
 
 <div class="pointer-events-none grid h-full grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] gap-4 p-4 text-xs">
     <div class="col-span-full flex flex-col gap-4">
-        <div class="grid grid-cols-2 gap-2">
-            <NetworkSelect name="data" bind:value={$cell} />
-            <AgeSelect name="age" bind:value={$age} />
-            {#if $cell !== CellType.WiFi}
-                <div class="col-span-full"><OperatorSelect name="operator" bind:value={$operator} /></div>
+        <div class="space-y-2">
+            <Network.Select name="data" bind:value={$network} />
+            {#if $network !== CellType.WiFi}
+                <Operator.Select name="operator" bind:value={$operator} />
             {/if}
         </div>
     </div>
     <div class="col-start-1 row-start-3 flex gap-2">
         <OpenDrawerButton />
         <div class="flex items-center justify-self-start overflow-hidden rounded-xl">
-            {#if $cell === CellType.WiFi}
+            {#if $network === CellType.WiFi}
                 <WifiLegend />
             {:else}
                 <CellLegend />

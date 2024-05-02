@@ -1,13 +1,25 @@
 <script>
     import './app.css';
+    import * as Network from '$lib/controls/network';
+    import * as Operator from '$lib/controls/operator';
+    import * as Temporal from '$lib/controls/temporal';
     import { AppBar, AppShell, Drawer, LightSwitch, Toast, initializeStores } from '@skeletonlabs/skeleton';
     import { App } from '@capacitor/app';
-    import DatePicker from './DatePicker.svelte';
+    import DatePicker from '$lib/controls/temporal/DatePicker.svelte';
     import NavBar from './NavBar.svelte';
     import favicon from '$lib/logo/favicon.png?url';
     import logo from '$lib/logo/hotspotter.svg?raw';
     import { onMount } from 'svelte';
+
     initializeStores();
+    Network.init();
+    Operator.init();
+    Temporal.initStart();
+    Temporal.initEnd();
+
+    const start = Temporal.getStart();
+    const end = Temporal.getEnd();
+
     onMount(() => {
         const promise = App.addListener('backButton', ({ canGoBack }) => {
             if (canGoBack) history.back();
@@ -24,9 +36,9 @@
     <link rel="icon" href={favicon} />
 </svelte:head>
 
-<Drawer duration={300} width="w-3/4" regionDrawer="p-2 space-y-4">
+<Drawer duration={300} width="w-3/4" regionDrawer="p-4 space-y-4">
     <h3 class="h3">Advanced Filters</h3>
-    <DatePicker on:change={console.log} />
+    <DatePicker bind:startDate={$start} bind:endDate={$end} />
 </Drawer>
 <Toast />
 <AppShell>

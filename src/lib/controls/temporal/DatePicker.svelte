@@ -4,6 +4,7 @@
 
 <script lang="ts">
     import * as amp from '@easepick/amp-plugin';
+    import * as datetime from '@easepick/datetime';
     import * as easepick from '@easepick/core';
     import * as lock from '@easepick/lock-plugin';
     import * as preset from '@easepick/preset-plugin';
@@ -15,27 +16,34 @@
     import presetCss from '@easepick/preset-plugin/dist/index.css?url';
     import rangeCss from '@easepick/range-plugin/dist/index.css?url';
 
-    import { createEventDispatcher, onMount } from 'svelte';
-    import { DateRange } from '$lib/models/date';
     import { assert } from '$lib/assert';
-    import css from './datepicker.css?url';
-    import { parse } from 'valibot';
+    import css from './DatePicker.css?url';
+    import { onMount } from 'svelte';
     import { sub } from 'date-fns';
+
+    // eslint-disable-next-line no-undefined
+    export let startDate = undefined as datetime.DateTime | undefined;
+    // eslint-disable-next-line no-undefined
+    export let endDate = undefined as datetime.DateTime | undefined;
 
     // eslint-disable-next-line init-declarations
     let startDateElement: HTMLInputElement;
     // eslint-disable-next-line init-declarations
     let endDateElement: HTMLInputElement;
 
-    const dispatch = createEventDispatcher<{ change: DateRange | null }>();
-
     function onSelect(evt: unknown) {
         assert(evt instanceof CustomEvent);
-        dispatch('change', parse(DateRange, evt.detail));
+        assert(typeof evt.detail === 'object');
+        const { start, end } = evt.detail;
+        assert(start instanceof datetime.DateTime);
+        assert(end instanceof datetime.DateTime);
+        startDate = start;
+        endDate = end;
     }
 
     function onReset() {
-        dispatch('change');
+        // eslint-disable-next-line no-undefined
+        startDate = endDate = undefined;
     }
 
     onMount(() => {
@@ -52,7 +60,15 @@
             css: [baseCss, rangeCss, lockCss, presetCss, ampCss, css],
             plugins: [range.RangePlugin, lock.LockPlugin, preset.PresetPlugin, amp.AmpPlugin],
             LockPlugin: { minDate: MIN_DATE, maxDate: NOW },
-            RangePlugin: { elementEnd: endDateElement, tooltip: true, locale: { one: 'Day', other: 'Days' } },
+            RangePlugin: {
+                startDate,
+                endDate,
+                elementEnd: endDateElement,
+                strict: false,
+                repick: true,
+                tooltip: true,
+                locale: { one: 'Day', other: 'Days' },
+            },
             AmpPlugin: {
                 resetButton: true,
                 darkMode: false,

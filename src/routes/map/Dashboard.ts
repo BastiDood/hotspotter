@@ -20,16 +20,4 @@ export class DashboardControl extends Control {
     get view() {
         return this.#component.view;
     }
-
-    get cell() {
-        return this.#component.cell;
-    }
-
-    get age() {
-        return this.#component.age;
-    }
-
-    get operator() {
-        return this.#component.operator;
-    }
 }
