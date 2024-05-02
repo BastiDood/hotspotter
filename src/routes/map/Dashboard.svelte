@@ -1,14 +1,15 @@
 <script lang="ts">
-    import { ChartBar, Wifi } from '@steeze-ui/heroicons';
     import { CellType } from '$lib/models/api';
     import type { Coordinate } from 'ol/coordinate';
-    import { Icon } from '@steeze-ui/svelte-icon';
     import { View } from 'ol';
     import { writable } from 'svelte/store';
 
     import AgeSelect from './AgeSelect.svelte';
     import NetworkSelect from './NetworkSelect.svelte';
     import OperatorSelect from './OperatorSelect.svelte';
+
+    import CellLegend from './CellLegend.svelte';
+    import WifiLegend from './WifiLegend.svelte';
 
     // eslint-disable-next-line init-declarations
     export let center: Coordinate;
@@ -43,23 +44,14 @@
             {/if}
         </div>
     </div>
-    <div class="col-start-1 row-start-3 flex items-center justify-self-start overflow-hidden rounded-xl">
-        {#if $cell === CellType.WiFi}
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#ffffd4]/40">1</div>
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#fe9929]/40">
-                <Icon src={Wifi} theme="mini" class="size-4" />
-            </div>
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#993404]/40">30+</div>
-        {:else}
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#ffffb2]/40">0</div>
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#fecc5c]/40">
-                <Icon src={ChartBar} theme="mini" class="size-4" />
-            </div>
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#fd8d3c]/40">
-                <Icon src={ChartBar} theme="mini" class="size-4" />
-            </div>
-            <div class="flex aspect-square size-8 items-center justify-center bg-[#e31a1c]/40">4</div>
-        {/if}
+    <div class="col-start-1 row-start-3 flex gap-2">
+        <div class="flex items-center justify-self-start overflow-hidden rounded-xl">
+            {#if $cell === CellType.WiFi}
+                <WifiLegend />
+            {:else}
+                <CellLegend />
+            {/if}
+        </div>
     </div>
     <p class="col-start-3 row-start-3 w-full self-end text-right">
         &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" class="anchor pointer-events-auto"
