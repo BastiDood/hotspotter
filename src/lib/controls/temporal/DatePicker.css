@@ -28,12 +28,12 @@
     --color-btn-primary-disabled-bg: rgb(var(--color-surface-700));
     --color-btn-primary-disabled-fg: rgb(var(--color-surface-400));
     --color-btn-primary-disabled-border: rgb(var(--color-surface-900));
-    --color-btn-secondary-bg: rgb(var(--color-surface-900));
+    --color-btn-secondary-bg: rgb(var(--color-error-900));
     --color-btn-secondary-fg: rgb(var(--on-surface));
     --color-btn-secondary-border: rgb(var(--color-error-900));
     --color-btn-secondary-hover-bg: rgb(var(--color-error-800));
     --color-btn-secondary-hover-fg: rgb(var(--on-error));
-    --color-btn-secondary-hover-border: rgb(var(--color-error-900));
+    --color-btn-secondary-hover-border: rgb(var(--color-error-800));
     --color-btn-secondary-disabled-bg: #b5bbc4;
     --color-btn-secondary-disabled-fg: #fff;
     --color-btn-secondary-disabled-border: #b5bbc4;
