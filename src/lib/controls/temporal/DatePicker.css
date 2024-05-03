@@ -1,4 +1,10 @@
-.container {
+@import url('@easepick/core/dist/index.css');
+@import url('@easepick/lock-plugin/dist/index.css');
+@import url('@easepick/preset-plugin/dist/index.css');
+@import url('@easepick/range-plugin/dist/index.css');
+@import url('@easepick/amp-plugin/dist/index.css');
+
+:host {
     --color-bg-default: rgb(var(--color-surface-700));
     --color-bg-unavailable: rgb(var(--color-surface-900));
     --color-bg-inrange: rgb(var(--color-primary-900));

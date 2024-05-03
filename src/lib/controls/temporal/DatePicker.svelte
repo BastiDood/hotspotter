@@ -10,12 +10,6 @@
     import * as preset from '@easepick/preset-plugin';
     import * as range from '@easepick/range-plugin';
 
-    import ampCss from '@easepick/amp-plugin/dist/index.css?url';
-    import baseCss from '@easepick/core/dist/index.css?url';
-    import lockCss from '@easepick/lock-plugin/dist/index.css?url';
-    import presetCss from '@easepick/preset-plugin/dist/index.css?url';
-    import rangeCss from '@easepick/range-plugin/dist/index.css?url';
-
     import { assert } from '$lib/assert';
     import css from './DatePicker.css?url';
     import { onMount } from 'svelte';
@@ -59,7 +53,7 @@
         const picker = new easepick.create({
             element: startDateElement,
             autoApply: false,
-            css: [baseCss, rangeCss, lockCss, presetCss, ampCss, css],
+            css: [css],
             plugins: [range.RangePlugin, lock.LockPlugin, preset.PresetPlugin, amp.AmpPlugin],
             LockPlugin: { minDate: MIN_DATE, maxDate: NOW },
             RangePlugin: {
