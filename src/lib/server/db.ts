@@ -20,7 +20,7 @@ const HexResult = object({ result: HexagonAccessPointCount });
  * Comptues the Wi-Fi multiplier score between `0` and `1`. Note that only cells fresher than two weeks
  * are considered for scoring. This allows us to incentivize users to update stale data points.
  */
-async function computeWifiMultiplier(sql: Sql, longitude: number, latitude: number, resolution = 9, halfLife = 15) {
+async function computeWifiMultiplier(sql: Sql, longitude: number, latitude: number, resolution = 10, halfLife = 15) {
     // TODO: Consider age of stalest data in score computation.
     const [result, ...rest] =
         await sql`SELECT exp(coalesce(sum(ln(score)), 0)) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN (SELECT reading_id, coords, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '2W' < wifi_timestamp GROUP BY disk) _`;
@@ -40,7 +40,7 @@ async function insertThenComputeCellMultiplier(
     latitude: number,
     data: SignalStrength,
     cell: keyof CellSignalStrength,
-    resolution = 9,
+    resolution = 10,
     halfLife = 15,
 ) {
     // TODO: Consider age of stalest data in score computation.
