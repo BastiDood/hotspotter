@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@easepick/core@1.2.1':
+    hash: hev7vepqpb4ufgljaqsi3qrhcq
+    path: patches/@easepick__core@1.2.1.patch
+
 importers:
 
   .:
@@ -34,7 +39,7 @@ importers:
         version: 1.2.1
       '@easepick/core':
         specifier: ^1.2.1
-        version: 1.2.1
+        version: 1.2.1(patch_hash=hev7vepqpb4ufgljaqsi3qrhcq)
       '@easepick/datetime':
         specifier: ^1.2.1
         version: 1.2.1
@@ -3172,9 +3177,9 @@ snapshots:
 
   '@easepick/base-plugin@1.2.1':
     dependencies:
-      '@easepick/core': 1.2.1
+      '@easepick/core': 1.2.1(patch_hash=hev7vepqpb4ufgljaqsi3qrhcq)
 
-  '@easepick/core@1.2.1':
+  '@easepick/core@1.2.1(patch_hash=hev7vepqpb4ufgljaqsi3qrhcq)':
     dependencies:
       '@easepick/datetime': 1.2.1
 

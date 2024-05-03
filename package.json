@@ -81,5 +81,10 @@
         "vite": "^5.2.11",
         "vite-plugin-tailwind-purgecss": "^0.3.3",
         "vitest": "^1.5.3"
+    },
+    "pnpm": {
+        "patchedDependencies": {
+            "@easepick/core@1.2.1": "patches/@easepick__core@1.2.1.patch"
+        }
     }
 }
