@@ -127,7 +127,6 @@ export async function aggregateAccessPoints(
     const isWithinBoundingBox = sql`coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))`;
     const lowerBound = startDate === null ? sql`TIMESTAMPTZ '-infinity'` : sql`${startDate}`;
     const upperBound = endDate === null ? sql`TIMESTAMPTZ 'infinity'` : sql`${endDate}`;
-    console.log(startDate, endDate);
     const minHistory = sql`SELECT reading_id, min(wifi_timestamp) ts FROM (${unique}) uniq GROUP BY reading_id`;
     const resolution = resolveResolution(minX, maxX);
     const hexes = sql`SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM (${minHistory}) min_history JOIN hotspotter.readings USING (reading_id) WHERE ${lowerBound} <= ts AND ts <= ${upperBound} AND ${isWithinBoundingBox}`;
