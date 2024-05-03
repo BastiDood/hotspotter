@@ -22,6 +22,21 @@ public class TelephonyInfo {
         this.api = api;
     }
 
+    private static JSObject encodeFallibleReading(JSObject json, String key, int value) throws JSONException {
+        // 3GPP 27.007 (Ver 10.3.0) Sec 8.69
+        switch (value) {
+            case 99:
+            case 255:
+                // Hardware reported a value, so treat as `null`.
+                return json.putSafe(key, JSObject.NULL);
+            case CellInfo.UNAVAILABLE:
+                // Hardware is just not available at all, so treat as `undefined`.
+                return json.putSafe(key, null);
+            default:
+                return json.putSafe(key, value);
+        }
+    }
+
     @NonNull
     public static JSObject signalStrengthToJson(@NonNull SignalStrength strength) throws JSONException {
         var now = System.currentTimeMillis();
@@ -30,15 +45,14 @@ public class TelephonyInfo {
             : now - SystemClock.elapsedRealtime() + strength.getTimestampMillis();
         var res = new JSObject().putSafe("timestamp", timestamp).putSafe("level", strength.getLevel());
         for (var cell : strength.getCellSignalStrengths()) {
-            var json = new JSObject()
+            var json = TelephonyInfo
+                .encodeFallibleReading(new JSObject(), "asu", cell.getAsuLevel())
                 .putSafe("dbm", cell.getDbm())
                 .putSafe("level", cell.getLevel());
             // TODO: Use `switch` expressions.
             // TODO: Handle case when signal strengths return more than one instance of the same class.
-            var asu = cell.getAsuLevel();
             if (cell instanceof CellSignalStrengthCdma s) {
-                json.putSafe("asu", asu == 99 ? JSObject.NULL : asu)
-                    .putSafe("cdma_dbm", s.getCdmaDbm())
+                json.putSafe("cdma_dbm", s.getCdmaDbm())
                     .putSafe("cdma_ecio", s.getCdmaEcio())
                     .putSafe("cdma_level", s.getCdmaLevel())
                     .putSafe("evdo_dbm", s.getEvdoDbm())
@@ -48,29 +62,25 @@ public class TelephonyInfo {
                 res.putSafe("cdma", json);
             } else if (cell instanceof CellSignalStrengthGsm s) {
                 var timingAdvance = s.getTimingAdvance();
-                var bitErrorRate = s.getBitErrorRate();
-                json.putOpt("asu", asu == CellInfo.UNAVAILABLE ? null : asu == 99 ? JSObject.NULL : asu)
-                    .putOpt("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? null : timingAdvance)
-                    .putOpt("bit_error_rate", bitErrorRate == CellInfo.UNAVAILABLE ? null : bitErrorRate == 99 ? JSObject.NULL : bitErrorRate);
+                TelephonyInfo.encodeFallibleReading(json, "bit_error_rate", s.getBitErrorRate())
+                    .putOpt("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? null : timingAdvance);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     var rssi = s.getRssi();
                     json.putOpt("rssi", rssi == CellInfo.UNAVAILABLE ? null : rssi);
                 }
                 res.putSafe("gsm", json);
             } else if (cell instanceof CellSignalStrengthLte s) {
-                var timingAdvance = s.getTimingAdvance();
                 var cqi = s.getCqi();
                 var rsrp = s.getRsrp();
                 var rsrq = s.getRsrq();
                 var rssnr = s.getRssnr();
-                var rssi = s.getRssi();
-                json.putOpt("asu", asu == CellInfo.UNAVAILABLE ? null : asu == 255 ? JSObject.NULL : asu)
-                    .putOpt("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? null : timingAdvance)
+                var timingAdvance = s.getTimingAdvance();
+                TelephonyInfo.encodeFallibleReading(json, "rssi", s.getRssi())
                     .putOpt("cqi", cqi == CellInfo.UNAVAILABLE ? null : cqi)
                     .putOpt("rsrp", rsrp == CellInfo.UNAVAILABLE ? null : rsrp)
                     .putOpt("rsrq", rsrq == CellInfo.UNAVAILABLE ? null : rsrq)
                     .putOpt("rssnr", rssnr == CellInfo.UNAVAILABLE ? null : rssnr)
-                    .putOpt("rssi", rssi == CellInfo.UNAVAILABLE ? null : rssi);
+                    .putOpt("timing_advance", timingAdvance == CellInfo.UNAVAILABLE ? null : timingAdvance);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     var cqiTableIndex = s.getCqiTableIndex();
                     json.putOpt("cqi_table_index", cqiTableIndex == CellInfo.UNAVAILABLE ? null : cqiTableIndex);
@@ -83,8 +93,7 @@ public class TelephonyInfo {
                 var ssRsrp = s.getSsRsrp();
                 var ssRsrq = s.getSsRsrq();
                 var ssSinr = s.getSsSinr();
-                json.putOpt("asu", asu == CellInfo.UNAVAILABLE ? null : asu == 255 ? JSObject.NULL : asu)
-                    .putOpt("csi_rsrp", csiRsrp == CellInfo.UNAVAILABLE ? null : csiRsrp)
+                json.putOpt("csi_rsrp", csiRsrp == CellInfo.UNAVAILABLE ? null : csiRsrp)
                     .putOpt("csi_rsrq", csiRsrq == CellInfo.UNAVAILABLE ? null : csiRsrq)
                     .putOpt("csi_sinr", csiSinr == CellInfo.UNAVAILABLE ? null : csiSinr)
                     .putOpt("ss_rsrp", ssRsrp == CellInfo.UNAVAILABLE ? null : ssRsrp)
@@ -102,11 +111,9 @@ public class TelephonyInfo {
                 res.putSafe("nr", json);
             } else if (cell instanceof CellSignalStrengthTdscdma s) {
                 var rscp = s.getRscp();
-                json.putOpt("asu", asu == CellInfo.UNAVAILABLE ? null : asu == 255 ? JSObject.NULL : asu)
-                    .putOpt("rscp", rscp == CellInfo.UNAVAILABLE ? null : rscp);
+                json.putOpt("rscp", rscp == CellInfo.UNAVAILABLE ? null : rscp);
                 res.putSafe("tdscdma", json);
             } else if (cell instanceof CellSignalStrengthWcdma s) {
-                json.putOpt("asu", asu == CellInfo.UNAVAILABLE ? null : asu == 255 ? JSObject.NULL : asu);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     var ecNo = s.getEcNo();
                     json.putOpt("ec_no", ecNo == CellInfo.UNAVAILABLE ? null : ecNo);
