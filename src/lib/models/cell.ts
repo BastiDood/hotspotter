@@ -64,6 +64,21 @@ export const CellSignalInfo = object({
 
 export type CellSignalInfo = Output<typeof CellSignalInfo>;
 
+/** @deprecated */
+function coerceValidNumber3gpp(value: unknown) {
+    if (typeof value !== 'number') return value;
+    switch (value) {
+        case 99:
+        case 255:
+            return null;
+        case 0x7fffffff:
+            // eslint-disable-next-line no-undefined
+            return undefined; // CellInfo.UNAVAILABLE
+        default:
+            return value;
+    }
+}
+
 export const Cdma = object({
     dbm: number([safeInteger()]),
     // FIXME: Validate powers of two.
@@ -81,8 +96,11 @@ export type Cdma = Output<typeof Cdma>;
 
 export const Gsm = object({
     dbm: number([safeInteger()]),
-    asu: optional(number([safeInteger(), minValue(0), maxValue(31)])),
-    bit_error_rate: optional(nullable(number([safeInteger(), minValue(0), maxValue(7)]))),
+    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(31)]))), coerceValidNumber3gpp),
+    bit_error_rate: coerce(
+        optional(nullable(number([safeInteger(), minValue(0), maxValue(7)]))),
+        coerceValidNumber3gpp,
+    ),
     rssi: optional(number([safeInteger(), minValue(-113), maxValue(-51)])),
     timing_advance: optional(nullable(number([safeInteger(), minValue(0), maxValue(219)]))),
 });
@@ -91,12 +109,12 @@ export type Gsm = Output<typeof Gsm>;
 
 export const Lte = object({
     dbm: number([safeInteger()]),
-    asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))),
+    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))), coerceValidNumber3gpp),
     cqi: optional(number([safeInteger(), minValue(0), maxValue(15)])),
     cqi_table_index: optional(number([safeInteger(), minValue(1), maxValue(6)])),
     rsrp: optional(number([safeInteger(), minValue(-140), maxValue(-43)])),
     rsrq: optional(number([safeInteger()])),
-    rssi: optional(number([safeInteger(), minValue(-113), maxValue(-51)])),
+    rssi: coerce(optional(nullable(number([safeInteger(), minValue(-113), maxValue(-51)]))), coerceValidNumber3gpp),
     rssnr: optional(number([safeInteger(), minValue(-20), maxValue(30)])),
     timing_advance: optional(number([safeInteger(), minValue(0), maxValue(1282)])),
 });
@@ -105,7 +123,7 @@ export type Lte = Output<typeof Lte>;
 
 export const Nr = object({
     dbm: number([safeInteger(), minValue(-140), maxValue(-44)]),
-    asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))),
+    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))), coerceValidNumber3gpp),
     // TODO: Deprecate the string workaround.
     csi_cqi_report: optional(
         coerce(array(number([safeInteger(), minValue(0), maxValue(15)])), input =>
@@ -126,7 +144,7 @@ export type Nr = Output<typeof Nr>;
 
 export const Tdscdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
-    asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))),
+    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))), coerceValidNumber3gpp),
     rscp: optional(number([safeInteger(), minValue(-120), maxValue(-24)])),
 });
 
@@ -134,7 +152,7 @@ export type Tdscdma = Output<typeof Tdscdma>;
 
 export const Wcdma = object({
     dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
-    asu: optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))),
+    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))), coerceValidNumber3gpp),
     ec_no: optional(number([safeInteger(), minValue(-24), maxValue(1)])),
 });
 
