@@ -2,7 +2,7 @@
     // eslint-disable-next-line init-declarations, no-undefined
     export let timing_advance = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
-    export let rssi = undefined as number | undefined;
+    export let rssi = undefined as number | null | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
     export let cqi = undefined as number | null | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
