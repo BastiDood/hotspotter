@@ -19,7 +19,7 @@ export async function GET() {
             console.error(`[PG-${err.code}]: ${err.message}`);
             error(550, err);
         } else if (err instanceof ValiError) {
-            printIssues(err.issues);
+            for (const msg of printIssues(err.issues)) console.error(msg);
             error(551, err);
         }
         throw err;

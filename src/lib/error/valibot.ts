@@ -1,5 +1,5 @@
 import type { SchemaIssues } from 'valibot';
-export function printIssues(issues: SchemaIssues) {
+export function* printIssues(issues: SchemaIssues) {
     for (const { reason, context, received, path } of issues) {
         const trace =
             path
@@ -19,6 +19,6 @@ export function printIssues(issues: SchemaIssues) {
                     }
                 })
                 .join('.') || '<?>';
-        console.error(`received ${received} in ${trace} for ${context}@${reason}`);
+        yield `received ${received} in ${trace} for ${context}@${reason}`;
     }
 }
