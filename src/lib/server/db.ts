@@ -114,7 +114,7 @@ export function resolveResolution(minX: number, maxX: number) {
     return RESOLUTIONS.length - binarySearch(RESOLUTIONS, delta) - 1;
 }
 
-/** @param age Only filter for {@linkcode age} days back. Leave `null` to get all data. */
+/** @param age Only filter between {@linkcode startDate} and {@linkcode endDate}. Leave `null` to get all data. */
 export async function aggregateAccessPoints(
     minX: number,
     minY: number,
@@ -137,7 +137,7 @@ export async function aggregateAccessPoints(
     return parse(HexResult, first).result;
 }
 
-/** @param age Only filter for {@linkcode age} days back. Leave `null` to get all data. */
+/** @param age Only filter between {@linkcode startDate} and {@linkcode endDate}. Leave `null` to get all data. */
 export async function aggregateCellularLevels(
     cell: CellType,
     minX: number,
@@ -157,13 +157,12 @@ export async function aggregateCellularLevels(
         operatorPrefix === null ? sql`TRUE` : sql`operator_id::TEXT LIKE concat(${operatorPrefix}::TEXT, '%')`;
     const isWithinViewport = sql`coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))`;
     const [first, ...rest] =
-        await sql`SELECT coalesce(jsonb_object_agg(hex, avg), '{}'::JSONB) result FROM (SELECT hex, avg(level)::DOUBLE PRECISION FROM (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, level FROM hotspotter.readings JOIN ${table} USING (${id}) WHERE ${lowerBound} <= ts AND ts <= ${upperBound} AND ${doesSatisfyOperatorPrefix} AND ${isWithinViewport}) hist GROUP BY hex) _`;
+        await sql`SELECT coalesce(jsonb_object_agg(hex, avg), '{}'::JSONB) result FROM (SELECT hex, avg(level)::DOUBLE PRECISION FROM (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, level FROM hotspotter.readings JOIN ${table} USING (${id}) WHERE ${lowerBound} <= cell_timestamp AND cell_timestamp <= ${upperBound} AND ${doesSatisfyOperatorPrefix} AND ${isWithinViewport}) hist GROUP BY hex) _`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
 }
 
-// TODO: Integrate into the user profile.
 export async function fetchUserScore(id: string) {
     const [first, ...rest] =
         await sql`SELECT rank() OVER (ORDER BY score DESC), score FROM hotspotter.users WHERE user_id = ${id}`;
