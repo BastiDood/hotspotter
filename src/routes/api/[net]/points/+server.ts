@@ -63,6 +63,7 @@ export async function GET({ url: { searchParams }, params: { net } }) {
                 : aggregateCellularLevels(selector, minX, minY, maxX, maxY, operatorPrefix, startDate, endDate);
         return json(await promise);
     } catch (err) {
+        console.error(err);
         if (err instanceof pg.PostgresError) {
             console.error(`[PG-${err.code}]: ${err.message}`);
             error(550, err);

@@ -23,6 +23,7 @@ export async function POST({ request }) {
         const score = await uploadReadings(user, input);
         return new Response(score.toString(), { status: 201 });
     } catch (err) {
+        console.error(err);
         if (err instanceof pg.PostgresError) {
             console.error(`[PG-${err.code}]: ${err.message}`);
             error(550, err);
