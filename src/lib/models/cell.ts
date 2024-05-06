@@ -60,8 +60,12 @@ export enum NetworkType {
     NR,
 }
 
+function integerRange(min: number, max: number) {
+    return number([safeInteger(), minValue(min), maxValue(max)]);
+}
+
 export const CellSignalInfo = object({
-    level: number([safeInteger(), minValue(0), maxValue(4)]),
+    level: integerRange(0, 4),
 });
 
 export type CellSignalInfo = Output<typeof CellSignalInfo>;
@@ -84,86 +88,72 @@ function coerceValidNumber3gpp(value: unknown) {
 export const Cdma = object({
     dbm: number([safeInteger()]),
     // FIXME: Validate powers of two.
-    asu: nullable(number([safeInteger(), minValue(1), maxValue(16)])),
+    asu: nullable(integerRange(1, 16)),
     cdma_dbm: number([safeInteger()]),
     cdma_ecio: number([safeInteger()]),
-    cdma_level: number([safeInteger(), minValue(0), maxValue(4)]),
+    cdma_level: integerRange(0, 4),
     evdo_dbm: number([safeInteger()]),
     evdo_ecio: number([safeInteger()]),
-    evdo_level: number([safeInteger(), minValue(0), maxValue(4)]),
-    evdo_snr: number([safeInteger(), minValue(0), maxValue(8)]),
+    evdo_level: integerRange(0, 4),
+    evdo_snr: integerRange(0, 8),
 });
 
 export type Cdma = Output<typeof Cdma>;
 
 export const Gsm = object({
     dbm: number([safeInteger()]),
-    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(31)]))), coerceValidNumber3gpp),
-    bit_error_rate: coerce(
-        optional(nullable(number([safeInteger(), minValue(0), maxValue(7)]))),
-        coerceValidNumber3gpp,
-    ),
-    rssi: optional(number([safeInteger(), minValue(-113), maxValue(-51)])),
-    timing_advance: optional(nullable(number([safeInteger(), minValue(0), maxValue(219)]))),
+    asu: coerce(optional(nullable(integerRange(0, 31))), coerceValidNumber3gpp),
+    bit_error_rate: coerce(optional(nullable(integerRange(0, 7))), coerceValidNumber3gpp),
+    rssi: optional(integerRange(-113, -51)),
+    timing_advance: optional(nullable(integerRange(0, 219))),
 });
 
 export type Gsm = Output<typeof Gsm>;
 
 export const Lte = object({
     dbm: number([safeInteger()]),
-    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))), coerceValidNumber3gpp),
-    cqi: optional(number([safeInteger(), minValue(0), maxValue(15)])),
-    cqi_table_index: optional(number([safeInteger(), minValue(1), maxValue(6)])),
-    rsrp: optional(number([safeInteger(), minValue(-140), maxValue(-43)])),
+    asu: coerce(optional(nullable(integerRange(0, 97))), coerceValidNumber3gpp),
+    cqi: optional(integerRange(0, 15)),
+    cqi_table_index: optional(integerRange(1, 6)),
+    rsrp: optional(integerRange(-140, -43)),
     rsrq: optional(number([safeInteger()])),
-    rssi: coerce(optional(nullable(number([safeInteger(), minValue(-113), maxValue(-51)]))), coerceValidNumber3gpp),
-    rssnr: optional(number([safeInteger(), minValue(-20), maxValue(30)])),
-    timing_advance: optional(number([safeInteger(), minValue(0), maxValue(1282)])),
+    rssi: coerce(optional(nullable(integerRange(-113, -51))), coerceValidNumber3gpp),
+    rssnr: optional(integerRange(-20, 30)),
+    timing_advance: optional(integerRange(0, 1282)),
 });
 
 export type Lte = Output<typeof Lte>;
 
 export const Nr = object({
-    dbm: coerce(
-        optional(union([number([safeInteger(), minValue(-140), maxValue(-44)]), literal(0x7fffffff)])),
-        coerceValidNumber3gpp,
-    ),
+    dbm: coerce(optional(union([integerRange(-140, -44), literal(0x7fffffff)])), coerceValidNumber3gpp),
     asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))), coerceValidNumber3gpp),
     csi_cqi_report: optional(
-        coerce(array(number([safeInteger(), minValue(0), maxValue(15)])), input =>
-            typeof input === 'string' ? JSON.parse(input) : input,
-        ),
+        coerce(array(integerRange(0, 15)), input => (typeof input === 'string' ? JSON.parse(input) : input)),
     ),
-    csi_cqi_table_index: optional(number([safeInteger(), minValue(1), maxValue(3)])),
-    csi_rsrp: optional(number([safeInteger(), minValue(-156), maxValue(-31)])),
-    csi_rsrq: optional(number([safeInteger(), minValue(-20), maxValue(-3)])),
-    csi_sinr: optional(number([safeInteger(), minValue(-23), maxValue(23)])),
-    ss_rsrp: optional(number([safeInteger(), minValue(-156), maxValue(-31)])),
-    ss_rsrq: optional(number([safeInteger(), minValue(-43), maxValue(20)])),
-    ss_sinr: optional(number([safeInteger(), minValue(-23), maxValue(40)])),
-    timing_advance_micros: optional(number([safeInteger(), minValue(0), maxValue(1282)])),
+    csi_cqi_table_index: optional(integerRange(1, 3)),
+    csi_rsrp: optional(integerRange(-156, -31)),
+    csi_rsrq: optional(integerRange(-20, -3)),
+    csi_sinr: optional(integerRange(-23, 23)),
+    ss_rsrp: optional(integerRange(-156, -31)),
+    ss_rsrq: optional(integerRange(-43, 20)),
+    ss_sinr: optional(integerRange(-23, 40)),
+    timing_advance_micros: optional(integerRange(0, 1282)),
 });
 
 export type Nr = Output<typeof Nr>;
 
 export const Tdscdma = object({
-    dbm: coerce(
-        optional(union([number([safeInteger(), minValue(-120), maxValue(-24)]), literal(0x7fffffff)])),
-        coerceValidNumber3gpp,
-    ),
-    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))), coerceValidNumber3gpp),
-    rscp: optional(number([safeInteger(), minValue(-120), maxValue(-24)])),
+    dbm: coerce(optional(union([integerRange(-120, -24), literal(0x7fffffff)])), coerceValidNumber3gpp),
+    asu: coerce(optional(nullable(integerRange(0, 96))), coerceValidNumber3gpp),
+    rscp: optional(integerRange(-120, -24)),
 });
 
 export type Tdscdma = Output<typeof Tdscdma>;
 
 export const Wcdma = object({
-    dbm: coerce(
-        optional(union([number([safeInteger(), minValue(-120), maxValue(-24)]), literal(0x7fffffff)])),
-        coerceValidNumber3gpp,
-    ),
-    asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))), coerceValidNumber3gpp),
-    ec_no: optional(number([safeInteger(), minValue(-24), maxValue(1)])),
+    dbm: coerce(optional(union([integerRange(-120, -24), literal(0x7fffffff)])), coerceValidNumber3gpp),
+    asu: coerce(optional(nullable(integerRange(0, 96))), coerceValidNumber3gpp),
+    ec_no: optional(integerRange(-24, 1)),
 });
 
 export type Wcdma = Output<typeof Wcdma>;
