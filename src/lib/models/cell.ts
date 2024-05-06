@@ -4,6 +4,7 @@ import {
     coerce,
     date,
     enum_,
+    literal,
     maxValue,
     merge,
     minValue,
@@ -14,6 +15,7 @@ import {
     partial,
     safeInteger,
     string,
+    union,
     unknown,
 } from 'valibot';
 
@@ -122,9 +124,11 @@ export const Lte = object({
 export type Lte = Output<typeof Lte>;
 
 export const Nr = object({
-    dbm: number([safeInteger(), minValue(-140), maxValue(-44)]),
+    dbm: coerce(
+        optional(union([number([safeInteger(), minValue(-140), maxValue(-44)]), literal(0x7fffffff)])),
+        coerceValidNumber3gpp,
+    ),
     asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))), coerceValidNumber3gpp),
-    // TODO: Deprecate the string workaround.
     csi_cqi_report: optional(
         coerce(array(number([safeInteger(), minValue(0), maxValue(15)])), input =>
             typeof input === 'string' ? JSON.parse(input) : input,
@@ -143,7 +147,10 @@ export const Nr = object({
 export type Nr = Output<typeof Nr>;
 
 export const Tdscdma = object({
-    dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
+    dbm: coerce(
+        optional(union([number([safeInteger(), minValue(-120), maxValue(-24)]), literal(0x7fffffff)])),
+        coerceValidNumber3gpp,
+    ),
     asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))), coerceValidNumber3gpp),
     rscp: optional(number([safeInteger(), minValue(-120), maxValue(-24)])),
 });
@@ -151,7 +158,10 @@ export const Tdscdma = object({
 export type Tdscdma = Output<typeof Tdscdma>;
 
 export const Wcdma = object({
-    dbm: number([safeInteger(), minValue(-120), maxValue(-24)]),
+    dbm: coerce(
+        optional(union([number([safeInteger(), minValue(-120), maxValue(-24)]), literal(0x7fffffff)])),
+        coerceValidNumber3gpp,
+    ),
     asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(96)]))), coerceValidNumber3gpp),
     ec_no: optional(number([safeInteger(), minValue(-24), maxValue(1)])),
 });
@@ -171,7 +181,6 @@ export type CellSignalStrength = Output<typeof CellSignalStrength>;
 
 export const SignalStrength = merge(
     [
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         object({
             timestamp: coerce(date(), input =>
                 typeof input === 'string' || typeof input === 'number' ? new Date(input) : input,

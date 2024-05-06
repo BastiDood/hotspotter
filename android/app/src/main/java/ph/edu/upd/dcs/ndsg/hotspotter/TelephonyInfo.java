@@ -45,9 +45,8 @@ public class TelephonyInfo {
             : now - SystemClock.elapsedRealtime() + strength.getTimestampMillis();
         var res = new JSObject().putSafe("timestamp", timestamp).putSafe("level", strength.getLevel());
         for (var cell : strength.getCellSignalStrengths()) {
-            var json = TelephonyInfo
-                .encodeFallibleReading(new JSObject(), "asu", cell.getAsuLevel())
-                .putSafe("dbm", cell.getDbm())
+            var init = TelephonyInfo.encodeFallibleReading(new JSObject(), "asu", cell.getAsuLevel());
+            var json = TelephonyInfo.encodeFallibleReading(init, "dbm", cell.getDbm())
                 .putSafe("level", cell.getLevel());
             // TODO: Use `switch` expressions.
             // TODO: Handle case when signal strengths return more than one instance of the same class.

@@ -4,7 +4,7 @@
     import { Star as src } from '@steeze-ui/heroicons';
 
     // eslint-disable-next-line init-declarations
-    export let dbm: number;
+    export let dbm: number | undefined;
     // eslint-disable-next-line init-declarations
     export let asu: number | null | undefined;
     // eslint-disable-next-line init-declarations
