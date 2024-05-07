@@ -29,13 +29,13 @@ async function computeWifiMultiplier(
     selfSplit = 0.7,
 ) {
     const selfHexagon = sql`h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})`;
-    const neighborScore = sql`SELECT power(.5, count(hex)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_ring_unsafe(${selfHexagon}) ring LEFT JOIN (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings ON ring = hex WHERE NOW() - INTERVAL '3D' < wifi_timestamp GROUP BY hex`;
-    const [ringAvg, ...ringAvgRest] = await sql`SELECT avg(score) result FROM (${neighborScore}) _`;
+    const neighborScore = sql`SELECT power(.5, coalesce(count(hex), 0)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_ring_unsafe(${selfHexagon}) ring LEFT JOIN (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings ON ring = hex WHERE NOW() - INTERVAL '3D' < wifi_timestamp GROUP BY hex`;
+    const [ringAvg, ...ringAvgRest] = await sql`SELECT coalesce(avg(score), 1.) result FROM (${neighborScore}) _`;
     assert(ringAvgRest.length === 0);
     const ringScore = parse(CountResult, ringAvg).result;
 
     const [selfAvg, ...selfAvgRest] =
-        await sql`SELECT power(.5, count(hex)::DOUBLE PRECISION / ${halfLife}) result FROM (SELECT h3_lat_lng_to_cell(coords::POINT, 10) hex, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings WHERE hex = ${selfHexagon} AND NOW() - INTERVAL '3D' < wifi_timestamp GROUP BY hex`;
+        await sql`SELECT power(.5, coalesce(count(hex), 0)::DOUBLE PRECISION / ${halfLife}) result FROM (SELECT h3_lat_lng_to_cell(coords::POINT, 10) hex, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings WHERE hex = ${selfHexagon} AND NOW() - INTERVAL '3D' < wifi_timestamp GROUP BY hex`;
     assert(selfAvgRest.length === 0);
     const selfScore = parse(CountResult, selfAvg).result;
 
@@ -57,7 +57,6 @@ async function insertThenComputeCellMultiplier(
     halfLife = 20,
     selfSplit = 0.7,
 ) {
-    // TODO: Consider age of stalest data in score computation.
     const table = sql(`hotspotter.${cell}` as const);
     const field = sql(`${cell}_id` as const);
     const payload = data[cell];
@@ -70,13 +69,13 @@ async function insertThenComputeCellMultiplier(
     const { id } = parse(BigId, upload);
 
     const selfHexagon = sql`h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})`;
-    const neighborScore = sql`SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_ring_unsafe(${selfHexagon}) ring LEFT JOIN hotspotter.readings ON ring = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '1D' < cell_timestamp GROUP BY ring`;
-    const [ringAvg, ...ringAvgRest] = await sql`SELECT avg(score) result FROM (${neighborScore}) _`;
+    const neighborScore = sql`SELECT power(.5, coalesce(count(${field}), 0)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_ring_unsafe(${selfHexagon}) ring LEFT JOIN hotspotter.readings ON ring = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '1D' < cell_timestamp GROUP BY ring`;
+    const [ringAvg, ...ringAvgRest] = await sql`SELECT coalesce(avg(score), 1.) result FROM (${neighborScore}) _`;
     assert(ringAvgRest.length === 0);
     const ringScore = parse(CountResult, ringAvg).result;
 
     const [selfAvg, ...selfAvgRest] =
-        await sql`SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) result FROM hotspotter.readings WHERE h3_lat_lng_to_cell(coords::POINT, 10) = ${selfHexagon} AND NOW() - INTERVAL '1D' < cell_timestamp`;
+        await sql`SELECT power(.5, coalesce(count(${field}), 0)::DOUBLE PRECISION / ${halfLife}) result FROM hotspotter.readings WHERE h3_lat_lng_to_cell(coords::POINT, 10) = ${selfHexagon} AND NOW() - INTERVAL '1D' < cell_timestamp`;
     assert(selfAvgRest.length === 0);
     const selfScore = parse(CountResult, selfAvg).result;
 
