@@ -20,13 +20,26 @@ const HexResult = object({ result: HexagonAccessPointCount });
  * Comptues the Wi-Fi multiplier score between `0` and `1`. Note that only cells fresher than two weeks
  * are considered for scoring. This allows us to incentivize users to update stale data points.
  */
-async function computeWifiMultiplier(sql: Sql, longitude: number, latitude: number, resolution = 10, halfLife = 20) {
-    // TODO: Consider age of stalest data in score computation.
-    const [result, ...rest] =
-        await sql`SELECT exp(coalesce(sum(ln(score)), 0)) result FROM (SELECT power(.5, count(reading_id)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN (SELECT reading_id, coords, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '2W' < wifi_timestamp GROUP BY disk) _`;
-    assert(rest.length === 0);
-    assert(typeof result !== 'undefined');
-    return parse(CountResult, result).result;
+async function computeWifiMultiplier(
+    sql: Sql,
+    longitude: number,
+    latitude: number,
+    resolution = 10,
+    halfLife = 20,
+    selfSplit = 0.7,
+) {
+    const selfHexagon = sql`h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})`;
+    const neighborScore = sql`SELECT power(.5, count(hex)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_ring_unsafe(${selfHexagon}) ring LEFT JOIN (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings ON ring = hex WHERE NOW() - INTERVAL '3D' < wifi_timestamp GROUP BY hex`;
+    const [ringAvg, ...ringAvgRest] = await sql`SELECT avg(score) result FROM (${neighborScore}) _`;
+    assert(ringAvgRest.length === 0);
+    const ringScore = parse(CountResult, ringAvg).result;
+
+    const [selfAvg, ...selfAvgRest] =
+        await sql`SELECT power(.5, count(hex)::DOUBLE PRECISION / ${halfLife}) result FROM (SELECT h3_lat_lng_to_cell(coords::POINT, 10) hex, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings WHERE hex = ${selfHexagon} AND NOW() - INTERVAL '3D' < wifi_timestamp GROUP BY hex`;
+    assert(selfAvgRest.length === 0);
+    const selfScore = parse(CountResult, selfAvg).result;
+
+    return selfSplit * selfScore + (1 - selfSplit) * ringScore;
 }
 
 /**
@@ -42,6 +55,7 @@ async function insertThenComputeCellMultiplier(
     cell: keyof CellSignalStrength,
     resolution = 10,
     halfLife = 20,
+    selfSplit = 0.7,
 ) {
     // TODO: Consider age of stalest data in score computation.
     const table = sql(`hotspotter.${cell}` as const);
@@ -55,28 +69,35 @@ async function insertThenComputeCellMultiplier(
     assert(typeof upload !== 'undefined');
     const { id } = parse(BigId, upload);
 
-    const [result, ...resultRest] =
-        await sql`SELECT exp(coalesce(sum(ln(score)), 0)) result FROM (SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_disk(h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})) disk LEFT JOIN hotspotter.readings ON disk = h3_lat_lng_to_cell(coords::POINT, ${resolution}) LEFT JOIN ${table} USING (${field}) WHERE NOW() - INTERVAL '1W' < cell_timestamp GROUP BY disk) _`;
-    assert(resultRest.length === 0);
-    assert(typeof result !== 'undefined');
-    const score = parse(CountResult, result).result;
+    const selfHexagon = sql`h3_lat_lng_to_cell(POINT(${longitude}, ${latitude}), ${resolution})`;
+    const neighborScore = sql`SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_ring_unsafe(${selfHexagon}) ring LEFT JOIN hotspotter.readings ON ring = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '1D' < cell_timestamp GROUP BY ring`;
+    const [ringAvg, ...ringAvgRest] = await sql`SELECT avg(score) result FROM (${neighborScore}) _`;
+    assert(ringAvgRest.length === 0);
+    const ringScore = parse(CountResult, ringAvg).result;
+
+    const [selfAvg, ...selfAvgRest] =
+        await sql`SELECT power(.5, count(${field})::DOUBLE PRECISION / ${halfLife}) result FROM hotspotter.readings WHERE h3_lat_lng_to_cell(coords::POINT, 10) = ${selfHexagon} AND NOW() - INTERVAL '1D' < cell_timestamp`;
+    assert(selfAvgRest.length === 0);
+    const selfScore = parse(CountResult, selfAvg).result;
+
+    const score = selfSplit * selfScore + (1 - selfSplit) * ringScore;
     return { id, score };
 }
 
 async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
-    const computeThenInsert = insertThenComputeCellMultiplier.bind(
+    const insertThenCompute = insertThenComputeCellMultiplier.bind(
         null,
         sql,
         gps.longitude,
         gps.latitude,
         sim.strength,
     );
-    const { id: cdmaId, score: cdmaScore } = await computeThenInsert('cdma');
-    const { id: gsmId, score: gsmScore } = await computeThenInsert('gsm');
-    const { id: lteId, score: lteScore } = await computeThenInsert('lte');
-    const { id: nrId, score: nrScore } = await computeThenInsert('nr');
-    const { id: tdscdmaId, score: tdscdmaScore } = await computeThenInsert('tdscdma');
-    const { id: wcdmaId, score: wcdmaScore } = await computeThenInsert('wcdma');
+    const { id: cdmaId, score: cdmaScore } = await insertThenCompute('cdma');
+    const { id: gsmId, score: gsmScore } = await insertThenCompute('gsm');
+    const { id: lteId, score: lteScore } = await insertThenCompute('lte');
+    const { id: nrId, score: nrScore } = await insertThenCompute('nr');
+    const { id: tdscdmaId, score: tdscdmaScore } = await insertThenCompute('tdscdma');
+    const { id: wcdmaId, score: wcdmaScore } = await insertThenCompute('wcdma');
 
     // TODO: Distinguish between `null` and `undefined` as "no data" versus "no hardware".
     const [first, ...rest] =
@@ -156,8 +177,10 @@ export async function aggregateCellularLevels(
     const doesSatisfyOperatorPrefix =
         operatorPrefix === null ? sql`TRUE` : sql`operator_id::TEXT LIKE concat(${operatorPrefix}::TEXT, '%')`;
     const isWithinViewport = sql`coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))`;
+    const hist = sql`SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, level FROM hotspotter.readings JOIN ${table} USING (${id}) WHERE ${lowerBound} <= cell_timestamp AND cell_timestamp <= ${upperBound} AND ${doesSatisfyOperatorPrefix} AND ${isWithinViewport}`;
+    const hexagons = sql`SELECT hex, avg(level)::DOUBLE PRECISION FROM (${hist}) hist GROUP BY hex`;
     const [first, ...rest] =
-        await sql`SELECT coalesce(jsonb_object_agg(hex, avg), '{}'::JSONB) result FROM (SELECT hex, avg(level)::DOUBLE PRECISION FROM (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, level FROM hotspotter.readings JOIN ${table} USING (${id}) WHERE ${lowerBound} <= cell_timestamp AND cell_timestamp <= ${upperBound} AND ${doesSatisfyOperatorPrefix} AND ${isWithinViewport}) hist GROUP BY hex) _`;
+        await sql`SELECT coalesce(jsonb_object_agg(hex, avg), '{}'::JSONB) result FROM (${hexagons}) _`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
