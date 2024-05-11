@@ -7,7 +7,7 @@ export class Context {
         public trace: string,
         public context: string,
         public reason: string,
-    // eslint-disable-next-line no-empty-function
+        // eslint-disable-next-line no-empty-function
     ) {}
     [Symbol.toPrimitive](hint: string) {
         if (hint !== 'string') throw new TypeError('context can only be converted to strings');
