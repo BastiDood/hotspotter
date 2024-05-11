@@ -111,7 +111,7 @@ export const Gsm = object({
 export type Gsm = Output<typeof Gsm>;
 
 export const Lte = object({
-    dbm: number([safeInteger()]),
+    dbm: optional(number([safeInteger()])),
     asu: coerce(optional(nullable(integerRange(0, 97))), coerceValidNumber3gpp),
     cqi: optional(integerRange(0, 15)),
     cqi_table_index: optional(integerRange(1, 6)),
