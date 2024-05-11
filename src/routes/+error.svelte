@@ -1,9 +1,7 @@
 <script>
+    import { CodeBlock } from '@skeletonlabs/skeleton';
     import ErrorAlert from '$lib/alerts/Error.svelte';
-    import { ValiError } from 'valibot';
-    import WarningAlert from '$lib/alerts/Warning.svelte';
     import { page } from '$app/stores';
-    import { printIssues } from '$lib/error/valibot';
     $: ({ status, error } = $page);
 </script>
 
@@ -12,12 +10,11 @@
         <ErrorAlert>
             <span><b>[{status}]:</b> An unknown error has been encountered.</span>
         </ErrorAlert>
-    {:else if error instanceof ValiError}
-        <ErrorAlert><span><b>[{status}]:</b> {error.message}</span></ErrorAlert>
-        {#each Array.from(printIssues(error.issues)) as msg}
-            <WarningAlert><span><b>[{status}]:</b> Schema validation failed because the app {msg}.</span></WarningAlert>
-        {/each}
     {:else}
-        <ErrorAlert><span><b>[{status}]:</b> {error.message}</span></ErrorAlert>
+        {@const { message, stack } = error}
+        <ErrorAlert><span><b>[{status}]:</b> {message}</span></ErrorAlert>
+        {#if typeof stack !== 'undefined'}
+            <CodeBlock lang="text" code={stack} />
+        {/if}
     {/if}
 </div>
