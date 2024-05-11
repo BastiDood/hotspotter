@@ -30,6 +30,7 @@ public class LocationInfo {
     }
 
     public static JSObject convertLocationToJson(Location location) {
+        if (location == null) return null;
         return new JSObject()
             .put("timestamp", location.getTime())
             .put("latitude", location.getLatitude())
