@@ -2,7 +2,7 @@ export class ApiError extends Error {
     /** @param {string} [msg] */
     constructor(msg) {
         super(msg);
-        this.name = this.constructor.name;
+        this.name = 'ApiError';
     }
 }
 
