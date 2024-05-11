@@ -56,7 +56,7 @@ public class LocationInfo {
         while (true)
             try {
                 Log.i("LocationInfo", "getting async " + provider + " location");
-                return future.get(10, TimeUnit.SECONDS);
+                return future.get(5, TimeUnit.SECONDS);
             } catch (TimeoutException ex) {
                 Log.w("LocationInfo", "ten-second timeout for async " + provider + " location expired", ex);
                 return null;
@@ -77,11 +77,14 @@ public class LocationInfo {
         Manifest.permission.ACCESS_FINE_LOCATION,
     })
     public Location getCurrentLocation() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-            return getCurrentLocationByProvider(LocationManager.FUSED_PROVIDER);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            var fused = getCurrentLocationByProvider(LocationManager.FUSED_PROVIDER);
+            if (fused != null) return fused;
+        }
         var gps = getCurrentLocationByProvider(LocationManager.GPS_PROVIDER);
-        return gps == null
-            ? getCurrentLocationByProvider(LocationManager.NETWORK_PROVIDER)
-            : gps;
+        if (gps != null) return gps;
+        var net = getCurrentLocationByProvider(LocationManager.NETWORK_PROVIDER);
+        if (net != null) return net;
+        return getCurrentLocationByProvider(LocationManager.PASSIVE_PROVIDER);
     }
 }
