@@ -21,6 +21,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.TimeUnit;
+import org.json.JSONException;
 
 public class LocationInfo {
     private @NonNull LocationManager api;
@@ -29,17 +30,23 @@ public class LocationInfo {
         this.api = api;
     }
 
-    public static JSObject convertLocationToJson(Location location) {
+    @Nullable
+    public static JSObject convertLocationToJson(@Nullable Location location) {
         if (location == null) return null;
-        return new JSObject()
-            .put("timestamp", location.getTime())
-            .put("latitude", location.getLatitude())
-            .put("longitude", location.getLongitude())
-            .put("coords_accuracy", location.hasAccuracy() ? location.getAccuracy() : JSObject.NULL)
-            .put("altitude", location.hasAltitude() ? location.getAltitude() : JSObject.NULL)
-            .put("altitude_accuracy", location.hasVerticalAccuracy() ? location.getVerticalAccuracyMeters() : JSObject.NULL)
-            .put("speed", location.hasSpeed() ? location.getSpeed() : JSObject.NULL)
-            .put("heading", location.hasBearing() ? location.getBearing() : JSObject.NULL);
+        try {
+            return new JSObject()
+                .putSafe("timestamp", location.getTime())
+                .putSafe("latitude", location.getLatitude())
+                .putSafe("longitude", location.getLongitude())
+                .putSafe("coords_accuracy", location.hasAccuracy() ? location.getAccuracy() : JSObject.NULL)
+                .putSafe("altitude", location.hasAltitude() ? location.getAltitude() : JSObject.NULL)
+                .putSafe("altitude_accuracy", location.hasVerticalAccuracy() ? location.getVerticalAccuracyMeters() : JSObject.NULL)
+                .putSafe("speed", location.hasSpeed() ? location.getSpeed() : JSObject.NULL)
+                .putSafe("heading", location.hasBearing() ? location.getBearing() : JSObject.NULL);
+        } catch (JSONException err) {
+            Log.e("LocationInfo", "cannot convert location to json", err);
+            return null;
+        }
     }
 
     @Nullable
@@ -58,7 +65,7 @@ public class LocationInfo {
                 Log.i("LocationInfo", "getting async " + provider + " location");
                 return future.get(5, TimeUnit.SECONDS);
             } catch (TimeoutException ex) {
-                Log.w("LocationInfo", "ten-second timeout for async " + provider + " location expired", ex);
+                Log.w("LocationInfo", "five-second timeout for async " + provider + " location expired", ex);
                 return null;
             } catch (InterruptedException ex) {
                 Log.e("LocationInfo", provider + " location thread interrupted while waiting for callback... trying again", ex);

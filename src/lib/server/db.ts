@@ -106,10 +106,11 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
     const { id } = parse(Uuid, first);
 
     // Wi-Fi
-    const wifiRaw =
-        wifi.length > 0
-            ? (await sql`INSERT INTO hotspotter.wifi ${sql(wifi.map(w => ({ ...w, reading_id: id })))}`, 1)
-            : 0;
+    const wifis = wifi.map(w => {
+        for (const key of Object.keys(w)) if (typeof w[key] === 'undefined') delete w[key];
+        return { ...w, reading_id: id };
+    });
+    const wifiRaw = wifi.length > 0 ? (await sql`INSERT INTO hotspotter.wifi ${sql(wifis)}`, 1) : 0;
     const wifiMultiplier = await computeWifiMultiplier(sql, gps.longitude, gps.latitude);
 
     // Total Score

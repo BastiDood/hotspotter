@@ -102,7 +102,7 @@ CREATE SCHEMA hotspotter
         level SMALLINT NOT NULL,
         max_level SMALLINT NOT NULL,
         frequency SMALLINT NOT NULL,
-        channel_width SMALLINT NOT NULL CHECK(channel_width BETWEEN 0 AND 5),
+        channel_width SMALLINT CHECK(channel_width BETWEEN 0 AND 5),
         center_freq_0 SMALLINT,
         center_freq_1 SMALLINT,
         wifi_timestamp TIMESTAMPTZ NOT NULL,

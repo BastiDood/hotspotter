@@ -3,11 +3,14 @@ package ph.edu.upd.dcs.ndsg.hotspotter;
 import android.Manifest;
 import android.os.*;
 import android.net.wifi.*;
+import android.util.Log;
 import androidx.annotation.*;
 import com.getcapacitor.*;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.json.JSONArray;
+import org.json.JSONException;
 
 public class WifiInfo {
     /** Android 11 and below just hard-coded into five tiers. */
@@ -18,30 +21,35 @@ public class WifiInfo {
         this.api = api;
     }
 
-    @NonNull
+    @Nullable
     private JSObject scanResultToJson(@NonNull ScanResult result) {
         var now = System.currentTimeMillis();
         var elapsed = SystemClock.elapsedRealtime();
         var timestamp = TimeUnit.MICROSECONDS.toMillis(result.timestamp);
         var unix = now - elapsed + timestamp;
-        var json = new JSObject()
-            .put("bssid", result.BSSID)
-            .put("ssid", result.SSID)
-            .put("rssi", result.level)
-            .put("frequency", result.frequency)
-            .put("channel_width", result.channelWidth)
-            .put("center_freq_0", result.centerFreq0)
-            .put("center_freq_1", result.centerFreq1)
-            .put("wifi_timestamp", unix);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+        try {
+            var json = new JSObject()
+                .putSafe("bssid", result.BSSID)
+                .putSafe("ssid", result.SSID)
+                .putSafe("rssi", result.level)
+                .putSafe("frequency", result.frequency)
+                .putSafe("channel_width", result.channelWidth == ScanResult.UNSPECIFIED ? null : result.channelWidth)
+                .putSafe("center_freq_0", result.centerFreq0 == ScanResult.UNSPECIFIED ? null : result.centerFreq0)
+                .putSafe("center_freq_1", result.centerFreq1 == ScanResult.UNSPECIFIED ? null : result.centerFreq1)
+                .putSafe("wifi_timestamp", unix);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+                return json
+                    .putSafe("level", api.calculateSignalLevel(result.level, DEFAULT_MAX_LEVEL))
+                    .putSafe("max_level", DEFAULT_MAX_LEVEL);
+            var standard = result.getWifiStandard();
             return json
-                .put("level", api.calculateSignalLevel(result.level, DEFAULT_MAX_LEVEL))
-                .put("max_level", DEFAULT_MAX_LEVEL);
-        var standard = result.getWifiStandard();
-        return json
-            .put("level", api.calculateSignalLevel(result.level))
-            .put("max_level", api.getMaxSignalLevel())
-            .put("standard", standard == ScanResult.WIFI_STANDARD_UNKNOWN ? JSObject.NULL : standard);
+                .putSafe("level", api.calculateSignalLevel(result.level))
+                .putSafe("max_level", api.getMaxSignalLevel())
+                .putSafe("standard", standard == ScanResult.WIFI_STANDARD_UNKNOWN ? JSObject.NULL : standard);
+        } catch (JSONException err) {
+            Log.e("WifiInfo", "cannot serialize scan result", err);
+            return null;
+        }
     }
 
     @NonNull
@@ -55,6 +63,7 @@ public class WifiInfo {
         var list = results
             .stream()
             .map(this::scanResultToJson)
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
         return new JSONArray(list);
     }
