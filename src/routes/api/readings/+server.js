@@ -1,4 +1,5 @@
 import { ValiError, array, parse } from 'valibot';
+import { AssertionError } from '$lib/assert';
 import { Data } from '$lib/models/api';
 import { error } from '@sveltejs/kit';
 import pg from 'postgres';
@@ -24,12 +25,20 @@ export async function POST({ request }) {
         return new Response(score.toString(), { status: 201 });
     } catch (err) {
         console.error(err);
-        if (err instanceof pg.PostgresError) {
-            console.error(`[PG-${err.code}]: ${err.message}`);
-            error(550, err);
-        } else if (err instanceof ValiError) {
-            for (const msg of printIssues(err.issues)) console.error(msg);
-            error(551, err);
+        if (err instanceof Error) {
+            if (err instanceof pg.PostgresError) {
+                console.error(`[PG-${err.code}]: ${err.message}`);
+                error(550, err);
+            }
+            if (err instanceof ValiError) {
+                for (const msg of printIssues(err.issues)) console.error(`[${err.name}]: ${msg}`);
+                error(551, err);
+            }
+            if (err instanceof AssertionError) {
+                console.error(`[${err.name}]: ${err.message}`);
+                error(552, err);
+            }
+            error(500, err);
         }
         throw err;
     }

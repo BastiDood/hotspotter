@@ -1,5 +1,6 @@
 import { aggregateAccessPoints, aggregateCellularLevels } from '$lib/server/db';
 import { error, json } from '@sveltejs/kit';
+import { AssertionError } from '$lib/assert';
 import { CellType } from '$lib/models/api';
 import { ValiError } from 'valibot';
 import pg from 'postgres';
@@ -64,12 +65,20 @@ export async function GET({ url: { searchParams }, params: { net } }) {
         return json(await promise);
     } catch (err) {
         console.error(err);
-        if (err instanceof pg.PostgresError) {
-            console.error(`[PG-${err.code}]: ${err.message}`);
-            error(550, err);
-        } else if (err instanceof ValiError) {
-            for (const msg of printIssues(err.issues)) console.error(msg);
-            error(551, err);
+        if (err instanceof Error) {
+            if (err instanceof pg.PostgresError) {
+                console.error(`[PG-${err.code}]: ${err.message}`);
+                error(550, err);
+            }
+            if (err instanceof ValiError) {
+                for (const msg of printIssues(err.issues)) console.error(`[${err.name}]: ${msg}`);
+                error(551, err);
+            }
+            if (err instanceof AssertionError) {
+                console.error(`[${err.name}]: ${err.message}`);
+                error(552, err);
+            }
+            error(500, err);
         }
         throw err;
     }

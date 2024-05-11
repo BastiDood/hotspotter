@@ -1,3 +1,4 @@
+import { AssertionError } from '$lib/assert';
 import { ValiError } from 'valibot';
 import { error } from '@sveltejs/kit';
 import { fetchLeaderboard } from '$lib/server/db';
@@ -16,12 +17,20 @@ export async function GET() {
         });
     } catch (err) {
         console.error(err);
-        if (err instanceof pg.PostgresError) {
-            console.error(`[PG-${err.code}]: ${err.message}`);
-            error(550, err);
-        } else if (err instanceof ValiError) {
-            for (const msg of printIssues(err.issues)) console.error(msg);
-            error(551, err);
+        if (err instanceof Error) {
+            if (err instanceof pg.PostgresError) {
+                console.error(`[PG-${err.code}]: ${err.message}`);
+                error(550, err);
+            }
+            if (err instanceof ValiError) {
+                for (const msg of printIssues(err.issues)) console.error(`[${err.name}]: ${msg}`);
+                error(551, err);
+            }
+            if (err instanceof AssertionError) {
+                console.error(`[${err.name}]: ${err.message}`);
+                error(552, err);
+            }
+            error(500, err);
         }
         throw err;
     }
