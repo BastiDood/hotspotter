@@ -32,12 +32,12 @@ async function computeWifiMultiplier(
     const neighborScore = sql`SELECT power(.5, coalesce(count(hex), 0)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_ring_unsafe(${selfHexagon}) ring LEFT JOIN (SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings ON ring = hex WHERE NOW() - INTERVAL '3D' < wifi_timestamp GROUP BY hex`;
     const [ringAvg, ...ringAvgRest] = await sql`SELECT coalesce(avg(score), 1.) result FROM (${neighborScore}) _`;
     assert(ringAvgRest.length === 0);
-    const ringScore = parse(CountResult, ringAvg).result;
+    const ringScore = typeof ringAvg === 'undefined' ? 1 : parse(CountResult, ringAvg).result;
 
     const [selfAvg, ...selfAvgRest] =
         await sql`SELECT power(.5, coalesce(count(hex), 0)::DOUBLE PRECISION / ${halfLife}) result FROM (SELECT h3_lat_lng_to_cell(coords::POINT, 10) hex, min(wifi_timestamp) wifi_timestamp FROM hotspotter.readings JOIN hotspotter.wifi USING (reading_id) GROUP BY reading_id) readings WHERE hex = ${selfHexagon} AND NOW() - INTERVAL '3D' < wifi_timestamp GROUP BY hex`;
     assert(selfAvgRest.length === 0);
-    const selfScore = parse(CountResult, selfAvg).result;
+    const selfScore = typeof selfAvg === 'undefined' ? 1 : parse(CountResult, selfAvg).result;
 
     return selfSplit * selfScore + (1 - selfSplit) * ringScore;
 }
@@ -72,12 +72,12 @@ async function insertThenComputeCellMultiplier(
     const neighborScore = sql`SELECT power(.5, coalesce(count(${field}), 0)::DOUBLE PRECISION / ${halfLife}) score FROM h3_grid_ring_unsafe(${selfHexagon}) ring LEFT JOIN hotspotter.readings ON ring = h3_lat_lng_to_cell(coords::POINT, ${resolution}) WHERE NOW() - INTERVAL '1D' < cell_timestamp GROUP BY ring`;
     const [ringAvg, ...ringAvgRest] = await sql`SELECT coalesce(avg(score), 1.) result FROM (${neighborScore}) _`;
     assert(ringAvgRest.length === 0);
-    const ringScore = parse(CountResult, ringAvg).result;
+    const ringScore = typeof ringAvg === 'undefined' ? 1 : parse(CountResult, ringAvg).result;
 
     const [selfAvg, ...selfAvgRest] =
         await sql`SELECT power(.5, coalesce(count(${field}), 0)::DOUBLE PRECISION / ${halfLife}) result FROM hotspotter.readings WHERE h3_lat_lng_to_cell(coords::POINT, 10) = ${selfHexagon} AND NOW() - INTERVAL '1D' < cell_timestamp`;
     assert(selfAvgRest.length === 0);
-    const selfScore = parse(CountResult, selfAvg).result;
+    const selfScore = typeof selfAvg === 'undefined' ? 1 : parse(CountResult, selfAvg).result;
 
     const score = selfSplit * selfScore + (1 - selfSplit) * ringScore;
     return { id, score };
