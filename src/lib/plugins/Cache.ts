@@ -12,17 +12,16 @@ export async function readFile(path: string) {
 
 export async function read() {
     const { files } = await Filesystem.readdir({ path: '.', directory: Directory.Cache });
-    const promises = filterMap(files, ({ type, name }) => {
+    return filterMap(files, ({ type, name }) => {
         switch (type) {
             case 'directory':
                 return;
             case 'file':
-                return readFile(name);
+                return name;
             default:
                 throw new Error('unexpected directory entry type');
         }
     });
-    return await Promise.all(promises);
 }
 
 export async function write(data: TData) {

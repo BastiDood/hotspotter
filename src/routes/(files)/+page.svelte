@@ -17,8 +17,7 @@
 
     // eslint-disable-next-line init-declarations
     export let data;
-    $: ({ cache, permissions } = data);
-    $: files = Object.entries(cache).map(([now, value]) => ({ now: new Date(parseInt(now, 10)), ...value }));
+    $: ({ readings, permissions } = data);
     $: perms = Object.entries(permissions);
 
     let disabled = false;
@@ -57,7 +56,7 @@
 
     async function watch() {
         try {
-            return await startWatch(data => (files = [...files, data]));
+            return await startWatch(data => (readings = [...readings, data]));
         } catch (err) {
             console.error(err);
             if (err instanceof Error) {
@@ -120,7 +119,7 @@
     {/each}
     <hr />
     <h3 class="h3">Cached Readings</h3>
-    {#if files.length === 0}
+    {#if readings.length === 0}
         <SuccessAlert>All readings synchronized. &#x1F389;</SuccessAlert>
     {:else}
         <div class="grid grid-cols-3 gap-2">
@@ -128,6 +127,6 @@
             <UploadButton bind:disabled />
             <ClearButton bind:disabled />
         </div>
-        <DisplayData {files} />
+        <DisplayData {readings} />
     {/if}
 </div>

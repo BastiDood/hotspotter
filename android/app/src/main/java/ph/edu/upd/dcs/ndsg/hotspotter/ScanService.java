@@ -36,6 +36,7 @@ import java.util.function.Consumer;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import org.json.JSONException;
 
 public class ScanService extends Service {
     public static final String BIND = "ph.edu.upd.dcs.ndsg.hotspotter.BIND";
@@ -180,7 +181,13 @@ public class ScanService extends Service {
         var notification = this.createNotification(content);
         NotificationManagerCompat.from(this).notify(1, notification);
         Log.i("ScanService", "foreground notification updated");
-        for (var consumer : watchers.values()) consumer.accept(json);
+
+        try {
+            var data = new JSObject().putSafe("name", name);
+            for (var consumer : watchers.values()) consumer.accept(data);
+        } catch (JSONException err) {
+            Log.e("ScanService", "cannot serialize file name to listeners", err);
+        }
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_WIFI_STATE)

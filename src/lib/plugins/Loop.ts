@@ -1,6 +1,5 @@
 import { type PermissionState, type Plugin, registerPlugin } from '@capacitor/core';
-import { boolean, nullable, object, parse, string } from 'valibot';
-import { Data } from '$lib/models/api';
+import { boolean, endsWith, nullable, object, parse, string } from 'valibot';
 import { building } from '$app/environment';
 
 export interface LoopPlugin extends Plugin {
@@ -15,13 +14,13 @@ export interface LoopPlugin extends Plugin {
 
 const Loop = building ? null : registerPlugin<LoopPlugin>('LoopPlugin');
 
-const NullableWatchId = nullable(Data);
-export async function startWatch(callback: (data: Data) => void) {
+const NullableData = nullable(object({ name: string([endsWith('.json')]) }));
+export async function startWatch(callback: (date: string) => void) {
     if (Loop === null) return null;
     const id = await Loop.startWatch(null, data => {
-        const payload = parse(NullableWatchId, data);
+        const payload = parse(NullableData, data);
         if (payload === null) return;
-        callback(payload);
+        callback(payload.name);
     });
     return parse(string(), id);
 }

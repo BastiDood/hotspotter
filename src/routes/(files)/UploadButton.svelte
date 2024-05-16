@@ -27,7 +27,8 @@
         disabled = true;
         try {
             const files = await Cache.read();
-            for (const chunk of chunked(files, 10))
+            const readings = await Promise.all(Array.from(files, file => Cache.readFile(file)));
+            for (const chunk of chunked(readings, 10))
                 try {
                     const score = await Http.uploadReadings(jwt, chunk);
                     const results = await Promise.allSettled(
