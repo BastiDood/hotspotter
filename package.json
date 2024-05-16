@@ -64,7 +64,7 @@
         "h3-js": "^4.1.0",
         "itertools": "^2.3.1",
         "jose": "^5.3.0",
-        "ol": "^9.2.0",
+        "ol": "^9.2.1",
         "path-browserify": "^1.0.1",
         "postgres": "^3.4.4",
         "prettier": "^3.2.5",
