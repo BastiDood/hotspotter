@@ -25,6 +25,7 @@
     import { Vector as VectorLayer, WebGLTile as WebGLTileLayer } from 'ol/layer';
     import { CellType } from '$lib/models/api';
     import { DashboardControl } from './Dashboard';
+    import type { FeatureLike } from 'ol/Feature';
     import { Geolocation } from '@capacitor/geolocation';
     import { PopupOverlay } from './Popup';
     import { abortable } from './Abortable';
@@ -110,9 +111,11 @@
     // eslint-disable-next-line init-declarations
     let target: HTMLDivElement | undefined;
     onMount(() => {
-        const gpsLayer = new VectorLayer({ source: new VectorSource({ features: new Collection([gpsFeature]) }) });
+        const gpsLayer = new VectorLayer({
+            source: new VectorSource<FeatureLike>({ features: new Collection([gpsFeature]) }),
+        });
         const hexLayer = new VectorLayer({
-            source: new VectorSource({ features: hexFeatures }),
+            source: new VectorSource<FeatureLike>({ features: hexFeatures }),
             style(feature) {
                 const color = feature.get('color');
                 if (typeof color !== 'string') return;
