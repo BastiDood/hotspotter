@@ -9,7 +9,7 @@ export class ApiError extends Error {
 export class UnexpectedStatusCodeError extends ApiError {
     /** @param {number} code */
     constructor(code) {
-        super(`Unexpected status code [${code}] encountered.`);
+        super(`Unexpected status code ${code} encountered.`);
     }
 }
 

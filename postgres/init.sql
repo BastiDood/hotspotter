@@ -110,6 +110,10 @@ CREATE SCHEMA hotspotter
         CHECK(level BETWEEN 0 AND max_level),
         PRIMARY KEY (reading_id, bssid)
     )
+    CREATE TABLE quarantine(
+        reading_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+        reading JSONB NOT NULL
+    )
     CREATE INDEX ON readings(cdma_id)
     CREATE INDEX ON readings(gsm_id)
     CREATE INDEX ON readings(lte_id)

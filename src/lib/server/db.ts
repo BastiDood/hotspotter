@@ -199,3 +199,11 @@ export async function fetchLeaderboard(limit = 25) {
     assert(users.length <= limit);
     return parse(LeaderboardUsers, users);
 }
+
+export async function dumpReading(json: unknown) {
+    const [id, ...rest] =
+        await sql`INSERT INTO hotspotter.quarantine (reading) VALUES (${JSON.stringify(json)}) RETURNING reading_id id`;
+    assert(rest.length === 0);
+    assert(typeof id !== 'undefined');
+    return parse(Uuid, id).id;
+}
