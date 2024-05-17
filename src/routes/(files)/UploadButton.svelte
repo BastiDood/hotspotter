@@ -8,6 +8,7 @@
     import { chunked } from 'itertools';
     import cookie from 'cookie';
     import { getToastStore } from '@skeletonlabs/skeleton';
+    import { invalidateAll } from '$app/navigation';
 
     // eslint-disable-next-line init-declarations
     export let disabled: boolean;
@@ -60,6 +61,7 @@
             for (const chunk of chunked(readings, 10)) {
                 const score = await tryUpload(jwt, chunk);
                 if (score === null) continue;
+                await invalidateAll();
                 toast.trigger({
                     message: `You earned ${Math.floor(score)} points by uploading ${chunk.length} readings!`,
                     background: 'variant-filled-success',
