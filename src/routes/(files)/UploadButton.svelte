@@ -3,16 +3,45 @@
     import * as Http from '$lib/http';
     import { ApiError } from '$lib/http/error';
     import { CloudArrowUp } from '@steeze-ui/heroicons';
+    import type { Data } from '$lib/models/api';
     import { Icon } from '@steeze-ui/svelte-icon';
     import { chunked } from 'itertools';
     import cookie from 'cookie';
     import { getToastStore } from '@skeletonlabs/skeleton';
-    import { invalidateAll } from '$app/navigation';
 
     // eslint-disable-next-line init-declarations
     export let disabled: boolean;
 
     const toast = getToastStore();
+
+    async function clear(readings: Data[]) {
+        await Promise.all(
+            readings.map(({ now }) => {
+                const base = now.valueOf().toString();
+                return Cache.remove(`${base}.json`);
+            }),
+        );
+    }
+
+    async function tryUpload(jwt: string, readings: Data[]) {
+        try {
+            const score = await Http.uploadReadings(jwt, readings);
+            await clear(readings);
+            return score;
+        } catch (err) {
+            if (err instanceof ApiError) {
+                console.error(err);
+                toast.trigger({
+                    message: `[${err.name}]: Invalid data dumped to the server for manual review. ${err.message}`,
+                    background: 'variant-filled-warning',
+                    autohide: false,
+                });
+                await clear(readings);
+                return null;
+            }
+            throw err;
+        }
+    }
 
     async function sync() {
         const jwt = cookie.parse(document.cookie)['id'];
@@ -28,50 +57,14 @@
         try {
             const files = await Cache.read();
             const readings = await Promise.all(Array.from(files, file => Cache.readFile(file)));
-            for (const chunk of chunked(readings, 10))
-                try {
-                    const score = await Http.uploadReadings(jwt, chunk);
-                    const results = await Promise.allSettled(
-                        chunk.map(({ now }) => {
-                            const base = now.valueOf().toString();
-                            return Cache.remove(`${base}.json`);
-                        }),
-                    );
-                    await invalidateAll();
-                    for (const result of results)
-                        switch (result.status) {
-                            case 'rejected':
-                                toast.trigger({
-                                    message:
-                                        result.reason instanceof Error
-                                            ? `[${result.reason.name}]: ${result.reason.message}`
-                                            : result.reason.toString(),
-                                    background: 'variant-filled-error',
-                                    autohide: false,
-                                });
-                                console.error(result.reason);
-                            // fallsthrough
-                            case 'fulfilled':
-                            // fallsthrough
-                            default:
-                                break;
-                        }
-                    toast.trigger({
-                        message: `You earned ${Math.floor(score)} points by uploading ${chunk.length} readings!`,
-                        background: 'variant-filled-success',
-                    });
-                } catch (err) {
-                    if (err instanceof ApiError) {
-                        toast.trigger({
-                            message: `[${err.name}]: ${err.message}`,
-                            background: 'variant-filled-error',
-                            autohide: false,
-                        });
-                        console.error(err);
-                        continue;
-                    }
-                    throw err;
-                }
+            for (const chunk of chunked(readings, 10)) {
+                const score = await tryUpload(jwt, chunk);
+                if (score === null) continue;
+                toast.trigger({
+                    message: `You earned ${Math.floor(score)} points by uploading ${chunk.length} readings!`,
+                    background: 'variant-filled-success',
+                });
+            }
         } catch (err) {
             if (err instanceof Error) {
                 toast.trigger({
