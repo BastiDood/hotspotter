@@ -2,6 +2,7 @@ import {
     BatchOperationError,
     EmptyAuthorizationError,
     MalformedAuthorizationError,
+    ProviderTimeoutError,
     UnexpectedStatusCodeError,
 } from './error';
 import { type CellType, type Data, HexagonAccessPointCount, LeaderboardUsers } from '$lib/models/api';
@@ -27,6 +28,8 @@ export async function uploadReadings(jwt: string, data: Data[]) {
             throw new MalformedAuthorizationError();
         case 401:
             throw new EmptyAuthorizationError();
+        case 504:
+            throw new ProviderTimeoutError();
         case 550:
             throw new BatchOperationError();
         default:

@@ -1,7 +1,7 @@
 <script lang="ts">
     import * as Cache from '$lib/plugins/Cache';
     import * as Http from '$lib/http';
-    import { ApiError } from '$lib/http/error';
+    import { ApiError, ProviderTimeoutError } from '$lib/http/error';
     import { CloudArrowUp } from '@steeze-ui/heroicons';
     import type { Data } from '$lib/models/api';
     import { Icon } from '@steeze-ui/svelte-icon';
@@ -32,12 +32,20 @@
         } catch (err) {
             if (err instanceof ApiError) {
                 console.error(err);
-                toast.trigger({
-                    message: `[${err.name}]: Invalid data dumped to the server for manual review. ${err.message}`,
-                    background: 'variant-filled-warning',
-                    autohide: false,
-                });
-                await clear(readings);
+                if (err instanceof ProviderTimeoutError)
+                    toast.trigger({
+                        message: `[${err.name}]: The server timed out. Please try again later. ${err.message}`,
+                        background: 'variant-filled-warning',
+                        autohide: false,
+                    });
+                else {
+                    toast.trigger({
+                        message: `[${err.name}]: Invalid data dumped to the server for manual review. ${err.message}`,
+                        background: 'variant-filled-warning',
+                        autohide: false,
+                    });
+                    await clear(readings);
+                }
                 return null;
             }
             throw err;
