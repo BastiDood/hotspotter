@@ -15,6 +15,7 @@ import {
     partial,
     safeInteger,
     string,
+    transform,
     union,
     unknown,
 } from 'valibot';
@@ -85,6 +86,12 @@ function coerceValidNumber3gpp(value: unknown) {
     }
 }
 
+/** @deprecated */
+function transformUnavailableCellInfoToNull(value: number) {
+    // CellInfo.UNAVAILABLE
+    return value === 0x7fffffff ? null : value;
+}
+
 export const Cdma = object({
     dbm: number([safeInteger()]),
     // FIXME: Validate powers of two.
@@ -128,7 +135,7 @@ export const Nr = object({
     dbm: coerce(optional(union([integerRange(-140, -44), literal(0x7fffffff)])), coerceValidNumber3gpp),
     asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))), coerceValidNumber3gpp),
     csi_cqi_report: optional(
-        coerce(array(integerRange(0, 15)), input => (typeof input === 'string' ? JSON.parse(input) : input)),
+        array(transform(union([integerRange(0, 15), literal(0x7fffffff)]), transformUnavailableCellInfoToNull)),
     ),
     csi_cqi_table_index: optional(integerRange(1, 3)),
     csi_rsrp: optional(integerRange(-156, -31)),

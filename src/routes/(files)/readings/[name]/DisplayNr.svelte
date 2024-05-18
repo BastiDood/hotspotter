@@ -1,6 +1,6 @@
 <script lang="ts">
     // eslint-disable-next-line init-declarations, no-undefined
-    export let csi_cqi_report = undefined as number[] | undefined;
+    export let csi_cqi_report = undefined as (number | null)[] | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
     export let csi_cqi_table_index = undefined as number | undefined;
     // eslint-disable-next-line init-declarations, no-undefined
