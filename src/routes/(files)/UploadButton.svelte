@@ -5,11 +5,12 @@
     import { type Data, DumpBatch } from '$lib/models/api';
     import { CloudArrowUp } from '@steeze-ui/heroicons';
     import { Icon } from '@steeze-ui/svelte-icon';
+    import { assert } from '$lib/assert';
     import { chunked } from 'itertools';
     import cookie from 'cookie';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { invalidateAll } from '$app/navigation';
-    import { parse } from 'valibot';
+    import { safeParse } from 'valibot';
 
     // eslint-disable-next-line init-declarations
     export let disabled: boolean;
@@ -66,7 +67,60 @@
         disabled = true;
         try {
             const files = await Cache.read();
-            const readings = await Promise.all(Array.from(files, file => Cache.readFile(file)));
+            const results = await Promise.allSettled(Array.from(files, file => Cache.readFile(file)));
+
+            const readings = [] as Data[];
+            const dumps = [] as DumpBatch;
+            const paths = [] as string[];
+            for (const result of results)
+                switch (result.status) {
+                    case 'fulfilled':
+                        readings.push(result.value);
+                        break;
+                    case 'rejected':
+                        console.error(result.reason);
+                        if (result.reason instanceof Error) {
+                            if (result.reason instanceof Cache.ReadError) {
+                                const valiResult = safeParse(DumpBatch, result.reason.value);
+                                if (valiResult.success) {
+                                    dumps.push(valiResult.output);
+                                    paths.push(result.reason.path);
+                                } else
+                                    toast.trigger({
+                                        message: `[${result.reason.name}]: ${result.reason.path} is corrupted. ${result.reason.message}`,
+                                        background: 'variant-filled-error',
+                                        autohide: false,
+                                    });
+                                break;
+                            }
+                            toast.trigger({
+                                message: `[${result.reason.name}]: ${result.reason.message}`,
+                                background: 'variant-filled-error',
+                                autohide: false,
+                            });
+                            break;
+                        }
+                        toast.trigger({
+                            message: `${result.reason}`,
+                            background: 'variant-filled-error',
+                        });
+                        break;
+                    default:
+                        break;
+                }
+
+            assert(dumps.length === paths.length, 'dumps and paths must be in lockstep');
+            if (dumps.length > 0) {
+                await Http.dumpReadings(jwt, dumps);
+                await Promise.all(paths.map(p => Cache.remove(p)));
+                await invalidateAll();
+                toast.trigger({
+                    message: `Quarantined ${dumps.length} partially corrupted readings for manual review.`,
+                    background: 'variant-filled-warning',
+                    autohide: false,
+                });
+            }
+
             for (const chunk of chunked(readings, 20)) {
                 const score = await tryUpload(jwt, chunk);
                 await invalidateAll();

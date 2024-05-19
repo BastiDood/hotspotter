@@ -1,13 +1,28 @@
 import { Data, type Data as TData } from '$lib/models/api';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
-import { assert } from '$lib/assert';
+import { type SchemaIssues, safeParse } from 'valibot';
 import { filterMap } from '$lib/util';
-import { parse } from 'valibot';
+import { printIssues } from '$lib/error/valibot';
 
+export class ReadError extends Error {
+    constructor(
+        public path: string,
+        public value: unknown,
+        public issues: SchemaIssues,
+    ) {
+        const message = Array.from(printIssues(issues)).join('. ');
+        super(message);
+        this.name = 'ReadError';
+    }
+}
+
+/** @throws {ReadError} */
 export async function readFile(path: string) {
     const { data } = await Filesystem.readFile({ path, directory: Directory.Cache, encoding: Encoding.UTF8 });
-    assert(typeof data === 'string', 'non-string data from cached readings');
-    return parse(Data, JSON.parse(data));
+    const json = JSON.parse(typeof data === 'string' ? data : await data.text());
+    const result = safeParse(Data, json);
+    if (result.success) return result.output;
+    throw new ReadError(path, result.output, result.issues);
 }
 
 export async function read() {
