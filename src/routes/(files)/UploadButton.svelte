@@ -67,7 +67,7 @@
             const files = await Cache.read();
             const readings = await Promise.all(Array.from(files, file => Cache.readFile(file)));
             for (const chunk of chunked(readings, 10)) {
-                const score = await tryUpload(jwt, readings);
+                const score = await tryUpload(jwt, chunk);
                 await invalidateAll();
                 if (score === null) continue;
                 toast.trigger({
