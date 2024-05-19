@@ -43,7 +43,7 @@ export async function POST({ request }) {
             }
             throw err;
         } finally {
-            console.error('dump id:', await dumpReading(obj));
+            console.error('dump id:', await dumpReading(user, obj));
         }
     }
 }

@@ -1,0 +1,18 @@
+import { dumpReading } from '$lib/server/db';
+import { error } from '@sveltejs/kit';
+import { verifyGoogleJwt } from '$lib/jwt';
+
+export async function POST({ request }) {
+    const auth = request.headers.get('Authorization');
+    if (auth === null) error(401);
+
+    const [bearer, jwt, ...rest] = auth.split(' ');
+    if (bearer !== 'Bearer') error(400, `unexpected bearer [${bearer}]`);
+    if (typeof jwt === 'undefined') error(400, 'empty JWT');
+    if (rest.length > 0) error(400, `unexpected extra arguments ${rest}`);
+
+    const user = await verifyGoogleJwt(jwt);
+    const obj = await request.json();
+    console.error('dump id:', await dumpReading(user, obj));
+    return new Response(null, { status: 201 });
+}

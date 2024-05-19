@@ -112,6 +112,7 @@ CREATE SCHEMA hotspotter
     )
     CREATE TABLE quarantine(
         reading_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+        user_id TEXT NOT NULL REFERENCES users(user_id),
         reading JSONB NOT NULL
     )
     CREATE INDEX ON readings(cdma_id)

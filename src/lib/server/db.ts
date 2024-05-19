@@ -200,10 +200,13 @@ export async function fetchLeaderboard(limit = 25) {
     return parse(LeaderboardUsers, users);
 }
 
-export async function dumpReading(json: unknown) {
-    const [id, ...rest] =
-        await sql`INSERT INTO hotspotter.quarantine (reading) VALUES (${JSON.stringify(json)}) RETURNING reading_id id`;
-    assert(rest.length === 0);
-    assert(typeof id !== 'undefined');
-    return parse(Uuid, id).id;
+export function dumpReading({ sub, name, email, picture }: User, json: unknown) {
+    return sql.begin(async sql => {
+        await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
+        const [id, ...rest] =
+            await sql`INSERT INTO hotspotter.quarantine (user_id, reading) VALUES (${sub}, ${JSON.stringify(json)}::JSONB) RETURNING reading_id id`;
+        assert(rest.length === 0);
+        assert(typeof id !== 'undefined');
+        return parse(Uuid, id).id;
+    });
 }
