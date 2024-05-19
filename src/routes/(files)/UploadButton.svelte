@@ -2,13 +2,14 @@
     import * as Cache from '$lib/plugins/Cache';
     import * as Http from '$lib/http';
     import { ApiError, ProviderTimeoutError } from '$lib/http/error';
+    import { type Data, DumpBatch } from '$lib/models/api';
     import { CloudArrowUp } from '@steeze-ui/heroicons';
-    import type { Data } from '$lib/models/api';
     import { Icon } from '@steeze-ui/svelte-icon';
     import { chunked } from 'itertools';
     import cookie from 'cookie';
     import { getToastStore } from '@skeletonlabs/skeleton';
     import { invalidateAll } from '$app/navigation';
+    import { parse } from 'valibot';
 
     // eslint-disable-next-line init-declarations
     export let disabled: boolean;
@@ -66,7 +67,7 @@
         try {
             const files = await Cache.read();
             const readings = await Promise.all(Array.from(files, file => Cache.readFile(file)));
-            for (const chunk of chunked(readings, 10)) {
+            for (const chunk of chunked(readings, 20)) {
                 const score = await tryUpload(jwt, chunk);
                 await invalidateAll();
                 if (score === null) continue;
