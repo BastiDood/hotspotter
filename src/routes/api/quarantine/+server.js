@@ -1,5 +1,10 @@
-import { dumpReading } from '$lib/server/db';
+import { ValiError, parse } from 'valibot';
+import { AssertionError } from '$lib/assert';
+import { DumpBatch } from '$lib/models/api';
+import { dumpReadings } from '$lib/server/db';
 import { error } from '@sveltejs/kit';
+import pg from 'postgres';
+import { printIssues } from '$lib/error/valibot';
 import { verifyGoogleJwt } from '$lib/jwt';
 
 export async function POST({ request }) {
@@ -13,6 +18,28 @@ export async function POST({ request }) {
 
     const user = await verifyGoogleJwt(jwt);
     const obj = await request.json();
-    console.error('dump id:', await dumpReading(user, obj));
-    return new Response(null, { status: 201 });
+
+    try {
+        const json = parse(DumpBatch, obj);
+        console.warn('dump id:', await dumpReadings(user, json));
+        return new Response(null, { status: 201 });
+    } catch (err) {
+        console.error(err);
+        if (err instanceof Error) {
+            if (err instanceof pg.PostgresError) {
+                console.error(`[PG-${err.code}]: ${err.message}`);
+                error(550, err);
+            }
+            if (err instanceof ValiError) {
+                for (const msg of printIssues(err.issues)) console.error(`[${err.name}]: ${msg}`);
+                error(551, err);
+            }
+            if (err instanceof AssertionError) {
+                console.error(`[${err.name}]: ${err.message}`);
+                error(552, err);
+            }
+            error(500, err);
+        }
+        throw err;
+    }
 }

@@ -5,7 +5,7 @@ import {
     ProviderTimeoutError,
     UnexpectedStatusCodeError,
 } from './error';
-import { type CellType, type Data, HexagonAccessPointCount, LeaderboardUsers } from '$lib/models/api';
+import { type CellType, type Data, type DumpBatch, HexagonAccessPointCount, LeaderboardUsers } from '$lib/models/api';
 import { PUBLIC_HOTSPOTTER_URL } from '$lib/env';
 import { parse as jsonParse } from 'devalue';
 import { parse as valiParse } from 'valibot';
@@ -37,7 +37,7 @@ export async function uploadReadings(jwt: string, data: Data[]) {
     }
 }
 
-export async function dumpReadings(jwt: string, data: Data) {
+export async function dumpReadings(jwt: string, data: DumpBatch) {
     const url = new URL('api/quarantine', PUBLIC_HOTSPOTTER_URL);
     const response = await fetch(url, {
         method: 'POST',

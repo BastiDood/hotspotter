@@ -1,5 +1,5 @@
 import { CellSignalInfo, Sim } from './cell';
-import { type Output, array, bigint, coerce, date, merge, number, object, record, string, url } from 'valibot';
+import { type Output, any, array, bigint, coerce, date, merge, number, object, record, string, url } from 'valibot';
 import { AccessPoint } from './wifi';
 import { Location } from './gps';
 
@@ -22,6 +22,10 @@ export const Data = object({
 });
 
 export type Data = Output<typeof Data>;
+
+export const DumpBatch = array(object({}, any()));
+
+export type DumpBatch = Output<typeof DumpBatch>;
 
 const Circle = object({
     lon: number(),

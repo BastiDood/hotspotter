@@ -1,6 +1,13 @@
 import { CellSignalStrength, type SignalStrength } from '$lib/models/cell';
-import { type CellType, type Data, HexagonAccessPointCount, LeaderboardUsers, UserRankScore } from '$lib/models/api';
-import { bigint, number, object, parse, string, uuid } from 'valibot';
+import {
+    type CellType,
+    type Data,
+    type DumpBatch,
+    HexagonAccessPointCount,
+    LeaderboardUsers,
+    UserRankScore,
+} from '$lib/models/api';
+import { array, bigint, number, object, parse, string, uuid } from 'valibot';
 import { POSTGRES_URL } from '$lib/server/env';
 import type { User } from '$lib/jwt';
 import { assert } from '$lib/assert';
@@ -13,6 +20,7 @@ type Sql = typeof sql;
 
 const BigId = object({ id: bigint() });
 const Uuid = object({ id: string([uuid()]) });
+const UuidBatch = array(Uuid);
 const CountResult = object({ result: number() });
 const HexResult = object({ result: HexagonAccessPointCount });
 
@@ -200,13 +208,11 @@ export async function fetchLeaderboard(limit = 25) {
     return parse(LeaderboardUsers, users);
 }
 
-export function dumpReading({ sub, name, email, picture }: User, json: unknown) {
+export function dumpReadings({ sub, name, email, picture }: User, json: DumpBatch) {
     return sql.begin(async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
-        const [id, ...rest] =
-            await sql`INSERT INTO hotspotter.quarantine (user_id, reading) VALUES (${sub}, ${JSON.stringify(json)}::JSONB) RETURNING reading_id id`;
-        assert(rest.length === 0);
-        assert(typeof id !== 'undefined');
-        return parse(Uuid, id).id;
+        const values = json.map(reading => ({ user_id: sub, reading }));
+        const ids = await sql`INSERT INTO hotspotter.quarantine ${sql(values)} RETURNING reading_id id`;
+        return parse(UuidBatch, ids).map(({ id }) => id);
     });
 }
