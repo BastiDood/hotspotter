@@ -134,8 +134,8 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       ol:
-        specifier: ^9.2.1
-        version: 9.2.1
+        specifier: ^9.2.2
+        version: 9.2.2
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
@@ -1121,8 +1121,8 @@ packages:
   colord@2.9.3:
     resolution: {integrity: sha512-jeC1axXpnb0/2nn/Y1LPuLdgXBLH7aDcHu4KEKfqw3CUhX7ZpfBSlPKyqXE6btIgEzfWtrX3/tyBCaCvXvMkOw==}
 
-  commander@12.0.0:
-    resolution: {integrity: sha512-MwVNWlYjDTtOjX5PiD7o5pK0UrFU/OYgcJfjjK4RaHZETNtjJqrZa9Y9ds88+A+f+d5lv+561eZ+yCKoS3gbAA==}
+  commander@12.1.0:
+    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
     engines: {node: '>=18'}
 
   commander@4.1.1:
@@ -2050,8 +2050,8 @@ packages:
     resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
     engines: {node: '>= 6'}
 
-  ol@9.2.1:
-    resolution: {integrity: sha512-aMaVieM5B5UiUxkOvjf00TWjJPJe+yDJu8hlmTGiElo4rVIxPqO1eibu5OIrIxCZyBh+rWwwjxp4xUIWSaERZg==}
+  ol@9.2.2:
+    resolution: {integrity: sha512-YkuZW5MQTiKrr/0al1xuKarctNRvVj/anHZuq8rYMMq5BECG5E8rEOENOVFxhrbMX6T+un48D1Q0GtqBmU8Qdg==}
 
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
@@ -4087,7 +4087,7 @@ snapshots:
 
   colord@2.9.3: {}
 
-  commander@12.0.0: {}
+  commander@12.1.0: {}
 
   commander@4.1.1: {}
 
@@ -5015,7 +5015,7 @@ snapshots:
 
   object-hash@3.0.0: {}
 
-  ol@9.2.1:
+  ol@9.2.2:
     dependencies:
       color-rgba: 3.0.0
       color-space: 2.0.1
@@ -5278,7 +5278,7 @@ snapshots:
 
   purgecss@6.0.0:
     dependencies:
-      commander: 12.0.0
+      commander: 12.1.0
       glob: 10.3.15
       postcss: 8.4.38
       postcss-selector-parser: 6.0.16
