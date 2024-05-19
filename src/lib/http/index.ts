@@ -37,6 +37,31 @@ export async function uploadReadings(jwt: string, data: Data[]) {
     }
 }
 
+export async function dumpReadings(jwt: string, data: Data) {
+    const url = new URL('api/quarantine', PUBLIC_HOTSPOTTER_URL);
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            Authorization: `Bearer ${jwt}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
+    switch (response.status) {
+        case 201:
+            return;
+        case 400:
+            throw new MalformedAuthorizationError();
+        case 401:
+            throw new EmptyAuthorizationError();
+        case 504:
+            throw new ProviderTimeoutError();
+        default:
+            throw new UnexpectedStatusCodeError(response.status);
+    }
+}
+
 export async function fetchHexagons(
     cellType: CellType,
     minX: number,
