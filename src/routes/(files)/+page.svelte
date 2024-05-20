@@ -8,6 +8,8 @@
     import SuccessAlert from '$lib/alerts/Success.svelte';
     import WarningAlert from '$lib/alerts/Warning.svelte';
 
+    import WakeLockToggle from './WakeLockToggle.svelte';
+
     import { Icon } from '@steeze-ui/svelte-icon';
     import { ShieldCheck } from '@steeze-ui/heroicons';
 
@@ -117,6 +119,8 @@
             <span class="text-sm">The loop service is unavailable in the web version.</span>
         </ErrorAlert>
     {/each}
+    <hr />
+    <WakeLockToggle />
     <hr />
     <h3 class="h3">Cached Readings</h3>
     {#if readings.length === 0}
