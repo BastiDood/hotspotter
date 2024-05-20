@@ -63,7 +63,7 @@ public class LocationInfo {
         while (true)
             try {
                 Log.i("LocationInfo", "getting async " + provider + " location");
-                return future.get(5, TimeUnit.SECONDS);
+                return future.get(10, TimeUnit.SECONDS);
             } catch (TimeoutException ex) {
                 Log.w("LocationInfo", "five-second timeout for async " + provider + " location expired", ex);
                 return null;
