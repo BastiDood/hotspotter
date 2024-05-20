@@ -47,7 +47,6 @@
         "@sveltejs/adapter-vercel": "^5.3.0",
         "@sveltejs/kit": "^2.5.9",
         "@sveltejs/vite-plugin-svelte": "^3.1.0",
-        "@tailwindcss/typography": "^0.5.13",
         "@types/cookie": "^0.6.0",
         "@types/path-browserify": "^1.0.2",
         "@typescript-eslint/eslint-plugin": "^7.9.0",

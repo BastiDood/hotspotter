@@ -1,7 +1,6 @@
 import { type CustomThemeConfig, skeleton } from '@skeletonlabs/tw-plugin';
 import type { Config } from 'tailwindcss';
 import { join } from 'node:path';
-import typo from '@tailwindcss/typography';
 
 const theme = {
     name: 'hotspotter',
@@ -111,5 +110,5 @@ export default {
         join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}'),
     ],
     safelist: ['container'],
-    plugins: [typo, skeleton({ themes: { custom: [theme] } })],
+    plugins: [skeleton({ themes: { custom: [theme] } })],
 } satisfies Config;
