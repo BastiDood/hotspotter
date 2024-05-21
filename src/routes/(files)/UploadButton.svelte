@@ -79,20 +79,20 @@
                         break;
                     case 'rejected':
                         console.error(result.reason);
+                        if (result.reason instanceof Cache.ReadError) {
+                            const valiResult = safeParse(DumpBatch, result.reason.value);
+                            if (valiResult.success) {
+                                dumps.push(valiResult.output);
+                                paths.push(result.reason.path);
+                            } else
+                                toast.trigger({
+                                    message: `[${result.reason.name}]: ${result.reason.path} is corrupted. ${result.reason.message}`,
+                                    background: 'variant-filled-error',
+                                    autohide: false,
+                                });
+                            break;
+                        }
                         if (result.reason instanceof Error) {
-                            if (result.reason instanceof Cache.ReadError) {
-                                const valiResult = safeParse(DumpBatch, result.reason.value);
-                                if (valiResult.success) {
-                                    dumps.push(valiResult.output);
-                                    paths.push(result.reason.path);
-                                } else
-                                    toast.trigger({
-                                        message: `[${result.reason.name}]: ${result.reason.path} is corrupted. ${result.reason.message}`,
-                                        background: 'variant-filled-error',
-                                        autohide: false,
-                                    });
-                                break;
-                            }
                             toast.trigger({
                                 message: `[${result.reason.name}]: ${result.reason.message}`,
                                 background: 'variant-filled-error',
