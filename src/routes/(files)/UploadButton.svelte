@@ -80,7 +80,7 @@
                     case 'rejected':
                         console.error(result.reason);
                         if (result.reason instanceof Cache.ReadError) {
-                            const valiResult = safeParse(DumpBatch, result.reason.value);
+                            const valiResult = safeParse(DumpBatch.item, result.reason.value);
                             if (valiResult.success) {
                                 dumps.push(valiResult.output);
                                 paths.push(result.reason.path);
