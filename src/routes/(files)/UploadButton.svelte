@@ -74,7 +74,7 @@
             return;
         }
 
-        const batchSize = batch === null ? 20 : parseInt(batch, 10);
+        const batchSize = batch ? parseInt(batch, 10) : 20;
         if (!isFinite(batchSize)) {
             toast.trigger({
                 message: 'Batch number must be finite.',
