@@ -121,16 +121,18 @@
     {/each}
     <hr />
     <WakeLockToggle />
+    {#if readings.length > 0}
+        <div class="grid grid-cols-2 gap-2">
+            <ScanButton bind:disabled />
+            <ClearButton bind:disabled />
+        </div>
+    {/if}
     <hr />
     <h3 class="h3">Cached Readings</h3>
     {#if readings.length === 0}
         <SuccessAlert>All readings synchronized. &#x1F389;</SuccessAlert>
     {:else}
         <UploadButton bind:disabled />
-        <div class="grid grid-cols-2 gap-2">
-            <ScanButton bind:disabled />
-            <ClearButton bind:disabled />
-        </div>
         <DisplayData {readings} />
     {/if}
 </div>
