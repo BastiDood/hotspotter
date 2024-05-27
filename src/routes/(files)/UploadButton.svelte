@@ -36,7 +36,7 @@
                 console.error(err);
                 if (err instanceof ProviderTimeoutError)
                     toast.trigger({
-                        message: `[${err.name}]: The server timed out. Please try again later. ${err.message}`,
+                        message: `[${err.name}]: The server timed out. Please try again later or set a smaller batch size. ${err.message}`,
                         background: 'variant-filled-warning',
                         autohide: false,
                     });
@@ -54,16 +54,35 @@
         }
     }
 
-    async function sync() {
+    async function sync(form: HTMLFormElement) {
         const jwt = cookie.parse(document.cookie)['id'];
         if (typeof jwt === 'undefined') {
             toast.trigger({
                 message: 'User is not logged in.',
                 background: 'variant-filled-error',
-                autohide: false,
             });
             return;
         }
+
+        const data = new FormData(form);
+        const batch = data.get('batch');
+        if (batch instanceof File) {
+            toast.trigger({
+                message: 'Batch number cannot be a file.',
+                background: 'variant-filled-error',
+            });
+            return;
+        }
+
+        const batchSize = batch === null ? 20 : parseInt(batch, 10);
+        if (!isFinite(batchSize)) {
+            toast.trigger({
+                message: 'Batch number must be finite.',
+                background: 'variant-filled-error',
+            });
+            return;
+        }
+
         disabled = true;
         try {
             const files = await Cache.read();
@@ -121,7 +140,7 @@
                 });
             }
 
-            for (const chunk of chunked(readings, 20)) {
+            for (const chunk of chunked(readings, batchSize)) {
                 const score = await tryUpload(jwt, chunk);
                 await invalidateAll();
                 if (score === null) continue;
@@ -146,7 +165,10 @@
     }
 </script>
 
-<button type="button" {disabled} class="variant-filled-secondary btn" on:click={sync}>
-    <Icon src={CloudArrowUp} theme="outline" class="h-6 w-min" />
-    <span>Upload</span>
-</button>
+<form on:submit|preventDefault|stopPropagation={({ currentTarget }) => sync(currentTarget)}>
+    <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] items-center">
+        <div class="input-group-shim h-full"><Icon src={CloudArrowUp} theme="mini" class="size-6" /></div>
+        <input type="number" name="batch" min="1" max="20" placeholder="Batch Size (Default: 20)" class="px-3 py-2" />
+        <button type="submit" {disabled} class="variant-filled-secondary h-full">Upload</button>
+    </div>
+</form>

@@ -126,9 +126,9 @@
     {#if readings.length === 0}
         <SuccessAlert>All readings synchronized. &#x1F389;</SuccessAlert>
     {:else}
-        <div class="grid grid-cols-3 gap-2">
+        <UploadButton bind:disabled />
+        <div class="grid grid-cols-2 gap-2">
             <ScanButton bind:disabled />
-            <UploadButton bind:disabled />
             <ClearButton bind:disabled />
         </div>
         <DisplayData {readings} />
