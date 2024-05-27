@@ -74,7 +74,7 @@
             return;
         }
 
-        const batchSize = batch ? parseInt(batch, 10) : 20;
+        const batchSize = batch ? parseInt(batch, 10) : 10;
         if (!isFinite(batchSize)) {
             toast.trigger({
                 message: 'Batch number must be finite.',
@@ -168,7 +168,7 @@
 <form on:submit|preventDefault|stopPropagation={({ currentTarget }) => sync(currentTarget)}>
     <div class="input-group input-group-divider grid-cols-[auto_1fr_auto] items-center">
         <div class="input-group-shim h-full"><Icon src={CloudArrowUp} theme="mini" class="size-6" /></div>
-        <input type="number" name="batch" min="1" max="20" placeholder="Batch Size (Default: 20)" class="px-3 py-2" />
+        <input type="number" name="batch" min="1" max="10" placeholder="Batch Size (Default: 10)" class="px-3 py-2" />
         <button type="submit" {disabled} class="variant-filled-secondary h-full">Upload</button>
     </div>
 </form>
