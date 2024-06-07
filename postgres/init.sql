@@ -83,7 +83,7 @@ CREATE SCHEMA hotspotter
         -- Cellular
         network_type INT,
         carrier_id INT,
-        operator_id INT NOT NULL,
+        operator_id TEXT NOT NULL,
         -- Signal
         cell_timestamp TIMESTAMPTZ NOT NULL,
         cdma_id BIGINT REFERENCES cdma(cdma_id),
