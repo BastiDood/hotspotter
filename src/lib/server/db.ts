@@ -91,7 +91,7 @@ async function insertThenComputeCellMultiplier(
     return { id, score };
 }
 
-async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
+async function insertReadingWithScore(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
     const insertThenCompute = insertThenComputeCellMultiplier.bind(
         null,
         sql,
@@ -129,7 +129,7 @@ async function insertReading(sql: Sql, sub: string, { gps, sim, wifi }: Data) {
 export function uploadReadings({ sub, email, name, picture }: User, readings: Data[]) {
     return sql.begin(async sql => {
         await sql`INSERT INTO hotspotter.users (user_id, name, email, picture) VALUES (${sub}, ${name}, ${email}, ${picture}) ON CONFLICT (user_id) DO UPDATE SET email = ${email}, picture = ${picture}`;
-        const scores = await Promise.all(readings.map(reading => insertReading(sql, sub, reading)));
+        const scores = await Promise.all(readings.map(reading => insertReadingWithScore(sql, sub, reading)));
         const total = scores.reduce((prev, curr) => prev + curr, 0);
         await sql`UPDATE hotspotter.users SET score = score + ${total} WHERE user_id = ${sub}`;
         return total;
