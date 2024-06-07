@@ -45,9 +45,12 @@ export const AccessPoint = object(
         level: number([safeInteger()]),
         max_level: number([safeInteger()]),
         frequency: number([safeInteger()]),
-        channel_width: coerce(nullable(number([safeInteger(), minValue(0), maxValue(5)])), coerceUnspecified),
-        center_freq_0: coerce(nullable(number([safeInteger()])), coerceUnspecified),
-        center_freq_1: coerce(nullable(number([safeInteger()])), coerceUnspecified),
+        channel_width: coerce(
+            optional(nullable(number([safeInteger(), minValue(0), maxValue(5)])), null),
+            coerceUnspecified,
+        ),
+        center_freq_0: coerce(optional(nullable(number([safeInteger()])), null), coerceUnspecified),
+        center_freq_1: coerce(optional(nullable(number([safeInteger()])), null), coerceUnspecified),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         wifi_timestamp: coerce(date(), input => new Date(input as any)),
         standard: optional(nullable(enum_(Standard))),

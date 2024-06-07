@@ -33,9 +33,9 @@ public class WifiInfo {
                 .putSafe("ssid", result.SSID)
                 .putSafe("rssi", result.level)
                 .putSafe("frequency", result.frequency)
-                .putSafe("channel_width", result.channelWidth == ScanResult.UNSPECIFIED ? null : result.channelWidth)
-                .putSafe("center_freq_0", result.centerFreq0 == ScanResult.UNSPECIFIED ? null : result.centerFreq0)
-                .putSafe("center_freq_1", result.centerFreq1 == ScanResult.UNSPECIFIED ? null : result.centerFreq1)
+                .putSafe("channel_width", result.channelWidth == ScanResult.UNSPECIFIED ? JSObject.NULL : result.channelWidth)
+                .putSafe("center_freq_0", result.centerFreq0 == ScanResult.UNSPECIFIED ? JSObject.NULL : result.centerFreq0)
+                .putSafe("center_freq_1", result.centerFreq1 == ScanResult.UNSPECIFIED ? JSObject.NULL : result.centerFreq1)
                 .putSafe("wifi_timestamp", unix);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
                 return json
