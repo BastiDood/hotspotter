@@ -135,7 +135,9 @@ export const Nr = object({
     dbm: coerce(optional(union([integerRange(-140, -44), literal(0x7fffffff)])), coerceValidNumber3gpp),
     asu: coerce(optional(nullable(number([safeInteger(), minValue(0), maxValue(97)]))), coerceValidNumber3gpp),
     csi_cqi_report: optional(
-        array(transform(union([integerRange(0, 15), literal(0x7fffffff)]), transformUnavailableCellInfoToNull)),
+        array(
+            nullable(transform(union([integerRange(0, 15), literal(0x7fffffff)]), transformUnavailableCellInfoToNull)),
+        ),
     ),
     csi_cqi_table_index: optional(integerRange(1, 3)),
     csi_rsrp: optional(integerRange(-156, -31)),
