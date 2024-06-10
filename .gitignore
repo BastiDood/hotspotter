@@ -4,6 +4,7 @@
 /.svelte-kit
 /build
 /data
+/data.bak
 
 /.vscode
 /node_modules
