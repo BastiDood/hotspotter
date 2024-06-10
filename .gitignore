@@ -5,6 +5,7 @@
 /build
 /data
 /data.bak
+/src/**/*.json
 
 /.vscode
 /node_modules
