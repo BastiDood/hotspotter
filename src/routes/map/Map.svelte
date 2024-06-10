@@ -16,6 +16,7 @@
     import 'ol/ol.css';
     import * as Network from '$lib/controls/network';
     import * as Operator from '$lib/controls/operator';
+    import * as Satellite from '$lib/controls/Satellite';
     import * as Temporal from '$lib/controls/temporal';
     import * as datetime from '@easepick/datetime';
     import { Circle, Polygon } from 'ol/geom';
@@ -36,12 +37,6 @@
     import { onMount } from 'svelte';
     import { validateExtent } from '$lib/util';
 
-    const osmLayer = new WebGLTileLayer({ preload: Infinity });
-    $: tileUrl = $modeCurrent
-        ? 'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{scale}.png'
-        : 'https://tiles.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{scale}.png';
-    $: osmLayer.setSource(new OpenStreetMap({ url: tileUrl }));
-
     /** Non-reactive prop only used for initializing view center. */
     // eslint-disable-next-line init-declarations
     export let coords: Coords;
@@ -52,9 +47,19 @@
     // eslint-disable-next-line init-declarations
     const dashboard = new DashboardControl(center);
     const networkStore = Network.get();
+    const satelliteStore = Satellite.get();
     const startDateStore = Temporal.getStart();
     const endDateStore = Temporal.getEnd();
     const operatorStore = Operator.get();
+
+    const osmLayer = new WebGLTileLayer({ preload: Infinity });
+    $: tileShadeUrl = $modeCurrent
+        ? 'https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{scale}.png'
+        : 'https://tiles.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{scale}.png';
+    $: tileModeUrl = $satelliteStore
+        ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        : tileShadeUrl;
+    $: osmLayer.setSource(new OpenStreetMap({ url: tileModeUrl }));
 
     const gps = new Circle(center, accuracy);
     const gpsFeature = new Feature(gps);

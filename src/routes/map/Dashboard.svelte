@@ -2,10 +2,12 @@
     import { CellType } from '$lib/models/api';
     import type { Coordinate } from 'ol/coordinate';
     import OpenDrawerButton from './OpenDrawerButton.svelte';
+    import { SlideToggle } from '@skeletonlabs/skeleton';
     import { View } from 'ol';
 
     import * as Network from '$lib/controls/network';
     import * as Operator from '$lib/controls/operator';
+    import * as Satellite from '$lib/controls/Satellite';
 
     import CellLegend from './CellLegend.svelte';
     import WifiLegend from './WifiLegend.svelte';
@@ -28,6 +30,9 @@
 
     /** Filter the data points by this age. */
     const operator = Operator.get();
+
+    /** Whether to view the basemap in satellite view. */
+    const satellite = Satellite.get();
 </script>
 
 <div class="pointer-events-none grid h-full grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto] gap-4 p-4 text-xs">
@@ -38,6 +43,11 @@
                 <Operator.Select name="operator" bind:value={$operator} />
             {/if}
         </div>
+    </div>
+    <div class="col-start-1 row-start-2">
+        <SlideToggle name="satellite" active="bg-primary-600" class="pointer-events-auto" bind:checked={$satellite}
+            >Satellite</SlideToggle
+        >
     </div>
     <div class="col-start-1 row-start-3 flex gap-2">
         <OpenDrawerButton />

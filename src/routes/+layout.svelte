@@ -2,6 +2,7 @@
     import './app.css';
     import * as Network from '$lib/controls/network';
     import * as Operator from '$lib/controls/operator';
+    import * as Satellite from '$lib/controls/Satellite';
     import * as Temporal from '$lib/controls/temporal';
     import { AppBar, AppShell, Drawer, LightSwitch, Toast, initializeStores } from '@skeletonlabs/skeleton';
     import { App } from '@capacitor/app';
@@ -14,6 +15,7 @@
     initializeStores();
     Network.init();
     Operator.init();
+    Satellite.init();
     Temporal.initStart();
     Temporal.initEnd();
 
