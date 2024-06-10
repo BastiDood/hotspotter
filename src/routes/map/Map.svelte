@@ -113,17 +113,16 @@
         const gpsLayer = new VectorLayer({
             source: new VectorSource({ features: new Collection([gpsFeature]) }),
         });
+        const stroke = new Stroke({ color: '#3aa76c80', width: 2 });
         const hexLayer = new VectorLayer({
             source: new VectorSource({ features: hexFeatures }),
             style(feature) {
                 const color = feature.get('color');
                 if (typeof color !== 'string') return;
-                return [
-                    new Style({
-                        fill: new Fill({ color }),
-                        stroke: new Stroke({ color: '#3aa76c80', width: 2 }),
-                    }),
-                ];
+                const count = feature.get('count');
+                if (typeof count !== 'number') return;
+                const style = count === 0 ? { stroke } : { fill: new Fill({ color }), stroke };
+                return [new Style(style)];
             },
         });
         const map = new Map({
