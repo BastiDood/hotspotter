@@ -7,8 +7,6 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 export default {
     extensions: ['.svelte'],
     preprocess: vitePreprocess(),
-    // HACK: We turn off strict mode so that API endpoints can work.
-    // HACK: Prefer a more sustainable adapter switcher solution.
     // eslint-disable-next-line no-undef
-    kit: { adapter: process.env.MOBILE === '1' ? adapterStatic({ strict: false }) : adapterVercel() },
+    kit: { adapter: process.env.MOBILE === '1' ? adapterStatic({ fallback: '404.html' }) : adapterVercel() },
 };
