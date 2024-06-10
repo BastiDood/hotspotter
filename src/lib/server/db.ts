@@ -152,15 +152,18 @@ export async function aggregateAccessPoints(
     startDate: Date | null,
     endDate: Date | null,
 ) {
-    const unique = sql`SELECT DISTINCT ON (trunc(bssid), ssid) reading_id, wifi_timestamp FROM hotspotter.wifi WHERE ssid <> ''`;
+    const resolution = resolveResolution(minX, maxX);
     const isWithinBoundingBox = sql`coords::POINT <@ BOX(POINT(${minX}, ${minY}), POINT(${maxX}, ${maxY}))`;
     const lowerBound = startDate === null ? sql`TIMESTAMPTZ '-infinity'` : sql`${startDate}`;
     const upperBound = endDate === null ? sql`TIMESTAMPTZ 'infinity'` : sql`${endDate}`;
-    const minHistory = sql`SELECT reading_id, min(wifi_timestamp) ts FROM (${unique}) uniq GROUP BY reading_id`;
-    const resolution = resolveResolution(minX, maxX);
-    const hexes = sql`SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex FROM (${minHistory}) min_history JOIN hotspotter.readings USING (reading_id) WHERE ${lowerBound} <= ts AND ts <= ${upperBound} AND ${isWithinBoundingBox}`;
+
+    const unique = sql`SELECT DISTINCT ON (trunc(bssid), ssid) reading_id FROM hotspotter.wifi WHERE ssid <> '' AND ${lowerBound} <= wifi_timestamp AND wifi_timestamp <= ${upperBound}`;
+    const wifi = sql`SELECT reading_id, count(reading_id) FROM (${unique}) uniq GROUP BY reading_id`;
+    const readings = sql`SELECT h3_lat_lng_to_cell(coords::POINT, ${resolution}) hex, count FROM hotspotter.readings LEFT JOIN (${wifi}) wifi USING (reading_id) WHERE ${lowerBound} <= gps_timestamp AND gps_timestamp <= ${upperBound} AND ${isWithinBoundingBox}`;
+    const hexes = sql`SELECT hex, coalesce(sum(count), 0) count FROM (${readings}) readings GROUP BY hex`;
+
     const [first, ...rest] =
-        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}'::JSONB) result FROM (SELECT hex, count(hex) FROM (${hexes}) hexes GROUP BY hex) _`;
+        await sql`SELECT coalesce(jsonb_object_agg(hex, count), '{}'::JSONB) result FROM (${hexes}) hexes`;
     assert(rest.length === 0);
     assert(typeof first !== 'undefined');
     return parse(HexResult, first).result;
