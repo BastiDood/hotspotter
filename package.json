@@ -59,7 +59,7 @@
         "dotenv": "^16.4.5",
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^9.1.0",
-        "eslint-plugin-svelte": "^2.39.2",
+        "eslint-plugin-svelte": "^2.39.3",
         "h3-js": "^4.1.0",
         "itertools": "^2.3.2",
         "jose": "^5.4.0",
