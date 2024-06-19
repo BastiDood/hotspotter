@@ -105,7 +105,7 @@ const theme = {
 export default {
     darkMode: 'class',
     content: [
-        './src/**/*.{css,html,js,svelte,ts}',
+        './src/**/*.{html,js,svelte,ts}',
         // eslint-disable-next-line no-undef
         join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}'),
     ],
