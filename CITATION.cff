@@ -1,0 +1,12 @@
+cff-version: '1.2.0'
+message: 'If you use this software, please cite it as below.'
+title: 'Hotspotter'
+abstract: 'Hotspotter is an incentivized crowdsensing system for the visualization of Wi-Fi and cellular network coverage.'
+authors:
+  - family-names: 'Ortiz'
+    given-names: 'Sebastian Luis'
+    orcid: 'https://orcid.org/0009-0007-9631-8708'
+  - family-names: 'Enriquez'
+    given-names: 'Justin Gabriel'
+date-released: '2024-07-07'
+repository-code: 'https://github.com/citation-file-format/my-research-software'
