@@ -1,3 +1,19 @@
+# Hotspotter
+
+> [!NOTE]
+> The official paper for Hotspotter is currently pending acceptance and publication into a conference. Until then, it cannot be included nor linked in this repository. Once this is available, the repository will be updated with the relevant links and details.
+
+Hotspotter is an incentivized crowdsensing system that collects, maps, and visualizes WiFi and cellular data to pinpoint hotspots and dead zones for the effective visualization of network coverage.
+
+The system is composed of three subsystems: the database subsystem (PostgreSQL + Uber H3), the web subsystem (SvelteKit), and the mobile subsystem (Android + CapacitorJS + SvelteKit). The Android API enables data collection via the [Fused Location Provider API], the [Telephony Manager API], [WiFi Manager API], and [Google identity providers][google-identity-provider]. More details on the system design can be found in the published paper.
+
+[Fused Location Provider API]: https://developers.google.com/location-context/fused-location-provider/
+[Telephony Manager API]: https://developer.android.com/reference/android/telephony/TelephonyManager
+[WiFi Manager API]: https://developer.android.com/reference/android/net/wifi/WifiManager
+[google-identity-provider]: https://developers.google.com/identity
+
+![Hotspotter system design featuring the database, web, and mobile subsystems](./docs/system-design.png)
+
 # Development
 
 The mobile application is a single-page [SvelteKit] application powered by the [Capacitor] runtime for cross-platform WebView-based applications. However, this project only targets the Android platform for now.
@@ -186,3 +202,5 @@ pnpm lint:svelte # svelte-check
 # Check All Lints
 pnpm lint
 ```
+
+# Acknowledgements
