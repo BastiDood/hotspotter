@@ -19,9 +19,7 @@
         "lint:html": "linthtml src/**/*.html",
         "lint:css": "stylelint src/**/*.css",
         "lint:js": "eslint **/*.{js,svelte,ts}",
-        "lint:svelte": "svelte-check --tsconfig ./tsconfig.json",
-        "test": "vitest run",
-        "test:watch": "vitest"
+        "lint:svelte": "svelte-check --tsconfig ./tsconfig.json"
     },
     "devDependencies": {
         "@capacitor/android": "^6.1.1",
@@ -78,8 +76,7 @@
         "typescript": "^5.5.4",
         "valibot": "^0.30.0",
         "vite": "^5.3.5",
-        "vite-plugin-tailwind-purgecss": "^0.3.3",
-        "vitest": "^1.6.0"
+        "vite-plugin-tailwind-purgecss": "^0.3.3"
     },
     "pnpm": {
         "patchedDependencies": {
