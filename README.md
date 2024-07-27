@@ -1,6 +1,6 @@
 # Hotspotter
 
-> [!NOTE]
+> [!WARNING]
 > The official paper for Hotspotter is currently pending acceptance and publication into a conference. Until then, it cannot be included nor linked in this repository. Once this is available, the repository will be updated with the relevant links and details.
 
 <img align="left" height="128" src="./docs/hotspotter.svg" />
