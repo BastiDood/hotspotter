@@ -3,6 +3,8 @@
 > [!NOTE]
 > The official paper for Hotspotter is currently pending acceptance and publication into a conference. Until then, it cannot be included nor linked in this repository. Once this is available, the repository will be updated with the relevant links and details.
 
+<img align="left" height="128" src="./docs/hotspotter.svg" />
+
 Hotspotter is an incentivized crowdsensing system that collects, maps, and visualizes WiFi and cellular data to pinpoint hotspots and dead zones for the effective visualization of network coverage.
 
 The system is composed of three subsystems: the database subsystem (PostgreSQL + Uber H3), the web subsystem (SvelteKit), and the mobile subsystem (Android + CapacitorJS + SvelteKit). The Android API enables data collection via the [Fused Location Provider API], the [Telephony Manager API], [WiFi Manager API], and [Google identity providers][google-identity-provider]. More details on the system design can be found in the published paper.
@@ -204,3 +206,24 @@ pnpm lint
 ```
 
 # Acknowledgements
+
+This project was developed in fulfillment of the final requirements for the attainment of a Bachelor of Science degree in Computer Science under the [Department of Computer Science], [College of Engineering], [University of the Philippines] [Diliman].
+
+[Department of Computer Science]: https://dcs.upd.edu.ph/
+[College of Engineering]: https://coe.upd.edu.ph/
+[University of the Philippines]: https://up.edu.ph/
+[Diliman]: https://upd.edu.ph/
+
+The following researchers were involved in this year-long project:
+
+* [Sebastian Luis S. Ortiz](https://orcid.org/0009-0007-9631-8708)
+* [Justin Gabriel R. Enriquez](https://orcid.org/0009-0005-0203-0179)
+
+The research conducted in this project would not have been possible if it weren't for the following research advisers:
+
+* [Dr. Wilson M. Tan](https://dcs.upd.edu.ph/people/wilson-m-tan/)
+* [Dr. Cedric Angelo M. Festin](https://dcs.upd.edu.ph/people/cedric-angelo-festin/)
+
+The [Hotspotter logo](./src/lib/logo/hotspotter.svg) was designed and created by:
+
+* [Angelica Julianne A. Raborar](https://github.com/Anjellyrika)
