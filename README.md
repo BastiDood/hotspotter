@@ -139,7 +139,7 @@ pnpm build
 ```
 
 > [!WARNING]
-> Whenever changes are made to the [SvelteKit] application, the `build/` folder must be rebuild with the `pnpm build` command. Many hours of debugging can be wasted on outdated build artifacts.
+> Whenever changes are made to the [SvelteKit] application, the `build/` folder must be rebuilt with the `pnpm build` command. Many hours of debugging can be wasted on outdated build artifacts.
 
 ### Signing the Mobile Application
 
