@@ -1,7 +1,10 @@
 # Hotspotter
 
-> [!WARNING]
-> The official paper for Hotspotter is currently pending acceptance and publication into a conference. Until then, it cannot be included nor linked in this repository. Once this is available, the repository will be updated with the relevant links and details.
+> [!NOTE]
+> Presented at the [2024 IEEE 29th Asia Pacific Conference on Communications (APCC)][apcc-2024] in Bali, Indonesia last 2024 November 5–7, the [official paper][hotspotter] for the Hotspotter project is now officially published by IEEE.
+
+[apcc-2024]: https://apcc2024.org/
+[hotspotter]: https://doi.org/10.1109/APCC62576.2024.10767933
 
 <img align="left" height="128" src="./docs/hotspotter.svg" />
 
